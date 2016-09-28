@@ -29,7 +29,3 @@ FOUNDATION_EXPORT double TaxonomyKitVersionNumber;
 
 //! Project version string for TaxonomyKit.
 FOUNDATION_EXPORT const unsigned char TaxonomyKitVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <TaxonomyKit/PublicHeader.h>
-
-

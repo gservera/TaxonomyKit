@@ -39,39 +39,4 @@ final class TaxonomyTests: XCTestCase {
         XCTAssertNotNil(Taxonomy())
     }
 
-    
-    //MARK: Download
-    
-    func testDownloadTaxon() {
-        let query = "58334"
-        let condition = expectation(description: "Finished")
-        
-        Taxonomy.downloadTaxon(withIdentifier: query) { (taxon, error) in
-            XCTAssertNil(error)
-            XCTAssertNotNil(taxon)
-            condition.fulfill()
-        }
-        
-        waitForExpectations(timeout: 1000, handler: nil)
-    }
-    
-    func testDownloadUnknownTaxon() {
-        let query = "anpafnpanpifadn"
-        let condition = expectation(description: "Finished")
-        
-        Taxonomy.downloadTaxon(withIdentifier: query) { (taxon, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(taxon)
-            switch error! {
-            case .badRequest(_):
-                condition.fulfill()
-            default:
-                break;
-            }
-            
-        }
-        
-        waitForExpectations(timeout: 1000, handler: nil)
-    }
-    
 }

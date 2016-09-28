@@ -173,6 +173,10 @@ public struct Taxonomy {
                     do {
                         let xmlDoc = try AEXMLDocument(xml: data)
                         let taxonRoot = xmlDoc["TaxaSet"]["Taxon"]
+                        guard taxonRoot.count > 0 else {
+                            callback(nil, .unknownError)
+                            return
+                        }
                         let name = taxonRoot["ScientificName"].value
                         //TODO: Multiple common names (implode?)
                         let commonName = taxonRoot["OtherNames"]["CommonName"].value

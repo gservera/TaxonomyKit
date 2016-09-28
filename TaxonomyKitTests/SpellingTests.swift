@@ -1,5 +1,5 @@
 /*
- *  SpellingIdentifiers.swift
+ *  SpellingTests.swift
  *  TaxonomyKitTests
  *
  *  Created:    Guillem Servera on 24/09/2016.
