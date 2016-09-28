@@ -1,5 +1,5 @@
 /*
- *  TaxonomyKit.h
+ *  TaxonomyRequest.swift
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 24/09/2016.
@@ -23,13 +23,34 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-@import Foundation;
-//! Project version number for TaxonomyKit.
-FOUNDATION_EXPORT double TaxonomyKitVersionNumber;
-
-//! Project version string for TaxonomyKit.
-FOUNDATION_EXPORT const unsigned char TaxonomyKitVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <TaxonomyKit/PublicHeader.h>
 
 
+import Foundation
+
+internal enum TaxonomyRequest {
+    case download(identifier: TaxonID)
+    case search(query: String)
+    case spelling(failedQuery: String)
+    
+    var url: URL {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "eutils.ncbi.nlm.nih.gov"
+        var queryItems = [URLQueryItem(name: "db", value: "taxonomy")]
+        switch self {
+        case .download(let identifier):
+            components.path = "/entrez/eutils/efetch.fcgi"
+            queryItems.append(URLQueryItem(name: "id", value: identifier))
+        case .search(let query):
+            components.path = "/entrez/eutils/esearch.fcgi"
+            queryItems += [
+                URLQueryItem(name: "term", value: query),
+                URLQueryItem(name: "retmode", value: "json")
+            ]
+        case .spelling(let query): components.path = "/entrez/eutils/espell.fcgi"
+        queryItems.append(URLQueryItem(name: "term", value: query))
+        }
+        components.queryItems = queryItems
+        return components.url!
+    }
+}

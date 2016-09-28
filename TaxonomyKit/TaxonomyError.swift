@@ -1,5 +1,5 @@
 /*
- *  TaxonomyKit.h
+ *  TaxonomyError.swift
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 24/09/2016.
@@ -23,13 +23,22 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
-@import Foundation;
-//! Project version number for TaxonomyKit.
-FOUNDATION_EXPORT double TaxonomyKitVersionNumber;
-
-//! Project version string for TaxonomyKit.
-FOUNDATION_EXPORT const unsigned char TaxonomyKitVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <TaxonomyKit/PublicHeader.h>
 
 
+/// An error type that describes errors originated from the TaxonomyKit methods.
+///
+/// - badRequest:              The passed NCBI internal ID is invalid.
+/// - networkError:            A network error. More details can be found inspecting the
+///                            associated error object.
+/// - parseError:              An error due to a malformed XML/JSON object.
+/// - unexpectedResponseError: An unexpected server response (other than 200) from the
+///                            NCBI servers.
+/// - unknownError:            Any other error, including unexpected structure or missing values
+///                            in the XML/JSON data that was downloaded.
+public enum TaxonomyError: Error {
+    case badRequest(identifier: String)
+    case networkError(underlyingError: Error)
+    case parseError(message: String)
+    case unexpectedResponseError(code: Int)
+    case unknownError
+}
