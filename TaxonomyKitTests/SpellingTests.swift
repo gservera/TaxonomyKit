@@ -1,5 +1,5 @@
 /*
- *  FindIdentifiers.swift
+ *  SpellingIdentifiers.swift
  *  TaxonomyKitTests
  *
  *  Created:    Guillem Servera on 24/09/2016.
@@ -28,7 +28,7 @@
 import XCTest
 @testable import TaxonomyKit
 
-final class FindIdentifiersTests: XCTestCase {
+final class SpellingTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
@@ -37,31 +37,41 @@ final class FindIdentifiersTests: XCTestCase {
     
     //MARK: Find identifiers
     
-    func testSingleResult() {
-        let query = "Quercus ilex"
+    func testValidQueryResult() {
+        let query = "quercus ilex"
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: query) { (identifiers, error) in
+        Taxonomy.findSimilarSpelledCandidates(for: query) { (name, error) in
             XCTAssertNil(error)
-            XCTAssertNotNil(identifiers)
-            XCTAssertEqual(identifiers!.count, 1)
-            XCTAssertEqual(identifiers![0], "58334")
+            XCTAssertNil(name)
+            condition.fulfill()
+        }
+        waitForExpectations(timeout: 1000, handler: nil)
+    }
+    
+    func testMatchingResult() {
+        let query = "Quercus iles"
+        let condition = expectation(description: "Finished")
+        Taxonomy.findSimilarSpelledCandidates(for: query) { (name, error) in
+            XCTAssertNil(error)
+            XCTAssertNotNil(name)
+            XCTAssertEqual(name, "quercus ilex")
             condition.fulfill()
         }
         waitForExpectations(timeout: 1000, handler: nil)
     }
     
     func testUnmatchedQuery() {
-        let condition = expectation(description: "Unmatched query")
-        Taxonomy.findIdentifiers(for: "invalid-invalid-invalid") { (identifiers, error) in
+        let query = "ngosdkmpdmgpsmsndosdng"
+        let condition = expectation(description: "Finished")
+        Taxonomy.findSimilarSpelledCandidates(for: query) { (name, error) in
             XCTAssertNil(error)
-            XCTAssertNotNil(identifiers)
-            XCTAssertEqual(identifiers!.count, 0)
+            XCTAssertNil(name)
             condition.fulfill()
         }
         waitForExpectations(timeout: 1000, handler: nil)
     }
     
-    func testMalformedJSON() {
+    func testMalformedXML() {
         Taxonomy._urlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "http://github.com")!,
@@ -70,9 +80,9 @@ final class FindIdentifiersTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
+        Taxonomy.findSimilarSpelledCandidates(for: "anything") { (name, error) in
             XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
+            XCTAssertNil(name)
             switch error! {
             case .parseError(_): condition.fulfill()
             default:             break;
@@ -90,9 +100,9 @@ final class FindIdentifiersTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
+        Taxonomy.findSimilarSpelledCandidates(for: "anything") { (name, error) in
             XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
+            XCTAssertNil(name)
             switch error! {
             case .unexpectedResponseError(let code):
                 if code == 500 {
@@ -110,9 +120,9 @@ final class FindIdentifiersTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
+        Taxonomy.findSimilarSpelledCandidates(for: "anything") { (name, error) in
             XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
+            XCTAssertNil(name)
             switch error! {
             case .networkError(let error as NSError):
                 if error.code == -1 {
@@ -129,9 +139,9 @@ final class FindIdentifiersTests: XCTestCase {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
+        Taxonomy.findSimilarSpelledCandidates(for: "anything") { (name, error) in
             XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
+            XCTAssertNil(name)
             switch error! {
             case .unknownError(): condition.fulfill()
             default:              break;
@@ -147,12 +157,13 @@ final class FindIdentifiersTests: XCTestCase {
                             statusCode: 200,
                             httpVersion: "1.1",
                             headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
+        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><note><to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't forget me this weekend!</body></note>"
+        let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
+        Taxonomy.findSimilarSpelledCandidates(for: "anything") { (name, error) in
             XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
+            XCTAssertNil(name)
             switch error! {
             case .unknownError(): condition.fulfill()
             default:              break;

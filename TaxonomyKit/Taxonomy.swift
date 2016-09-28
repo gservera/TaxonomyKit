@@ -93,7 +93,8 @@ public struct Taxonomy {
     /// Sends an asynchronous request to the NCBI servers asking for record names spelled 
     /// similarly to an unmatched query.
     ///
-    /// - parameter failedQuery: The user-entered and unmatched search query
+    /// - parameter failedQuery: The user-entered and unmatched search query. If the query
+    ///                          is valid, the callback will be called with a `nil` value.
     /// - parameter callback:    A callback function that will be called when the request 
     ///                          completes or when an error occurs. This function has two 
     ///                          parameters, the first a string of the first candidate or `nil` 
@@ -119,12 +120,11 @@ public struct Taxonomy {
                 case 200:
                     do {
                         let xmlDoc = try AEXMLDocument(xml: data)
-                        if let taxonRoot = xmlDoc["eSpellResult"]["CorrectedQuery"].value {
-                            if taxonRoot.lowercased() != failedQuery.lowercased() {
-                                callback(taxonRoot, nil)
-                            } else {
-                                callback(nil, nil)
-                            }
+                        if let suggestedQuery = xmlDoc["eSpellResult"]["CorrectedQuery"].value {
+                            callback(suggestedQuery, nil)
+                        } else if xmlDoc["eSpellResult"].count == 1 {
+                            //Either the original query is valid or no candidates were found.
+                            callback(nil, nil)
                         } else {
                             callback(nil, .unknownError)
                         }

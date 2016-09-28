@@ -40,22 +40,6 @@ final class TaxonomyTests: XCTestCase {
     }
 
     
-    //MARK: Spelling
-    
-    func testSpelling() {
-        let query = "Quercus iles"
-        let condition = expectation(description: "Finished")
-        
-        Taxonomy.findSimilarSpelledCandidates(for: query) { (name, error) in
-            XCTAssertNil(error)
-            XCTAssertNotNil(name)
-            XCTAssertEqual(name, "quercus ilex")
-            condition.fulfill()
-        }
-        
-        waitForExpectations(timeout: 1000, handler: nil)
-    }
-    
     //MARK: Download
     
     func testDownloadTaxon() {
