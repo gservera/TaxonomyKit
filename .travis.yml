@@ -1,0 +1,5 @@
+language: objective-c
+osx_image: xcode8
+xcode_project: TaxonomyKit.xcodeproj
+xcode_scheme: TaxonomyKit
+xcode_sdk: iphonesimulator10.0
