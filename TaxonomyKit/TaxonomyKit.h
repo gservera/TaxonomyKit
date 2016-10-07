@@ -23,7 +23,9 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
+
 @import Foundation;
+
 //! Project version number for TaxonomyKit.
 FOUNDATION_EXPORT double TaxonomyKitVersionNumber;
 
