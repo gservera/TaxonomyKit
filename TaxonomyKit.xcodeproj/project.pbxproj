@@ -37,6 +37,7 @@
 /* Begin PBXFileReference section */
 		994A9B941DA7F94900A0796F /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		994A9B951DA7F9CC00A0796F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		994A9B961DA7FBED00A0796F /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		99B03FAC1D9BEE4D007F57AF /* cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = cartfile; sourceTree = "<group>"; };
 		99B03FAD1D9BEEB5007F57AF /* Taxonomy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Taxonomy.swift; sourceTree = "<group>"; };
 		99B03FAE1D9BEEB5007F57AF /* TaxonomyRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaxonomyRequest.swift; sourceTree = "<group>"; };
@@ -91,6 +92,7 @@
 			children = (
 				994A9B941DA7F94900A0796F /* .travis.yml */,
 				99B03FAC1D9BEE4D007F57AF /* cartfile */,
+				994A9B961DA7FBED00A0796F /* LICENSE.md */,
 				994A9B951DA7F9CC00A0796F /* README.md */,
 				99B03FC11D9BEF31007F57AF /* Dependencies */,
 				99CFC5C31D9AB0FC00C8A415 /* TaxonomyKit */,
