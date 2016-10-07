@@ -8,5 +8,4 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 ![Swift version](https://img.shields.io/badge/swift-3.0-orange.svg)
 
-
-*More info available soon*
+*Available soon*
