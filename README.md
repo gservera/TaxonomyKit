@@ -8,21 +8,11 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 ![Swift version](https://img.shields.io/badge/swift-3.0-orange.svg)
 
-TaxonomyKit is a powerful and handy library that 
-
-
-AFNetworking is a delightful networking library for iOS and Mac OS X. It's built on top of the [Foundation URL Loading System](http://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/URLLoadingSystem/URLLoadingSystem.html), extending the powerful high-level networking abstractions built into Cocoa. It has a modular architecture with well-designed, feature-rich APIs that are a joy to use.
-
-Perhaps the most important feature of all, however, is the amazing community of developers who use and contribute to AFNetworking every day. AFNetworking powers some of the most popular and critically-acclaimed apps on the iPhone, iPad, and Mac.
-
-Choose AFNetworking for your next project, or migrate over your existing projects—you'll be happy you did!
+TaxonomyKit is a powerful, handy and cross-platform library that makes working with taxonomy data from the NCBI databases easier. It works as a client of the NCBI's [Entrez Programming Utilities](https://eutils.ncbi.nlm.nih.gov) and it is the core of the [Taxonomist](https://gservera.com/apps/taxonomist/) app.
 
 ## How To Get Started
 
 - [Download TaxonomyKit](https://github.com/gservera/TaxonomyKit/archive/master.zip)
-- Read the ["Getting Started" guide](https://github.com/gservera/TaxonomyKit/wiki/Getting-Started-with-AFNetworking), [FAQ](https://github.com/AFNetworking/AFNetworking/wiki/AFNetworking-FAQ), or [other articles on the Wiki](https://github.com/AFNetworking/AFNetworking/wiki)
-- Check out the [documentation](http://cocoadocs.org/docsets/AFNetworking/) for a comprehensive look at all of the APIs available in AFNetworking
-- Read the [AFNetworking 3.0 Migration Guide](https://github.com/AFNetworking/AFNetworking/wiki/AFNetworking-3.0-Migration-Guide) for an overview of the architectural changes from 2.0.
 
 
 ## Installation with Carthage
