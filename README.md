@@ -24,12 +24,12 @@ TaxonomyKit is a powerful, handy and cross-platform library that makes working w
 ```swift
 let myCoolQuery = "quercus ilex"
 Taxonomy.findIdentifiers(for: myCoolQuery, 
-callback: { (identifiers, error) in
-guard error == nil else {
-print("Ooops!")
-return
-}
-print("Found identifiers: \(identifiers)")
+                    callback: { (identifiers, error) in
+    guard error == nil else {
+      print("Ooops!")
+      return
+    }
+    print("Found identifiers: \(identifiers)")
 })
 ```
 
@@ -38,12 +38,12 @@ print("Found identifiers: \(identifiers)")
 ```swift
 let foundID: TaxonID = "58334" // Use the one you got from findIdentifiers(for:callback:)
 Taxonomy.downloadTaxon(withIdentifier: foundID, 
-callback: { (taxon, error) in
-guard error == nil else {
-print("Ooops!")
-return
-}
-print("Got taxon: \(taxon!.name)")
+                             callback: { (taxon, error) in
+    guard error == nil else {
+      print("Ooops!")
+      return
+    }
+    print("Got taxon: \(taxon!.name)")
 })
 ```
 
@@ -76,7 +76,7 @@ TaxonomyKit includes a suite of unit tests within the TaxonomyKitTests subdirect
 
 ## :coffee: Author
 
-shoheiyokoyama, shohei.yok0602@gmail.com
+Guillem Servera, [https://gservera.com](https://gservera.com)
 
 ## :unlock: License
 
