@@ -376,7 +376,10 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				"EFFECTIVE_PLATFORM_NAME[sdk=appletvos*]" = "-appletvos";
 				"EFFECTIVE_PLATFORM_NAME[sdk=iphoneos*]" = "-iphoneos";
+				"EFFECTIVE_PLATFORM_NAME[sdk=macosx*]" = "-macosx";
+				"EFFECTIVE_PLATFORM_NAME[sdk=watchos*]" = "-watchos";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -423,7 +426,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 3.0.1;
 				TARGETED_DEVICE_FAMILY = "1,2,3,4";
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
@@ -455,7 +458,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 3.0.1;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
