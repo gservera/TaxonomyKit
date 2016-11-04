@@ -1,5 +1,5 @@
 <p align="center" >
-  <img src="https://gservera.com/apps/taxonomist/gh_banner.png" width="800" height="419" alt="TaxonomyKit" title="TaxonomyKit" srcset="https://gservera.com/apps/taxonomist/gh_banner_2x.png 1x, https://gservera.com/apps/taxonomist/gh_banner_2x.png 2x, https://gservera.com/apps/taxonomist/gh_banner_3x.png 3x">
+  <img src="https://gservera.com/apps/taxonomist/gh_banner.png" width="800" alt="TaxonomyKit" title="TaxonomyKit" srcset="https://gservera.com/apps/taxonomist/gh_banner_2x.png 1x, https://gservera.com/apps/taxonomist/gh_banner_2x.png 2x, https://gservera.com/apps/taxonomist/gh_banner_3x.png 3x">
 </p>
 
 # TaxonomyKit 
@@ -74,15 +74,16 @@ Run `carthage update` on your project's directory to build the framework and dra
 ## Requirements
 
 * Xcode 8.0
+* AEXML >4.0. A wonderful XML parser written in Swift. See more at [tadija/AEXML](https://github.com/tadija/AEXML).
 
 ## Unit Tests
 
 TaxonomyKit includes a suite of unit tests within the TaxonomyKitTests subdirectory. These tests can be run simply be executed the test action on the platform framework you would like to test.
 
-## :coffee: Author
+## ☕️ Author
 
 Guillem Servera, [https://gservera.com](https://gservera.com)
 
-## :unlock: License
+## License
 
 TaxonomyKit is released under the MIT license. See [LICENSE](https://github.com/gservera/TaxonomyKit/blob/master/LICENSE.md) for details.
