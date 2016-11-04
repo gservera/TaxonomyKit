@@ -1,5 +1,5 @@
 <p align="center" >
-  <img src="https://gservera.com/apps/taxonomist/gh_banner.png" width="800" alt="TaxonomyKit" title="TaxonomyKit" srcset="https://gservera.com/apps/taxonomist/gh_banner_2x.png 1x, https://gservera.com/apps/taxonomist/gh_banner_2x.png 2x, https://gservera.com/apps/taxonomist/gh_banner_3x.png 3x">
+  <img src="https://gservera.com/apps/taxonomist/gh_banner.svg" width="800" alt="TaxonomyKit" title="TaxonomyKit">
 </p>
 
 # TaxonomyKit 
@@ -40,7 +40,7 @@ Taxonomy.findIdentifiers(for: myCoolQuery,
 ### ⬇️ Download your taxon
 
 ```swift
-let foundID: TaxonID = "58334" // Use the one you got from findIdentifiers(for:callback:)
+let foundID: TaxonID = "58334" // Use the one you got from previous step.
 Taxonomy.downloadTaxon(withIdentifier: foundID, 
                              callback: { (taxon, error) in
     guard error == nil else {
@@ -73,8 +73,8 @@ Run `carthage update` on your project's directory to build the framework and dra
 
 ## Requirements
 
-* Xcode 8.0
-* AEXML >4.0. A wonderful XML parser written in Swift. See more at [tadija/AEXML](https://github.com/tadija/AEXML).
+* **Xcode 8.0** or greater.
+* **AEXML >4.0**. A wonderful XML parser written in Swift. See more at [tadija/AEXML](https://github.com/tadija/AEXML).
 
 ## Unit Tests
 
