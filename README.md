@@ -76,7 +76,7 @@ TaxonomyKit includes a suite of unit tests within the TaxonomyKitTests subdirect
 
 ## :coffee: Author
 
-shoheiyokoyama, shohei.yok0602@gmail.com
+Guillem Servera, [https://gservera.com](https://gservera.com)
 
 ## :unlock: License
 
