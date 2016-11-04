@@ -207,6 +207,7 @@
 					99CFC5C91D9AB0FC00C8A415 = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = Q6R76RZ9Z8;
+						LastSwiftMigration = 0810;
 						ProvisioningStyle = Automatic;
 					};
 				};
