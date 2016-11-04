@@ -1,3 +1,7 @@
+<p align="center" >
+  <img src="https://gservera.com/apps/taxonomist/gh_banner.jpg" alt="TaxonomyKit" title="TaxonomyKit">
+</p>
+
 # TaxonomyKit 
 
 ![Platforms](https://img.shields.io/badge/platforms-ios%20%7C%20osx%20%7C%20watchos%20%7C%20tvos-blue.svg)
