@@ -61,10 +61,11 @@ $ brew install carthage
 To integrate TaxonomyKit into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```ogdl
+github "tadija/AEXML"
 github "gservera/TaxonomyKit" ~> 1.0
 ```
 
-Run `carthage` to build the framework and drag the built `TaxonomyKit.framework` into your Xcode project.
+Run `carthage update` on your project's directory to build the framework and drag the built `TaxonomyKit.framework` into your Xcode project.
 
 ## Requirements
 

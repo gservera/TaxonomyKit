@@ -35,7 +35,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		992A07911DB3770500A30ABD /* .cocoadocs.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .cocoadocs.yml; sourceTree = "<group>"; };
 		994A9B941DA7F94900A0796F /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		994A9B951DA7F9CC00A0796F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		994A9B961DA7FBED00A0796F /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
@@ -91,7 +90,6 @@
 		99CFC5B71D9AB0FC00C8A415 = {
 			isa = PBXGroup;
 			children = (
-				992A07911DB3770500A30ABD /* .cocoadocs.yml */,
 				994A9B941DA7F94900A0796F /* .travis.yml */,
 				99B03FAC1D9BEE4D007F57AF /* cartfile */,
 				994A9B961DA7FBED00A0796F /* LICENSE.md */,
