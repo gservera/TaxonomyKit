@@ -1,6 +1,6 @@
 # TaxonomyKit 
 
-![Platforms](https://img.shields.io/badge/platforms-ios%20%7C%20osx%20%7C%20watchos%20%7C%20tvos-lightgrey.svg)
+![Platforms](https://img.shields.io/badge/platforms-ios%20%7C%20osx%20%7C%20watchos%20%7C%20tvos-blue.svg)
 [![GitHub release](https://img.shields.io/github/release/gservera/taxonomykit.svg)](https://github.com/gservera/TaxonomyKit/releases) 
 [![Build Status](https://travis-ci.org/gservera/TaxonomyKit.svg?branch=master)](https://travis-ci.org/gservera/TaxonomyKit) 
 [![codecov.io](https://codecov.io/github/gservera/TaxonomyKit/coverage.svg?branch=master)](https://codecov.io/github/gservera/TaxonomyKit?branch=master)
@@ -10,10 +10,42 @@
 
 TaxonomyKit is a powerful, handy and cross-platform library that makes working with taxonomy data from the NCBI databases easier. It works as a client of the NCBI's [Entrez Programming Utilities](https://eutils.ncbi.nlm.nih.gov) and it is the core of the [Taxonomist](https://gservera.com/apps/taxonomist/) app.
 
+
 ## How To Get Started
 
-- [Download TaxonomyKit](https://github.com/gservera/TaxonomyKit/archive/master.zip)
+- [Download TaxonomyKit](https://github.com/gservera/TaxonomyKit/archive/master.zip) or install it using Carthage.
+- Check out the [Documentation](https://gservera.com/docs/TaxonomyKit/1.0/) for the Taxonomy struct or just read the following section to begin quickly.
 
+
+## First steps
+
+### 🔭 Get the NCBI's Taxonomy ID for the taxon you are looking for
+
+```swift
+let myCoolQuery = "quercus ilex"
+Taxonomy.findIdentifiers(for: myCoolQuery, 
+callback: { (identifiers, error) in
+guard error == nil else {
+print("Ooops!")
+return
+}
+print("Found identifiers: \(identifiers)")
+})
+```
+
+### ⬇️ Download your taxon
+
+```swift
+let foundID: TaxonID = "58334" // Use the one you got from findIdentifiers(for:callback:)
+Taxonomy.downloadTaxon(withIdentifier: foundID, 
+callback: { (taxon, error) in
+guard error == nil else {
+print("Ooops!")
+return
+}
+print("Got taxon: \(taxon!.name)")
+})
+```
 
 ## Installation with Carthage
 
@@ -42,6 +74,10 @@ Run `carthage` to build the framework and drag the built `TaxonomyKit.framework`
 
 TaxonomyKit includes a suite of unit tests within the TaxonomyKitTests subdirectory. These tests can be run simply be executed the test action on the platform framework you would like to test.
 
-## License
+## :coffee: Author
 
-TaxonomyKit is released under the MIT license. See LICENSE for details.
+shoheiyokoyama, shohei.yok0602@gmail.com
+
+## :unlock: License
+
+TaxonomyKit is released under the MIT license. See [LICENSE](https://github.com/gservera/TaxonomyKit/blob/master/LICENSE.md) for details.
