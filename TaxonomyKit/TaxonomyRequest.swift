@@ -48,7 +48,7 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "retmode", value: "json")
             ]
         case .spelling(let query): components.path = "/entrez/eutils/espell.fcgi"
-        queryItems.append(URLQueryItem(name: "term", value: query))
+            queryItems.append(URLQueryItem(name: "term", value: query))
         }
         components.queryItems = queryItems
         return components.url!

@@ -62,7 +62,7 @@ $ brew update
 $ brew install carthage
 ```
 
-To integrate TaxonomyKit into your Xcode project using Carthage, specify it in your `Cartfile`:
+To integrate TaxonomyKit into your Xcode project using Carthage, specify it in your `cartfile`:
 
 ```ogdl
 github "tadija/AEXML"

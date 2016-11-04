@@ -36,9 +36,20 @@
 /// - unknownError:            Any other error, including unexpected structure or missing values
 ///                            in the XML/JSON data that was downloaded.
 public enum TaxonomyError: Error {
+    
+    /// The passed NCBI internal ID is invalid.
     case badRequest(identifier: String)
+    
+    /// A network error. More details can be found inspecting the associated error object.
     case networkError(underlyingError: Error)
+    
+    /// An error due to a malformed XML/JSON object.
     case parseError(message: String)
+    
+    /// An unexpected server response (other than 200) from the NCBI servers.
     case unexpectedResponseError(code: Int)
+    
+    /// Any other error, including unexpected structure or missing values in 
+    /// the XML/JSON data that was downloaded.
     case unknownError
 }

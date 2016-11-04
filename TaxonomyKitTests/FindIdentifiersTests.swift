@@ -73,9 +73,8 @@ final class FindIdentifiersTests: XCTestCase {
         Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(identifiers)
-            switch error! {
-            case .parseError(_): condition.fulfill()
-            default:             break;
+            if case .parseError(_) = error! {
+                condition.fulfill()
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -93,13 +92,8 @@ final class FindIdentifiersTests: XCTestCase {
         Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(identifiers)
-            switch error! {
-            case .unexpectedResponseError(let code):
-                if code == 500 {
-                    condition.fulfill()
-                }
-            default:
-                break;
+            if case .unexpectedResponseError(500) = error! {
+                condition.fulfill()
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -113,13 +107,10 @@ final class FindIdentifiersTests: XCTestCase {
         Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(identifiers)
-            switch error! {
-            case .networkError(let error as NSError):
-                if error.code == -1 {
+            if case .networkError(let err as NSError) = error! {
+                if err.code == -1 {
                     condition.fulfill()
                 }
-            default:
-                break;
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -132,9 +123,8 @@ final class FindIdentifiersTests: XCTestCase {
         Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(identifiers)
-            switch error! {
-            case .unknownError(): condition.fulfill()
-            default:              break;
+            if case .unknownError() = error! {
+                condition.fulfill()
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -153,9 +143,8 @@ final class FindIdentifiersTests: XCTestCase {
         Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(identifiers)
-            switch error! {
-            case .unknownError(): condition.fulfill()
-            default:              break;
+            if case .unknownError() = error! {
+                condition.fulfill()
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
