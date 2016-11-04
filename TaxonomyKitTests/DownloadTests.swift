@@ -45,7 +45,7 @@ final class DownloadTests: XCTestCase {
             XCTAssertNotNil(taxon)
             condition.fulfill()
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
     func testDownloadUnknownTaxon() {
@@ -54,14 +54,11 @@ final class DownloadTests: XCTestCase {
         Taxonomy.downloadTaxon(withIdentifier: query) { (taxon, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(taxon)
-            switch error! {
-            case .badRequest(_):
+            if case .badRequest(_) = error! {
                 condition.fulfill()
-            default:
-                break;
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
     func testMalformedXML() {
@@ -76,12 +73,11 @@ final class DownloadTests: XCTestCase {
         Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(taxon)
-            switch error! {
-            case .parseError(_): condition.fulfill()
-            default:             break;
+            if case .parseError(_) = error! {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
     func testUnknownResponse() {
@@ -96,16 +92,11 @@ final class DownloadTests: XCTestCase {
         Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(taxon)
-            switch error! {
-            case .unexpectedResponseError(let code):
-                if code == 500 {
-                    condition.fulfill()
-                }
-            default:
-                break;
+            if case .unexpectedResponseError(500) = error! {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
     func testNetworkError() {
@@ -116,16 +107,13 @@ final class DownloadTests: XCTestCase {
         Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(taxon)
-            switch error! {
-            case .networkError(let error as NSError):
-                if error.code == -1 {
+            if case .networkError(let err as NSError) = error! {
+                if err.code == -1 {
                     condition.fulfill()
                 }
-            default:
-                break;
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
     func testOddBehavior() {
@@ -135,12 +123,11 @@ final class DownloadTests: XCTestCase {
         Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(taxon)
-            switch error! {
-            case .unknownError(): condition.fulfill()
-            default:              break;
+            if case .unknownError() = error! {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
     func testOddBehavior2() {
@@ -157,11 +144,10 @@ final class DownloadTests: XCTestCase {
         Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
             XCTAssertNotNil(error)
             XCTAssertNil(taxon)
-            switch error! {
-            case .unknownError(): condition.fulfill()
-            default:              break;
+            if case .unknownError() = error! {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
 }

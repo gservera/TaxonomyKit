@@ -25,6 +25,7 @@
  */
 
 import Foundation
+import XCTest
 
 /// A class used to mock URLSession objects for testing purposes.
 final class MockSession: URLSession {
@@ -59,4 +60,13 @@ final class MockSession: URLSession {
         }
         
     }
+}
+
+final class MockSessionTests: XCTestCase {
+    
+    func testMockSessionCreation() {
+        let mockSession = MockSession.shared
+        XCTAssertTrue(mockSession is MockSession, "Failed")
+    }
+    
 }

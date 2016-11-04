@@ -31,9 +31,9 @@ public typealias TaxonID = String
 
 
 /// The common struct from which all the Taxonomy related tasks are initiated.
-public struct Taxonomy {
+public class Taxonomy: NSObject {
     
-    internal init() { /* We prevent this struct from being instantiated. */ }
+    override internal init( ) { super.init() /* We prevent this struct from being instantiated. */ }
     
     /// Used for testing purposes. Don't change this value
     internal static var _urlSession: URLSession = URLSession.shared
