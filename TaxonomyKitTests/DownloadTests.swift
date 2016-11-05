@@ -149,4 +149,25 @@ final class DownloadTests: XCTestCase {
         }
         waitForExpectations(timeout: 2000, handler: nil)
     }
+    
+    func testMissingInfoXML() {
+        Taxonomy._urlSession = MockSession()
+        let response =
+            HTTPURLResponse(url: URL(string: "http://github.com")!,
+                            statusCode: 200,
+                            httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><TaxaSet><Taxon><TaxId>58334</TaxId><LineageEx><Taxon><TaxId>3511</TaxId><ScientificName>Quercus</ScientificName><Rank>genus</Rank></Taxon></LineageEx></Taxon></TaxaSet>"
+        let data = wrongXML.data(using: .utf8)
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
+            XCTAssertNotNil(error)
+            XCTAssertNil(taxon)
+            if case .parseError(_) = error! {
+                condition.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 2000, handler: nil)
+    }
 }

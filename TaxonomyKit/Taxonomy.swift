@@ -179,27 +179,36 @@ public class Taxonomy {
                             callback(nil, .unknownError)
                             return
                         }
-                        let name = taxonRoot["ScientificName"].value
+                        let nameOpt = taxonRoot["ScientificName"].value
                         //TODO: Multiple common names (implode?)
                         let commonName = taxonRoot["OtherNames"]["CommonName"].value
-                        let rank = taxonRoot["Rank"].value!
-                        let mainCode = taxonRoot["GeneticCode"]["GCName"].value!
-                        let mitoCode = taxonRoot["MitoGeneticCode"]["MGCName"].value!
-                        var taxon = Taxon(identifier: id, name: name!, rank: rank,
+                        let rankOpt = taxonRoot["Rank"].value
+                        let mainCodeOpt = taxonRoot["GeneticCode"]["GCName"].value
+                        let mitoCodeOpt = taxonRoot["MitoGeneticCode"]["MGCName"].value
+                        
+                        guard let name = nameOpt, let rank = rankOpt, let mainCode = mainCodeOpt, let mitoCode = mitoCodeOpt else {
+                            throw TaxonomyError.parseError(message: "Could not parse XML data")
+                        }
+                        
+                        var taxon = Taxon(identifier: id, name: name, rank: rank,
                                           geneticCode: mainCode, mitochondrialCode: mitoCode)
                         taxon.commonName = commonName
-                        var linkedTaxons: [TaxonLineageItem] = []
-                        if let linkages = taxonRoot["LineageEx"]["Taxon"].all {
-                            for linkage in linkages {
-                                let linkID = linkage["TaxId"].value!
-                                let linkName = linkage["ScientificName"].value!
-                                let linkRank = linkage["Rank"].value!
-                                let item = TaxonLineageItem(identifier: linkID,
-                                                            name: linkName,
-                                                            rank: linkRank)
-                                linkedTaxons.append(item)
+                        
+                        var lineage: [TaxonLineageItem] = []
+                        if let lineageItems = taxonRoot["LineageEx"]["Taxon"].all {
+                            for lineageItem in lineageItems {
+                                let itemIdOpt = lineageItem["TaxId"].value
+                                let itemNameOpt = lineageItem["ScientificName"].value
+                                let itemRankOpt = lineageItem["Rank"].value
+                                
+                                guard let itemId = itemIdOpt, let itemName = itemNameOpt, let itemRank = itemRankOpt else {
+                                    throw TaxonomyError.parseError(message: "Could not parse XML data")
+                                }
+                                
+                                let item = TaxonLineageItem(identifier: itemId, name: itemName, rank: itemRank)
+                                lineage.append(item)
                             }
-                            taxon.lineageItems = linkedTaxons
+                            taxon.lineageItems = lineage
                         }
                         callback(taxon, nil)
                     } catch _ {
@@ -210,8 +219,8 @@ public class Taxonomy {
                 default:
                     callback(nil, .unexpectedResponseError(code: response.statusCode))
                 }
-            } else {
-                callback(nil, .networkError(underlyingError: error!))
+            } else if let rootError = error {
+                callback(nil, .networkError(underlyingError: rootError))
             }
         }
         task.resume()
