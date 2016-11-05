@@ -83,8 +83,8 @@ public final class Taxonomy {
                 default:
                     callback(nil, .unexpectedResponseError(code: response.statusCode))
                 }
-            } else {
-                callback(nil, .networkError(underlyingError: error!))
+            } else if let rootError = error {
+                callback(nil, .networkError(underlyingError: rootError))
             }
         }
         task.resume()
@@ -136,8 +136,8 @@ public final class Taxonomy {
                 default:
                     callback(nil, .unexpectedResponseError(code: response.statusCode))
                 }
-            } else {
-                callback(nil, .networkError(underlyingError: error!))
+            } else if let rootError = error {
+                callback(nil, .networkError(underlyingError: rootError))
             }
         }
         task.resume()
