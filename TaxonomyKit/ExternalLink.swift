@@ -64,8 +64,8 @@ public struct ExternalLink {
     /// The external resource URL.
     public let url: URL
     
-    /// The external resource title.
-    public let title: String
+    /// The external resource title or nil if not set by NCBI.
+    public let title: String?
     
     /// The external resource provider.
     public let provider: Provider
@@ -75,9 +75,9 @@ public struct ExternalLink {
     ///
     /// - Parameters:
     ///   - url: The external resource URL.
-    ///   - title: The external resource title.
+    ///   - title: The external resource title or nil if unset.
     ///   - provider: The external resource provider.
-    internal init(url: URL, title: String, provider: Provider) {
+    internal init(url: URL, title: String?, provider: Provider) {
         self.url = url
         self.title = title
         self.provider = provider

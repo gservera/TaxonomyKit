@@ -118,12 +118,12 @@
 			isa = PBXGroup;
 			children = (
 				99CFC5C41D9AB0FC00C8A415 /* TaxonomyKit.h */,
-				99B03FAD1D9BEEB5007F57AF /* Taxonomy.swift */,
-				99B03FAE1D9BEEB5007F57AF /* TaxonomyRequest.swift */,
-				99B03FAF1D9BEEB5007F57AF /* TaxonomyError.swift */,
 				99B03FB01D9BEEB5007F57AF /* Taxon.swift */,
 				99B03FB11D9BEEB5007F57AF /* TaxonLineageItem.swift */,
 				99B4B3301DCDE5D500DC918A /* ExternalLink.swift */,
+				99B03FAD1D9BEEB5007F57AF /* Taxonomy.swift */,
+				99B03FAE1D9BEEB5007F57AF /* TaxonomyRequest.swift */,
+				99B03FAF1D9BEEB5007F57AF /* TaxonomyError.swift */,
 				99CFC5C51D9AB0FC00C8A415 /* Info.plist */,
 			);
 			path = TaxonomyKit;

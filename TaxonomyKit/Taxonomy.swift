@@ -256,15 +256,14 @@ public final class Taxonomy {
                         }
                         var links: [ExternalLink] = []
                         for linkNode in linkNodes {
-                            let titleOpt = linkNode["LinkName"].value
+                            let title = linkNode["LinkName"].value
                             let urlStringOpt = linkNode["Url"].value
                             let srcIdOpt = linkNode["Provider"]["Id"].value
                             let srcNameOpt = linkNode["Provider"]["Name"].value
                             let srcAbbrOpt = linkNode["Provider"]["NameAbbr"].value
                             let srcURLStringOpt = linkNode["Provider"]["Url"].value
                             
-                            guard let title = titleOpt,
-                                let urlString = urlStringOpt,
+                            guard let urlString = urlStringOpt,
                                 let srcId = srcIdOpt,
                                 let srcName = srcNameOpt,
                                 let srcAbbr = srcAbbrOpt,
