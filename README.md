@@ -29,11 +29,11 @@ TaxonomyKit is a powerful, handy and cross-platform library that makes working w
 let myCoolQuery = "quercus ilex"
 Taxonomy.findIdentifiers(for: myCoolQuery, 
                     callback: { (identifiers, error) in
-    guard error == nil else {
+    guard error == nil, let foundIDs = identifiers else {
       print("Ooops!")
       return
     }
-    print("Found identifiers: \(identifiers)")
+    print("Found identifiers: \(foundIDs)")
 })
 ```
 
@@ -43,11 +43,11 @@ Taxonomy.findIdentifiers(for: myCoolQuery,
 let foundID: TaxonID = "58334" // Use the one you got from previous step.
 Taxonomy.downloadTaxon(withIdentifier: foundID, 
                              callback: { (taxon, error) in
-    guard error == nil else {
+    guard error == nil, let taxon = taxon else {
       print("Ooops!")
       return
     }
-    print("Got taxon: \(taxon!.name)")
+    print("Got taxon: \(taxon.name)")
 })
 ```
 

@@ -238,8 +238,8 @@ public final class Taxonomy {
                     callback(nil, .unknownError)
                     return
                 }
-                switch response.statusCode {
-                case 200:
+                
+                if response.statusCode == 200 {
                     do {
                         let xmlDoc = try AEXMLDocument(xml: data)
                         let linkRoot = xmlDoc["eLinkResult"]["LinkSet"]["IdUrlList"]["IdUrlSet"]["ObjUrl"]
@@ -269,25 +269,23 @@ public final class Taxonomy {
                                 let srcName = srcNameOpt,
                                 let srcAbbr = srcAbbrOpt,
                                 let srcURLString = srcURLStringOpt else {
-                                    throw TaxonomyError.parseError(message: "Could not parse XML data")
+                                    throw TaxonomyError.parseError(message: "Could not parse XML data. Missing data.")
                             }
                             
                             guard let url = URL(string: urlString), let srcURL = URL(string: srcURLString) else {
-                                throw TaxonomyError.parseError(message: "Could not parse XML data")
+                                throw TaxonomyError.parseError(message: "Could not parse XML data.")
                             }
                             
                             let linkProvider = ExternalLink.Provider(id: srcId, name: srcName, abbreviation: srcAbbr, url: srcURL)
                             let linkOut = ExternalLink(url: url, title: title, provider: linkProvider)
                             links.append(linkOut)
                         }
-                    
+                        
                         callback(links, nil)
                     } catch _ {
                         callback(nil, .parseError(message: "Could not parse XML data"))
                     }
-                case 400:
-                    callback(nil, .badRequest(identifier: id))
-                default:
+                } else {
                     callback(nil, .unexpectedResponseError(code: response.statusCode))
                 }
             } else if let rootError = error {
