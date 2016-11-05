@@ -35,7 +35,6 @@ final class SpellingTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
     }
     
-    //MARK: Find identifiers
     
     func testValidQueryResult() {
         let query = "quercus ilex"

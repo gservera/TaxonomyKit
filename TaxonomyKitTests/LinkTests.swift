@@ -1,8 +1,8 @@
 /*
- *  FindIdentifiersTests.swift
+ *  LinkTests.swift
  *  TaxonomyKitTests
  *
- *  Created:    Guillem Servera on 24/09/2016.
+ *  Created:    Guillem Servera on 05/11/2016.
  *  Copyright:  © 2016 Guillem Servera (http://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,7 +28,7 @@
 import XCTest
 @testable import TaxonomyKit
 
-final class FindIdentifiersTests: XCTestCase {
+final class LinkTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
@@ -36,31 +36,31 @@ final class FindIdentifiersTests: XCTestCase {
     }
     
     
-    func testSingleResult() {
-        let query = "Quercus ilex"
+    func testGetLinks() {
+        let query = "58334"
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: query) { (identifiers, error) in
+        Taxonomy.findLinkedResources(for: query) { (links, error) in
             XCTAssertNil(error)
-            XCTAssertNotNil(identifiers)
-            XCTAssertEqual(identifiers!.count, 1)
-            XCTAssertEqual(identifiers![0], "58334")
+            XCTAssertNotNil(links)
             condition.fulfill()
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
-    func testUnmatchedQuery() {
-        let condition = expectation(description: "Unmatched query")
-        Taxonomy.findIdentifiers(for: "invalid-invalid-invalid") { (identifiers, error) in
-            XCTAssertNil(error)
-            XCTAssertNotNil(identifiers)
-            XCTAssertEqual(identifiers!.count, 0)
-            condition.fulfill()
+    func testLinksForUnknownTaxon() {
+        let query = "anpafnpanpifadn"
+        let condition = expectation(description: "Finished")
+        Taxonomy.findLinkedResources(for: query) { (links, error) in
+            XCTAssertNotNil(error)
+            XCTAssertNil(links)
+            if case .badRequest(_) = error! {
+                condition.fulfill()
+            }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
-    func testMalformedJSON() {
+    func testMalformedXML() {
         Taxonomy._urlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "http://github.com")!,
@@ -69,15 +69,16 @@ final class FindIdentifiersTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
+        Taxonomy.findLinkedResources(for: "anything") { (links, error) in
             XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
+            XCTAssertNil(links)
             if case .parseError(_) = error! {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
+    
     
     func testUnknownResponse() {
         Taxonomy._urlSession = MockSession()
@@ -88,14 +89,14 @@ final class FindIdentifiersTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
+        Taxonomy.findLinkedResources(for: "anything") { (links, error) in
             XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
+            XCTAssertNil(links)
             if case .unexpectedResponseError(500) = error! {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
     func testNetworkError() {
@@ -103,30 +104,30 @@ final class FindIdentifiersTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
+        Taxonomy.findLinkedResources(for: "anything") { (links, error) in
             XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
+            XCTAssertNil(links)
             if case .networkError(let err as NSError) = error! {
                 if err.code == -1 {
                     condition.fulfill()
                 }
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
     func testOddBehavior() {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
+        Taxonomy.findLinkedResources(for: "anything") { (links, error) in
             XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
+            XCTAssertNil(links)
             if case .unknownError() = error! {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
     }
     
     func testOddBehavior2() {
@@ -136,16 +137,38 @@ final class FindIdentifiersTests: XCTestCase {
                             statusCode: 200,
                             httpVersion: "1.1",
                             headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
+        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><note><to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't forget me this weekend!</body></note>"
+        let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
+        Taxonomy.findLinkedResources(for: "anything") { (links, error) in
             XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
+            XCTAssertNil(links)
             if case .unknownError() = error! {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 2000, handler: nil)
+    }
+
+    func testMissingInfoXML() {
+        Taxonomy._urlSession = MockSession()
+        let response =
+            HTTPURLResponse(url: URL(string: "http://github.com")!,
+                            statusCode: 200,
+                            httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><eLinkResult><LinkSet><DbFrom>taxonomy</DbFrom><IdUrlList><IdUrlSet><Id>58334</Id><ObjUrl><Url>http://www.eol.org/pages/1151536</Url><LinkName>Quercus ilex L.</LinkName><SubjectType>taxonomy/phylogenetic</SubjectType><Category>Molecular Biology Databases</Category><Attribute>free resource</Attribute><Provider><NameAbbr>encylife</NameAbbr><Id>7164</Id><Url LNG=\"EN\">http://www.eol.org/</Url></Provider></ObjUrl></IdUrlSet></IdUrlList></LinkSet></eLinkResult>"
+        let data = wrongXML.data(using: .utf8)
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        Taxonomy.findLinkedResources(for: "anything") { (links, error) in
+            XCTAssertNotNil(error)
+            XCTAssertNil(links)
+            if case .parseError(_) = error! {
+                condition.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 2000, handler: nil)
     }
 }

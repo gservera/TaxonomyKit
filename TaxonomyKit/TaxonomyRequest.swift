@@ -29,6 +29,7 @@ import Foundation
 
 internal enum TaxonomyRequest {
     case download(identifier: TaxonID)
+    case links(identifier: TaxonID)
     case search(query: String)
     case spelling(failedQuery: String)
     
@@ -41,6 +42,13 @@ internal enum TaxonomyRequest {
         case .download(let identifier):
             components.path = "/entrez/eutils/efetch.fcgi"
             queryItems.append(URLQueryItem(name: "id", value: identifier))
+        case .links(let identifier):
+            components.path = "/entrez/eutils/elink.fcgi"
+            queryItems += [
+                URLQueryItem(name: "id", value: identifier),
+                URLQueryItem(name: "dbfrom", value: "taxonomy"),
+                URLQueryItem(name: "cmd", value: "llinks")
+            ]
         case .search(let query):
             components.path = "/entrez/eutils/esearch.fcgi"
             queryItems += [

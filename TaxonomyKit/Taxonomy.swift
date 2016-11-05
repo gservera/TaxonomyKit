@@ -30,10 +30,12 @@ import AEXML
 public typealias TaxonID = String
 
 
-/// The common struct from which all the Taxonomy related tasks are initiated.
-public class Taxonomy: NSObject {
+/// The base class from which all the Taxonomy related tasks are initiated. This class
+/// is not meant to be instantiated but it serves as a start node to invoke the
+/// TaxonomyKit functions in your code.
+public class Taxonomy {
     
-    override internal init( ) { super.init() /* We prevent this struct from being instantiated. */ }
+    internal init() { /* We prevent this struct from being instantiated. */ }
     
     /// Used for testing purposes. Don't change this value
     internal static var _urlSession: URLSession = URLSession.shared
@@ -159,8 +161,8 @@ public class Taxonomy: NSObject {
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public static func downloadTaxon(withIdentifier id: TaxonID,
-        callback: @escaping (Taxon?, TaxonomyError?) -> ()) -> URLSessionDataTask {
-    
+                                                        callback: @escaping (Taxon?, TaxonomyError?) -> ()) -> URLSessionDataTask {
+        
         let request = TaxonomyRequest.download(identifier: id)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
             if error == nil {
@@ -210,6 +212,77 @@ public class Taxonomy: NSObject {
                 }
             } else {
                 callback(nil, .networkError(underlyingError: error!))
+            }
+        }
+        task.resume()
+        return task
+    }
+    
+    
+    @discardableResult public static func findLinkedResources(for id: TaxonID,
+                                                        callback: @escaping ([ExternalLink]?, TaxonomyError?) -> ()) -> URLSessionDataTask {
+        
+        let request = TaxonomyRequest.links(identifier: id)
+        let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
+            if error == nil {
+                guard let response = response as? HTTPURLResponse, let data = data else {
+                    callback(nil, .unknownError)
+                    return
+                }
+                switch response.statusCode {
+                case 200:
+                    do {
+                        let xmlDoc = try AEXMLDocument(xml: data)
+                        let linkRoot = xmlDoc["eLinkResult"]["LinkSet"]["IdUrlList"]["IdUrlSet"]["ObjUrl"]
+                        guard linkRoot.count > 0, let linkNodes = linkRoot.all else {
+                            let linkRoot = xmlDoc["eLinkResult"]["LinkSet"]["IdUrlList"]["IdUrlSet"]
+                            if let zeroInfo = linkRoot["Info"].value {
+                                if zeroInfo.hasPrefix("Incorrect UID") {
+                                    callback(nil, .badRequest(identifier: id))
+                                    return
+                                }
+                            }
+                            callback(nil, .unknownError)
+                            return
+                        }
+                        var links: [ExternalLink] = []
+                        for linkNode in linkNodes {
+                            let titleOpt = linkNode["LinkName"].value
+                            let urlStringOpt = linkNode["Url"].value
+                            let srcIdOpt = linkNode["Provider"]["Id"].value
+                            let srcNameOpt = linkNode["Provider"]["Name"].value
+                            let srcAbbrOpt = linkNode["Provider"]["NameAbbr"].value
+                            let srcURLStringOpt = linkNode["Provider"]["Url"].value
+                            
+                            guard let title = titleOpt,
+                                let urlString = urlStringOpt,
+                                let srcId = srcIdOpt,
+                                let srcName = srcNameOpt,
+                                let srcAbbr = srcAbbrOpt,
+                                let srcURLString = srcURLStringOpt else {
+                                    throw TaxonomyError.parseError(message: "Could not parse XML data")
+                            }
+                            
+                            guard let url = URL(string: urlString), let srcURL = URL(string: srcURLString) else {
+                                throw TaxonomyError.parseError(message: "Could not parse XML data")
+                            }
+                            
+                            let linkProvider = ExternalLink.Provider(id: srcId, name: srcName, abbreviation: srcAbbr, url: srcURL)
+                            let linkOut = ExternalLink(url: url, title: title, provider: linkProvider)
+                            links.append(linkOut)
+                        }
+                    
+                        callback(links, nil)
+                    } catch _ {
+                        callback(nil, .parseError(message: "Could not parse XML data"))
+                    }
+                case 400:
+                    callback(nil, .badRequest(identifier: id))
+                default:
+                    callback(nil, .unexpectedResponseError(code: response.statusCode))
+                }
+            } else if let rootError = error {
+                callback(nil, .networkError(underlyingError: rootError))
             }
         }
         task.resume()

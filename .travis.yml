@@ -4,7 +4,7 @@ xcode_project: TaxonomyKit.xcodeproj
 xcode_scheme: TaxonomyKit
 xcode_sdk: iphonesimulator
 before_install:
-- carthage update
-script: set -o pipefail && xcodebuild -project $TRAVIS_XCODE_PROJECT -scheme $TRAVIS_XCODE_SCHEME -sdk $TRAVIS_XCODE_SDK -destination 'name=iPhone 6' build test | xcpretty
+- carthage update --platform iOS
+script: set -o pipefail && xcodebuild -project $TRAVIS_XCODE_PROJECT -scheme $TRAVIS_XCODE_SCHEME -sdk $TRAVIS_XCODE_SDK -destination 'name=iPhone SE' build test | xcpretty
 after_success:
 - bash <(curl -s https://codecov.io/bash) -J 'TaxonomyKit'

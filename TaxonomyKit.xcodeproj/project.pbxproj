@@ -18,6 +18,8 @@
 		99B03FBF1D9BEEC3007F57AF /* FindIdentifiersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B03FBA1D9BEEC3007F57AF /* FindIdentifiersTests.swift */; };
 		99B03FC01D9BEEC3007F57AF /* TaxonomyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B03FBB1D9BEEC3007F57AF /* TaxonomyTests.swift */; };
 		99B03FC31D9BEF61007F57AF /* AEXML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99B03FC21D9BEF53007F57AF /* AEXML.framework */; };
+		99B4B3311DCDE5D500DC918A /* ExternalLink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B4B3301DCDE5D500DC918A /* ExternalLink.swift */; };
+		99B4B3331DCDE8B500DC918A /* LinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B4B3321DCDE8B500DC918A /* LinkTests.swift */; };
 		99B99B871D9C17E700F77893 /* SpellingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B99B861D9C17E700F77893 /* SpellingTests.swift */; };
 		99B99B891D9C1D6C00F77893 /* DownloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B99B881D9C1D6C00F77893 /* DownloadTests.swift */; };
 		99CFC5CB1D9AB0FC00C8A415 /* TaxonomyKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99CFC5C11D9AB0FC00C8A415 /* TaxonomyKit.framework */; };
@@ -50,6 +52,8 @@
 		99B03FBA1D9BEEC3007F57AF /* FindIdentifiersTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FindIdentifiersTests.swift; sourceTree = "<group>"; };
 		99B03FBB1D9BEEC3007F57AF /* TaxonomyTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaxonomyTests.swift; sourceTree = "<group>"; };
 		99B03FC21D9BEF53007F57AF /* AEXML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AEXML.framework; path = Carthage/Build/iOS/AEXML.framework; sourceTree = "<group>"; };
+		99B4B3301DCDE5D500DC918A /* ExternalLink.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExternalLink.swift; sourceTree = "<group>"; };
+		99B4B3321DCDE8B500DC918A /* LinkTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinkTests.swift; sourceTree = "<group>"; };
 		99B99B861D9C17E700F77893 /* SpellingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpellingTests.swift; sourceTree = "<group>"; };
 		99B99B881D9C1D6C00F77893 /* DownloadTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadTests.swift; sourceTree = "<group>"; };
 		99CFC5C11D9AB0FC00C8A415 /* TaxonomyKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TaxonomyKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -119,6 +123,7 @@
 				99B03FAF1D9BEEB5007F57AF /* TaxonomyError.swift */,
 				99B03FB01D9BEEB5007F57AF /* Taxon.swift */,
 				99B03FB11D9BEEB5007F57AF /* TaxonLineageItem.swift */,
+				99B4B3301DCDE5D500DC918A /* ExternalLink.swift */,
 				99CFC5C51D9AB0FC00C8A415 /* Info.plist */,
 			);
 			path = TaxonomyKit;
@@ -133,6 +138,7 @@
 				99B03FBA1D9BEEC3007F57AF /* FindIdentifiersTests.swift */,
 				99B99B861D9C17E700F77893 /* SpellingTests.swift */,
 				99B99B881D9C1D6C00F77893 /* DownloadTests.swift */,
+				99B4B3321DCDE8B500DC918A /* LinkTests.swift */,
 				99B03FBB1D9BEEC3007F57AF /* TaxonomyTests.swift */,
 				99CFC5D11D9AB0FC00C8A415 /* Info.plist */,
 			);
@@ -266,6 +272,7 @@
 				99B03FB51D9BEEB5007F57AF /* Taxon.swift in Sources */,
 				99B03FB31D9BEEB5007F57AF /* TaxonomyRequest.swift in Sources */,
 				99B03FB21D9BEEB5007F57AF /* Taxonomy.swift in Sources */,
+				99B4B3311DCDE5D500DC918A /* ExternalLink.swift in Sources */,
 				99B03FB41D9BEEB5007F57AF /* TaxonomyError.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -277,6 +284,7 @@
 				99B99B891D9C1D6C00F77893 /* DownloadTests.swift in Sources */,
 				99B03FBE1D9BEEC3007F57AF /* TaxonTests.swift in Sources */,
 				99B03FBD1D9BEEC3007F57AF /* TaxonLineageItemTests.swift in Sources */,
+				99B4B3331DCDE8B500DC918A /* LinkTests.swift in Sources */,
 				99B03FC01D9BEEC3007F57AF /* TaxonomyTests.swift in Sources */,
 				99B99B871D9C17E700F77893 /* SpellingTests.swift in Sources */,
 				99B03FBF1D9BEEC3007F57AF /* FindIdentifiersTests.swift in Sources */,

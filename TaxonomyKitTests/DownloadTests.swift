@@ -35,7 +35,6 @@ final class DownloadTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
     }
     
-    //MARK: Find identifiers
     
     func testDownloadTaxon() {
         let query = "58334"
