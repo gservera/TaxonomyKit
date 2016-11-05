@@ -33,7 +33,7 @@ public typealias TaxonID = String
 /// The base class from which all the Taxonomy related tasks are initiated. This class
 /// is not meant to be instantiated but it serves as a start node to invoke the
 /// TaxonomyKit functions in your code.
-public class Taxonomy {
+public final class Taxonomy {
     
     internal init() { /* We prevent this struct from being instantiated. */ }
     

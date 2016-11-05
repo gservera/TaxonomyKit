@@ -47,7 +47,7 @@ public struct TaxonLineageItem {
     ///                         `rank` property will be set to `nil`.
     ///
     /// - returns: The initialized `TaxonLineageItem` struct.
-    public init(identifier: TaxonID, name: String, rank: String) {
+    internal init(identifier: TaxonID, name: String, rank: String) {
         self.identifier = identifier
         self.name = name
         self.rank = (rank == "no rank") ? nil : rank
