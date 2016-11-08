@@ -18,7 +18,7 @@ TaxonomyKit is a powerful, handy and cross-platform library that makes working w
 ## How To Get Started
 
 - [Download TaxonomyKit](https://github.com/gservera/TaxonomyKit/archive/master.zip) or install it using Carthage.
-- Check out the [Documentation](https://gservera.com/docs/TaxonomyKit/1.0/) for the Taxonomy struct or just read the following section to begin quickly.
+- Check out the [Documentation](https://gservera.com/docs/TaxonomyKit/) for the Taxonomy struct or just read the following section to begin quickly.
 
 
 ## First steps

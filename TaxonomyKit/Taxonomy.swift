@@ -40,22 +40,23 @@ public final class Taxonomy {
     /// Used for testing purposes. Don't change this value
     internal static var _urlSession: URLSession = URLSession.shared
     
+    
     /// Sends an asynchronous request to the NCBI servers asking for every taxon identifier that
     /// matches a specific query.
+    /// - Since: TaxonomyKit 1.0.
+    /// - Parameters:
+    ///   - query:    The user-entered search query.
+    ///   - callback: A callback closure that will be called when the request completes or when
+    ///               an error occurs. This closure has two parameters.
+    ///   - identifiers: An array of the matching taxon IDs (may be empty) or `nil` if an error occurred.
+    ///   - error: The corresponding `TaxonomyError` value if an error occurred, or `nil` instead.
     ///
-    /// - parameter query:    The user-entered search query
-    /// - parameter callback: A callback function that will be called when the request completes
-    ///                       or when an error occurs. This function has two parameters, the
-    ///                       first an array of the matching TaxonIDs (may be empty) or `nil`
-    ///                       if an error occurred. In that case, the second parameter will be
-    ///                       set to the corresponding `TaxonomyError` value.
-    ///
-    /// - warning: Please note that the callback may not be called on the main thread.
-    /// - returns: The `URLSessionDataTask` object that has begun handling the request. You
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public static func findIdentifiers(for query: String,
-        callback: @escaping ([TaxonID]?, TaxonomyError?) -> ()) -> URLSessionDataTask {
+        callback: @escaping (_ identifiers: [TaxonID]?, _ error: TaxonomyError?) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.search(query: query)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
@@ -94,22 +95,22 @@ public final class Taxonomy {
     
     /// Sends an asynchronous request to the NCBI servers asking for record names spelled 
     /// similarly to an unmatched query.
+    /// - Since: TaxonomyKit 1.0.
+    /// - Parameters:
+    ///   - failedQuery: The user-entered and unmatched search query. If the query is valid, 
+    ///                  the callback will be called with a `nil` value.
+    ///   - callback: A callback closure that will be called when the request completes or when
+    ///               an error occurs. This closure has two parameters.
+    ///   - suggestion: The first suggested candidate or `nil` if no alternative names were found 
+    ///                 or if an error occurred.
+    ///   - error: The corresponding `TaxonomyError` value if an error occurred.
     ///
-    /// - parameter failedQuery: The user-entered and unmatched search query. If the query
-    ///                          is valid, the callback will be called with a `nil` value.
-    /// - parameter callback:    A callback function that will be called when the request 
-    ///                          completes or when an error occurs. This function has two 
-    ///                          parameters, the first a string of the first candidate or `nil` 
-    ///                          if no alternative names were found or if an error occurred. In 
-    ///                          that case, the second parameter will be set to the 
-    ///                          corresponding `TaxonomyError` value.
-    ///
-    /// - warning: Please note that the callback may not be called on the main thread.
-    /// - returns: The `URLSessionDataTask` object that has begun handling the request. You
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public static func findSimilarSpelledCandidates(for failedQuery: String,
-        callback: @escaping (String?, TaxonomyError?) -> ()) -> URLSessionDataTask {
+        callback: @escaping (_ suggestion: String?, _ error: TaxonomyError?) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.spelling(failedQuery: failedQuery)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
@@ -148,20 +149,20 @@ public final class Taxonomy {
     
     /// Sends an asynchronous request to the NCBI servers asking for the taxon and lineage
     /// info for a given NCBI internal identifier.
+    /// - Since: TaxonomyKit 1.0.
+    /// - Parameters:
+    ///   - id:       The NCBI internal identifier.
+    ///   - callback: A callback closure that will be called when the request completes or when 
+    ///               an error occurs. This closure has two parameters.
+    ///   - taxon: The retrieved `Taxon` object or `nil` if an error occurred.
+    ///   - error: The corresponding `TaxonomyError` value if an error occurred, or `nil` instead.
     ///
-    /// - parameter id:       The NCBI internal identifier.
-    /// - parameter callback: A callback function that will be called when the request completes 
-    ///                       or when an error occurs. This function has two parameters, the 
-    ///                       first is the retrieved `Taxon` object or `nil` if an error 
-    ///                       occurred. In that case, the second parameter will be set to the
-    ///                       corresponding `TaxonomyError` value.
-    ///
-    /// - warning: Please note that the callback may not be called on the main thread.
-    /// - returns: The `URLSessionDataTask` object that has begun handling the request. You
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public static func downloadTaxon(withIdentifier id: TaxonID,
-                                                        callback: @escaping (Taxon?, TaxonomyError?) -> ()) -> URLSessionDataTask {
+        callback: @escaping (_ taxon: Taxon?, _ error: TaxonomyError?) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.download(identifier: id)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
@@ -228,6 +229,19 @@ public final class Taxonomy {
     }
     
     
+    /// Sends an asynchronous request to the NBCBI servers asking for external links related
+    /// to a given taxon identifier.
+    /// - Since: TaxonomyKit 1.1.
+    /// - Parameters:
+    ///   - id: The NCBI internal identifier.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has two parameters, the first is an array
+    ///               of the retrieved links or `nil` if an error occurred. In that case, the second
+    ///               parameter will be set to the corresponding `TaxonomyError` value.
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
     @discardableResult public static func findLinkedResources(for id: TaxonID,
                                                         callback: @escaping ([ExternalLink]?, TaxonomyError?) -> ()) -> URLSessionDataTask {
         
