@@ -43,6 +43,7 @@ public final class Taxonomy {
     
     /// Sends an asynchronous request to the NCBI servers asking for every taxon identifier that
     /// matches a specific query.
+    ///
     /// - Since: TaxonomyKit 1.0.
     /// - Parameters:
     ///   - query:    The user-entered search query.
@@ -95,6 +96,7 @@ public final class Taxonomy {
     
     /// Sends an asynchronous request to the NCBI servers asking for record names spelled 
     /// similarly to an unmatched query.
+    ///
     /// - Since: TaxonomyKit 1.0.
     /// - Parameters:
     ///   - failedQuery: The user-entered and unmatched search query. If the query is valid, 
@@ -112,7 +114,7 @@ public final class Taxonomy {
     @discardableResult public static func findSimilarSpelledCandidates(for failedQuery: String,
         callback: @escaping (_ suggestion: String?, _ error: TaxonomyError?) -> ()) -> URLSessionDataTask {
         
-        let request = TaxonomyRequest.spelling(failedQuery: failedQuery)
+        let request = TaxonomyRequest.spelling(failedQuery: failedQuery.lowercased())
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
             if error == nil {
                 guard let response = response as? HTTPURLResponse, let data = data else {
@@ -149,6 +151,7 @@ public final class Taxonomy {
     
     /// Sends an asynchronous request to the NCBI servers asking for the taxon and lineage
     /// info for a given NCBI internal identifier.
+    ///
     /// - Since: TaxonomyKit 1.0.
     /// - Parameters:
     ///   - id:       The NCBI internal identifier.
@@ -231,6 +234,7 @@ public final class Taxonomy {
     
     /// Sends an asynchronous request to the NBCBI servers asking for external links related
     /// to a given taxon identifier.
+    ///
     /// - Since: TaxonomyKit 1.1.
     /// - Parameters:
     ///   - id: The NCBI internal identifier.

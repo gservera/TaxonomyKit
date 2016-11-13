@@ -70,6 +70,17 @@ final class SpellingTests: XCTestCase {
         waitForExpectations(timeout: 1000, handler: nil)
     }
     
+    func testUnmatchedAndUppercaseQuery() {
+        let query = "Ngosdkmpdmgpsmsndosdng"
+        let condition = expectation(description: "Finished")
+        Taxonomy.findSimilarSpelledCandidates(for: query) { (name, error) in
+            XCTAssertNil(error)
+            XCTAssertNil(name)
+            condition.fulfill()
+        }
+        waitForExpectations(timeout: 1000, handler: nil)
+    }
+    
     func testMalformedXML() {
         Taxonomy._urlSession = MockSession()
         let response =
