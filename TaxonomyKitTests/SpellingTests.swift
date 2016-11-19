@@ -39,10 +39,14 @@ final class SpellingTests: XCTestCase {
     func testValidQueryResult() {
         let query = "quercus ilex"
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: query) { (name, error) in
-            XCTAssertNil(error)
-            XCTAssertNil(name)
-            condition.fulfill()
+        Taxonomy.findSimilarSpelledCandidates(for: query) { result in
+            switch result {
+            case .success(let suggestion):
+                XCTAssertNil(suggestion, "Should have returned a nil value.")
+                condition.fulfill()
+            case .failure(let error):
+                XCTFail("Should have succeeded. Error was: \(error)")
+            }
         }
         waitForExpectations(timeout: 1000, handler: nil)
     }
@@ -50,11 +54,14 @@ final class SpellingTests: XCTestCase {
     func testMatchingResult() {
         let query = "Quercus iles"
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: query) { (name, error) in
-            XCTAssertNil(error)
-            XCTAssertNotNil(name)
-            XCTAssertEqual(name, "quercus ilex")
-            condition.fulfill()
+        Taxonomy.findSimilarSpelledCandidates(for: query) { result in
+            switch result {
+            case .success(let suggestion):
+                XCTAssertNotNil(suggestion, "Should have retrieved a string.")
+                condition.fulfill()
+            case .failure(let error):
+                XCTFail("Should have succeeded. Error was: \(error)")
+            }
         }
         waitForExpectations(timeout: 1000, handler: nil)
     }
@@ -62,10 +69,14 @@ final class SpellingTests: XCTestCase {
     func testUnmatchedQuery() {
         let query = "ngosdkmpdmgpsmsndosdng"
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: query) { (name, error) in
-            XCTAssertNil(error)
-            XCTAssertNil(name)
-            condition.fulfill()
+        Taxonomy.findSimilarSpelledCandidates(for: query) { result in
+            switch result {
+            case .success(let suggestion):
+                XCTAssertNil(suggestion, "Should have returned a nil value.")
+                condition.fulfill()
+            case .failure(let error):
+                XCTFail("Should have succeeded. Error was: \(error)")
+            }
         }
         waitForExpectations(timeout: 1000, handler: nil)
     }
@@ -73,10 +84,14 @@ final class SpellingTests: XCTestCase {
     func testUnmatchedAndUppercaseQuery() {
         let query = "Ngosdkmpdmgpsmsndosdng"
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: query) { (name, error) in
-            XCTAssertNil(error)
-            XCTAssertNil(name)
-            condition.fulfill()
+        Taxonomy.findSimilarSpelledCandidates(for: query) { result in
+            switch result {
+            case .success(let suggestion):
+                XCTAssertNil(suggestion, "Should have returned a nil value.")
+                condition.fulfill()
+            case .failure(let error):
+                XCTFail("Should have succeeded. Error was: \(error)")
+            }
         }
         waitForExpectations(timeout: 1000, handler: nil)
     }
@@ -90,11 +105,14 @@ final class SpellingTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: "anything") { (name, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(name)
-            if case .parseError(_) = error! {
-                condition.fulfill()
+        Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+            switch result {
+            case .success(_):
+                XCTFail("Should have failed")
+            case .failure(let error):
+                if case .parseError(_) = error {
+                    condition.fulfill()
+                }
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -109,11 +127,14 @@ final class SpellingTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: "anything") { (name, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(name)
-            if case .unexpectedResponseError(500) = error! {
-                condition.fulfill()
+        Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+            switch result {
+            case .success(_):
+                XCTFail("Should have failed")
+            case .failure(let error):
+                if case .unexpectedResponseError(500) = error {
+                    condition.fulfill()
+                }
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -124,12 +145,15 @@ final class SpellingTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: "anything") { (name, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(name)
-            if case .networkError(let err as NSError) = error! {
-                if err.code == -1 {
-                    condition.fulfill()
+        Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+            switch result {
+            case .success(_):
+                XCTFail("Should have failed")
+            case .failure(let error):
+                if case .networkError(let err as NSError) = error {
+                    if err.code == -1 {
+                        condition.fulfill()
+                    }
                 }
             }
         }
@@ -140,11 +164,14 @@ final class SpellingTests: XCTestCase {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: "anything") { (name, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(name)
-            if case .unknownError() = error! {
-                condition.fulfill()
+        Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+            switch result {
+            case .success(_):
+                XCTFail("Should have failed")
+            case .failure(let error):
+                if case .unknownError() = error {
+                    condition.fulfill()
+                }
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -161,11 +188,14 @@ final class SpellingTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: "anything") { (name, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(name)
-            if case .unknownError() = error! {
-                condition.fulfill()
+        Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+            switch result {
+            case .success(_):
+                XCTFail("Should have failed")
+            case .failure(let error):
+                if case .unknownError() = error {
+                    condition.fulfill()
+                }
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)

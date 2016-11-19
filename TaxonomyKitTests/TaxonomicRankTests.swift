@@ -1,8 +1,8 @@
 /*
- *  TaxonLineageItem.swift
- *  TaxonomyKit
+ *  TaxonomicRankTests.swift
+ *  TaxonomyKitTests
  *
- *  Created:    Guillem Servera on 24/09/2016.
+ *  Created:    Guillem Servera on 19/11/2016.
  *  Copyright:  © 2016 Guillem Servera (http://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,34 +24,24 @@
  *  THE SOFTWARE.
  */
 
+import XCTest
+@testable import TaxonomyKit
 
-/// The `TaxonLineageItem` is a value that describes an element from a retrieved
-/// taxon's lineage.
-public struct TaxonLineageItem: TaxonRepresenting {
+class TaxonomicRankTests: XCTestCase {
 
-    public let identifier: TaxonID
-
-    public let name: String
-
-    public let rank: TaxonomicRank?
-
-    
-    /// Initializes a new instance using its three defining parameters.
-    ///
-    /// - Parameters:
-    ///   - identifier: The internal NCBI identifier for the record.
-    ///   - name: The scientific name of the record.
-    ///   - rank: The rank of the record or `nil` if not set.
-    internal init(identifier: TaxonID, name: String, rank: TaxonomicRank?) {
-        self.identifier = identifier
-        self.name = name
-        self.rank = rank
+    override func setUp() {
+        super.setUp()
+        // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
-    
-    /// Returns `true` if the `rank` property is set. If `rank` is `nil`, this will return
-    /// `false` instead.
-    public var hasRank: Bool {
-        return rank != nil
+    override func tearDown() {
+        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        super.tearDown()
     }
+
+    func testHierarchy() {
+        XCTAssertTrue(TaxonomicRank.origin < TaxonomicRank.trunk, "Comparsion failed")
+    }
+
+
 }

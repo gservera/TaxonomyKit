@@ -27,7 +27,7 @@
 
 /// The `TaxonLineageItem` is a value that describes an element from a retrieved
 /// taxon's lineage.
-public struct Taxon {
+public struct Taxon: TaxonRepresenting {
     
     /// The internal NCBI identifier for the record.
     public let identifier: TaxonID
@@ -36,10 +36,19 @@ public struct Taxon {
     public let name: String
     
     /// The rank of the record or `nil` if the record has no rank.
-    public let rank: String?
+    public let rank: TaxonomicRank?
     
-    /// The common name of the record or `nil` if not set.
-    public var commonName: String?
+    /// The common names defined for the record, sorted as parsed.
+    /// - Since: TaxonomyKit 1.2.
+    public var commonNames: [String] = []
+    
+    /// The Genbank common name of the record or `nil` if not set.
+    /// - Since: TaxonomyKit 1.2.
+    public var genbankCommonName: String?
+    
+    /// The synonyms defined for this taxon, sorted as parsed.
+    /// - Since: TaxonomyKit 1.2.
+    public var synonyms: [String] = []
     
     /// The name of the main genetic code used by this record and its descendants.
     public let geneticCode: String
@@ -65,11 +74,11 @@ public struct Taxon {
     ///                                property will be set to `nil`.
     ///
     /// - returns: The initialized `Taxon` struct.
-    public init(identifier: TaxonID, name: String, rank: String,
+    public init(identifier: TaxonID, name: String, rank: TaxonomicRank?,
                 geneticCode: String, mitochondrialCode: String) {
         self.identifier = identifier
         self.name = name
-        self.rank = (rank == "no rank") ? nil : rank
+        self.rank = rank
         self.geneticCode = geneticCode
         self.mitochondrialCode = (mitochondrialCode == "Unspecified") ? nil : mitochondrialCode
     }
@@ -90,26 +99,5 @@ public struct Taxon {
         urlComponents.path = "/Taxonomy/Browser/wwwtax.cgi"
         urlComponents.queryItems = [URLQueryItem(name: "id", value: identifier)]
         return urlComponents.url!
-    }
-}
-
-
-extension Taxon: Equatable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
-    
-    // Taxon structs are considered equal when they have the same NCBI record ID.
-    public static func ==(lhs: Taxon, rhs: Taxon) -> Bool {
-        return lhs.identifier == rhs.identifier
-    }
-    
-    public var hashValue: Int {
-        return identifier.hashValue
-    }
-    
-    public var description: String {
-        return "\(name)"
-    }
-    
-    public var debugDescription: String {
-        return "Taxon ID: \(identifier), name: \(name), rank: \(rank ?? "nil")"
     }
 }

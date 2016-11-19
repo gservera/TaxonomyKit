@@ -37,27 +37,33 @@ final class DownloadTests: XCTestCase {
     
     
     func testDownloadTaxon() {
-        let query = "58334"
+        let query = "9606"
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: query) { (taxon, error) in
-            XCTAssertNil(error)
-            XCTAssertNotNil(taxon)
-            condition.fulfill()
+        Taxonomy.downloadTaxon(withIdentifier: query) { (result) in
+            switch result {
+            case .success(_):
+                condition.fulfill()
+            case .failure(let error):
+                XCTFail("Should have retrieved a valid Taxon. Error was \(error)")
+            }
         }
-        waitForExpectations(timeout: 2000, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
     }
     
     func testDownloadUnknownTaxon() {
         let query = "anpafnpanpifadn"
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: query) { (taxon, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(taxon)
-            if case .badRequest(_) = error! {
-                condition.fulfill()
+        Taxonomy.downloadTaxon(withIdentifier: query) { (result) in
+            switch result {
+            case .success(let taxon):
+                XCTFail("Should have failed. Retrieved \(taxon) instead.")
+            case .failure(let error):
+                if case .badRequest(_) = error {
+                    condition.fulfill()
+                }
             }
         }
-        waitForExpectations(timeout: 2000, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
     }
     
     func testMalformedXML() {
@@ -69,14 +75,17 @@ final class DownloadTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(taxon)
-            if case .parseError(_) = error! {
-                condition.fulfill()
+        Taxonomy.downloadTaxon(withIdentifier: "anything") { (result) in
+            switch result {
+            case .success(let taxon):
+                XCTFail("Should have failed. Retrieved \(taxon) instead.")
+            case .failure(let error):
+                if case .parseError(_) = error {
+                    condition.fulfill()
+                }
             }
         }
-        waitForExpectations(timeout: 2000, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
     }
     
     func testUnknownResponse() {
@@ -88,14 +97,17 @@ final class DownloadTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(taxon)
-            if case .unexpectedResponseError(500) = error! {
-                condition.fulfill()
+        Taxonomy.downloadTaxon(withIdentifier: "anything") { (result) in
+            switch result {
+            case .success(let taxon):
+                XCTFail("Should have failed. Retrieved \(taxon) instead.")
+            case .failure(let error):
+                if case .unexpectedResponseError(500) = error {
+                    condition.fulfill()
+                }
             }
         }
-        waitForExpectations(timeout: 2000, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
     }
     
     func testNetworkError() {
@@ -103,30 +115,36 @@ final class DownloadTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(taxon)
-            if case .networkError(let err as NSError) = error! {
-                if err.code == -1 {
-                    condition.fulfill()
+        Taxonomy.downloadTaxon(withIdentifier: "anything") { (result) in
+            switch result {
+            case .success(let taxon):
+                XCTFail("Should have failed. Retrieved \(taxon) instead.")
+            case .failure(let error):
+                if case .networkError(let err as NSError) = error {
+                    if err.code == -1 {
+                        condition.fulfill()
+                    }
                 }
             }
         }
-        waitForExpectations(timeout: 2000, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
     }
     
     func testOddBehavior() {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(taxon)
-            if case .unknownError() = error! {
-                condition.fulfill()
+        Taxonomy.downloadTaxon(withIdentifier: "anything") { (result) in
+            switch result {
+            case .success(let taxon):
+                XCTFail("Should have failed. Retrieved \(taxon) instead.")
+            case .failure(let error):
+                if case .unknownError() = error {
+                    condition.fulfill()
+                }
             }
         }
-        waitForExpectations(timeout: 2000, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
     }
     
     func testOddBehavior2() {
@@ -140,14 +158,17 @@ final class DownloadTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(taxon)
-            if case .unknownError() = error! {
-                condition.fulfill()
+        Taxonomy.downloadTaxon(withIdentifier: "anything") { (result) in
+            switch result {
+            case .success(let taxon):
+                XCTFail("Should have failed. Retrieved \(taxon) instead.")
+            case .failure(let error):
+                if case .unknownError() = error {
+                    condition.fulfill()
+                }
             }
         }
-        waitForExpectations(timeout: 2000, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
     }
     
     func testMissingInfoXML() {
@@ -161,13 +182,64 @@ final class DownloadTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { (taxon, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(taxon)
-            if case .parseError(_) = error! {
-                condition.fulfill()
+        Taxonomy.downloadTaxon(withIdentifier: "anything") { (result) in
+            switch result {
+            case .success(let taxon):
+                XCTFail("Should have failed. Retrieved \(taxon) instead.")
+            case .failure(let error):
+                if case .parseError(_) = error {
+                    condition.fulfill()
+                }
             }
         }
-        waitForExpectations(timeout: 2000, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
+    }
+    
+    func testMissingInfoXML2() {
+        Taxonomy._urlSession = MockSession()
+        let response =
+            HTTPURLResponse(url: URL(string: "http://github.com")!,
+                            statusCode: 200,
+                            httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><TaxaSet><Taxon><LineageEx><Taxon><TaxId>3511</TaxId><ScientificName>Quercus</ScientificName><Rank>genus</Rank></Taxon></LineageEx></Taxon></TaxaSet>"
+        let data = wrongXML.data(using: .utf8)
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        Taxonomy.downloadTaxon(withIdentifier: "anything") { (result) in
+            switch result {
+            case .success(let taxon):
+                XCTFail("Should have failed. Retrieved \(taxon) instead.")
+            case .failure(let error):
+                if case .parseError(_) = error {
+                    condition.fulfill()
+                }
+            }
+        }
+        waitForExpectations(timeout: 10, handler: nil)
+    }
+    
+    func testMissingInfoXML3() {
+        Taxonomy._urlSession = MockSession()
+        let response =
+            HTTPURLResponse(url: URL(string: "http://github.com")!,
+                            statusCode: 200,
+                            httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><TaxaSet><Taxon><TaxId>3511</TaxId><GeneticCode><GCName>A</GCName></GeneticCode><MitoGeneticCode><MGCName>A</MGCName></MitoGeneticCode><ScientificName>Quercus</ScientificName><Rank>genus</Rank><LineageEx><Taxon><ScientificName>Quercus</ScientificName><Rank>genus</Rank></Taxon></LineageEx></Taxon></TaxaSet>"
+        let data = wrongXML.data(using: .utf8)
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        Taxonomy.downloadTaxon(withIdentifier: "anything") { (result) in
+            switch result {
+            case .success(let taxon):
+                XCTFail("Should have failed. Retrieved \(taxon) instead.")
+            case .failure(let error):
+                if case .parseError(_) = error {
+                    condition.fulfill()
+                }
+            }
+        }
+        waitForExpectations(timeout: 10, handler: nil)
     }
 }

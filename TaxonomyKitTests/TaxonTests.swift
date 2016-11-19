@@ -30,21 +30,23 @@ import XCTest
 
 final class TaxonTests: XCTestCase {
     
-    var test1 = Taxon(identifier: "1234", name: "Quercus", rank: "genus", geneticCode: "Standard", mitochondrialCode: "Standard")
-    var test2 = Taxon(identifier: "5678", name: "No rank", rank: "no rank", geneticCode: "Standard", mitochondrialCode: "Unspecified")
-    var test3 = Taxon(identifier: "1234", name: "foofoof", rank: "foofoof", geneticCode: "Standard", mitochondrialCode: "Standard")
+    var test1 = Taxon(identifier: "1234", name: "Quercus", rank: .genus, geneticCode: "Standard", mitochondrialCode: "Standard")
+    var test2 = Taxon(identifier: "5678", name: "No rank", rank: nil, geneticCode: "Standard", mitochondrialCode: "Unspecified")
+    var test3 = Taxon(identifier: "1234", name: "foofoof", rank: nil, geneticCode: "Standard", mitochondrialCode: "Standard")
     
     override func setUp() {
         super.setUp()
-        test3.commonName = "holly oak"
-        test3.lineageItems = [TaxonLineageItem(identifier: "111", name: "any", rank: "any")]
+        test3.commonNames = ["holly oak"]
+        test3.genbankCommonName = "holly oak"
+        test3.synonyms = ["cool oak"]
+        test3.lineageItems = [TaxonLineageItem(identifier: "111", name: "any", rank: nil)]
     }
     
     func testInitialization() {
         XCTAssertEqual(test1.identifier, "1234", "Taxon init failed")
         XCTAssertEqual(test1.name, "Quercus", "Taxon init failed")
         XCTAssertNotNil(test1.rank, "Taxon init failed")
-        XCTAssertEqual(test1.rank!, "genus", "Taxon init failed")
+        XCTAssertEqual(test1.rank!, .genus, "Taxon init failed")
         XCTAssertNil(test2.rank, "Taxon rank should be nil")
         
         XCTAssertEqual(test1.geneticCode, "Standard", "Taxon init failed")
@@ -58,6 +60,10 @@ final class TaxonTests: XCTestCase {
         
         XCTAssertTrue(test1.lineageItems.count == 0, "Taxon init failed")
         XCTAssertTrue(test3.lineageItems.count == 1, "Taxon init failed")
+        
+        XCTAssertEqual(test3.commonNames, ["holly oak"], "Taxon init failed")
+        XCTAssertEqual(test3.genbankCommonName!, "holly oak", "Taxon init failed")
+        XCTAssertEqual(test3.synonyms.count, 1, "Taxon init failed")
     }
     
     func testEqualty() {
@@ -68,13 +74,8 @@ final class TaxonTests: XCTestCase {
     }
     
     func testDescription() {
-        XCTAssertEqual(test1.description, "Quercus")
-        XCTAssertEqual(test2.description, "No rank")
-    }
-    
-    func testDebugDescription() {
-        XCTAssertEqual(test1.debugDescription, "Taxon ID: 1234, name: Quercus, rank: genus")
-        XCTAssertEqual(test2.debugDescription, "Taxon ID: 5678, name: No rank, rank: nil")
+        XCTAssertEqual(test1.description, "genus: Quercus::Taxon")
+        XCTAssertEqual(test2.description, "no rank: No rank::Taxon")
     }
     
     func testURLGeneration() {

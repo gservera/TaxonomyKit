@@ -39,23 +39,29 @@ final class FindIdentifiersTests: XCTestCase {
     func testSingleResult() {
         let query = "Quercus ilex"
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: query) { (identifiers, error) in
-            XCTAssertNil(error)
-            XCTAssertNotNil(identifiers)
-            XCTAssertEqual(identifiers!.count, 1)
-            XCTAssertEqual(identifiers![0], "58334")
-            condition.fulfill()
+        Taxonomy.findIdentifiers(for: query) { (result) in
+            switch result {
+            case .success(let identifiers):
+                XCTAssertEqual(identifiers.count, 1)
+                XCTAssertEqual(identifiers[0], "58334")
+                condition.fulfill()
+            case .failure(let error):
+                XCTFail(error.localizedDescription)
+            }
         }
         waitForExpectations(timeout: 1000, handler: nil)
     }
     
     func testUnmatchedQuery() {
         let condition = expectation(description: "Unmatched query")
-        Taxonomy.findIdentifiers(for: "invalid-invalid-invalid") { (identifiers, error) in
-            XCTAssertNil(error)
-            XCTAssertNotNil(identifiers)
-            XCTAssertEqual(identifiers!.count, 0)
-            condition.fulfill()
+        Taxonomy.findIdentifiers(for: "invalid-invalid-invalid") { (result) in
+            switch result {
+            case .success(let identifiers):
+                XCTAssertEqual(identifiers.count, 0)
+                condition.fulfill()
+            case .failure(let error):
+                XCTFail(error.localizedDescription)
+            }
         }
         waitForExpectations(timeout: 1000, handler: nil)
     }
@@ -69,11 +75,14 @@ final class FindIdentifiersTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
-            if case .parseError(_) = error! {
-                condition.fulfill()
+        Taxonomy.findIdentifiers(for: "anything") { (result) in
+            switch result {
+            case .failure(let error):
+                if case .parseError(_) = error {
+                    condition.fulfill()
+                }
+            default:
+                XCTFail("Should have failed")
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -88,11 +97,14 @@ final class FindIdentifiersTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
-            if case .unexpectedResponseError(500) = error! {
-                condition.fulfill()
+        Taxonomy.findIdentifiers(for: "anything") { (result) in
+            switch result {
+            case .failure(let error):
+                if case .unexpectedResponseError(500) = error {
+                    condition.fulfill()
+                }
+            default:
+                XCTFail("Should have failed")
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -103,13 +115,14 @@ final class FindIdentifiersTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
-            if case .networkError(let err as NSError) = error! {
-                if err.code == -1 {
+        Taxonomy.findIdentifiers(for: "anything") { (result) in
+            switch result {
+            case .failure(let error):
+                if case .networkError(_) = error {
                     condition.fulfill()
                 }
+            default:
+                XCTFail("Should have failed")
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -119,11 +132,14 @@ final class FindIdentifiersTests: XCTestCase {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
-            if case .unknownError() = error! {
-                condition.fulfill()
+        Taxonomy.findIdentifiers(for: "anything") { (result) in
+            switch result {
+            case .failure(let error):
+                if case .unknownError() = error {
+                    condition.fulfill()
+                }
+            default:
+                XCTFail("Should have failed")
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -139,11 +155,14 @@ final class FindIdentifiersTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (identifiers, error) in
-            XCTAssertNotNil(error)
-            XCTAssertNil(identifiers)
-            if case .unknownError() = error! {
-                condition.fulfill()
+        Taxonomy.findIdentifiers(for: "anything") { (result) in
+            switch result {
+            case .failure(let error):
+                if case .unknownError() = error {
+                    condition.fulfill()
+                }
+            default:
+                XCTFail("Should have failed")
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)

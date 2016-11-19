@@ -27,13 +27,13 @@ TaxonomyKit is a powerful, handy and cross-platform library that makes working w
 
 ```swift
 let myCoolQuery = "quercus ilex"
-Taxonomy.findIdentifiers(for: myCoolQuery, 
-                    callback: { (identifiers, error) in
-    guard error == nil, let foundIDs = identifiers else {
-      print("Ooops!")
-      return
+Taxonomy.findIdentifiers(for: myCoolQuery, callback: { result in
+    switch result {
+    case .success(let foundIDs):
+        print("Found identifiers: \(foundIDs).")
+    case .failure(let error):
+        print("Oops! Something went wrong.")
     }
-    print("Found identifiers: \(foundIDs)")
 })
 ```
 
@@ -41,13 +41,13 @@ Taxonomy.findIdentifiers(for: myCoolQuery,
 
 ```swift
 let foundID: TaxonID = "58334" // Use the one you got from previous step.
-Taxonomy.downloadTaxon(withIdentifier: foundID, 
-                             callback: { (taxon, error) in
-    guard error == nil, let taxon = taxon else {
-      print("Ooops!")
-      return
+Taxonomy.downloadTaxon(withIdentifier: foundID, callback: { result in
+    switch result {
+    case .success(let taxon):
+        print("Got taxon: \(taxon.name).")
+    case .failure(let error):
+        print("Oops! Something went wrong.")
     }
-    print("Got taxon: \(taxon.name)")
 })
 ```
 
@@ -66,7 +66,7 @@ To integrate TaxonomyKit into your Xcode project using Carthage, specify it in y
 
 ```ogdl
 github "tadija/AEXML"
-github "gservera/TaxonomyKit" ~> 1.1
+github "gservera/TaxonomyKit" ~> 1.2
 ```
 
 Run `carthage update` on your project's directory to build the framework and drag the built `TaxonomyKit.framework` into your Xcode project.
