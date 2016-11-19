@@ -40,7 +40,7 @@ class TaxonomicRankTests: XCTestCase {
     }
 
     func testHierarchy() {
-        XCTAssertTrue(TaxonomicRank.origin < TaxonomicRank.trunk, "Comparsion failed")
+        XCTAssertTrue(TaxonomicRank.origin < TaxonomicRank.species, "Comparsion failed")
     }
 
 
