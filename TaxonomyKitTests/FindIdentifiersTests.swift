@@ -35,79 +35,62 @@ final class FindIdentifiersTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
     }
     
-    
-    func testSingleResult() {
-        let query = "Quercus ilex"
-        let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: query) { (result) in
-            switch result {
-            case .success(let identifiers):
+    func testQueryWithSingleResult() {
+        let condition = expectation(description: "Should have succeeded")
+        Taxonomy.findIdentifiers(for: "Quercus ilex") { result in
+            if case .success(let identifiers) = result {
                 XCTAssertEqual(identifiers.count, 1)
                 XCTAssertEqual(identifiers[0], "58334")
                 condition.fulfill()
-            case .failure(let error):
-                XCTFail(error.localizedDescription)
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testUnmatchedQuery() {
         let condition = expectation(description: "Unmatched query")
-        Taxonomy.findIdentifiers(for: "invalid-invalid-invalid") { (result) in
-            switch result {
-            case .success(let identifiers):
+        Taxonomy.findIdentifiers(for: "invalid-invalid") { result in
+            if case .success(let identifiers) = result {
                 XCTAssertEqual(identifiers.count, 0)
                 condition.fulfill()
-            case .failure(let error):
-                XCTFail(error.localizedDescription)
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
-    func testMalformedJSON() {
+    func testFakeMalformedJSON() {
         Taxonomy._urlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 200, httpVersion: "1.1",
                             headerFields: [:])! as URLResponse
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (result) in
-            switch result {
-            case .failure(let error):
-                if case .parseError(_) = error {
-                    condition.fulfill()
-                }
-            default:
-                XCTFail("Should have failed")
+        Taxonomy.findIdentifiers(for: "anything") { result in
+            if case .failure(let error) = result, case .parseError(_) = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testUnknownResponse() {
         Taxonomy._urlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 500, httpVersion: "1.1",
                             headerFields: [:])! as URLResponse
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (result) in
-            switch result {
-            case .failure(let error):
-                if case .unexpectedResponseError(500) = error {
-                    condition.fulfill()
-                }
-            default:
-                XCTFail("Should have failed")
+        Taxonomy.findIdentifiers(for: "anything") { result in
+            if case .failure(let error) = result,
+               case .unexpectedResponseError(500) = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testNetworkError() {
@@ -115,31 +98,23 @@ final class FindIdentifiersTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (result) in
-            switch result {
-            case .failure(let error):
-                if case .networkError(_) = error {
-                    condition.fulfill()
-                }
-            default:
-                XCTFail("Should have failed")
+        Taxonomy.findIdentifiers(for: "anything") { result in
+            if case .failure(let error) = result,
+                case .networkError(_) = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testOddBehavior() {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (result) in
-            switch result {
-            case .failure(let error):
-                if case .unknownError() = error {
-                    condition.fulfill()
-                }
-            default:
-                XCTFail("Should have failed")
+        Taxonomy.findIdentifiers(for: "anything") { result in
+            if case .failure(let error) = result,
+                case .unknownError() = error {
+                condition.fulfill()
             }
         }
         waitForExpectations(timeout: 1000, handler: nil)
@@ -148,23 +123,19 @@ final class FindIdentifiersTests: XCTestCase {
     func testOddBehavior2() {
         Taxonomy._urlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 200,
                             httpVersion: "1.1",
                             headerFields: [:])! as URLResponse
         let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findIdentifiers(for: "anything") { (result) in
-            switch result {
-            case .failure(let error):
-                if case .unknownError() = error {
-                    condition.fulfill()
-                }
-            default:
-                XCTFail("Should have failed")
+        Taxonomy.findIdentifiers(for: "anything") { result in
+            if case .failure(let error) = result,
+                case .unknownError() = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
 }
