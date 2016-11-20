@@ -40,60 +40,48 @@ final class SpellingTests: XCTestCase {
         let query = "quercus ilex"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
-            switch result {
-            case .success(let suggestion):
+            if case .success(let suggestion) = result {
                 XCTAssertNil(suggestion, "Should have returned a nil value.")
                 condition.fulfill()
-            case .failure(let error):
-                XCTFail("Should have succeeded. Error was: \(error)")
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testMatchingResult() {
         let query = "Quercus iles"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
-            switch result {
-            case .success(let suggestion):
+            if case .success(let suggestion) = result {
                 XCTAssertNotNil(suggestion, "Should have retrieved a string.")
                 condition.fulfill()
-            case .failure(let error):
-                XCTFail("Should have succeeded. Error was: \(error)")
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testUnmatchedQuery() {
         let query = "ngosdkmpdmgpsmsndosdng"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
-            switch result {
-            case .success(let suggestion):
+            if case .success(let suggestion) = result {
                 XCTAssertNil(suggestion, "Should have returned a nil value.")
                 condition.fulfill()
-            case .failure(let error):
-                XCTFail("Should have succeeded. Error was: \(error)")
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testUnmatchedAndUppercaseQuery() {
         let query = "Ngosdkmpdmgpsmsndosdng"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
-            switch result {
-            case .success(let suggestion):
+            if case .success(let suggestion) = result {
                 XCTAssertNil(suggestion, "Should have returned a nil value.")
                 condition.fulfill()
-            case .failure(let error):
-                XCTFail("Should have succeeded. Error was: \(error)")
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testMalformedXML() {
@@ -106,16 +94,12 @@ final class SpellingTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .parseError(_) = error {
-                    condition.fulfill()
-                }
+            if case .failure(let error) = result,
+                case .parseError(_) = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testUnknownResponse() {
@@ -128,16 +112,12 @@ final class SpellingTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .unexpectedResponseError(500) = error {
-                    condition.fulfill()
-                }
+            if case .failure(let error) = result,
+                case .unexpectedResponseError(500) = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testNetworkError() {
@@ -146,18 +126,12 @@ final class SpellingTests: XCTestCase {
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .networkError(let err as NSError) = error {
-                    if err.code == -1 {
-                        condition.fulfill()
-                    }
-                }
+            if case .failure(let error) = result,
+                case .networkError(let nErr as NSError) = error, nErr.code == -1 {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testOddBehavior() {
@@ -165,16 +139,12 @@ final class SpellingTests: XCTestCase {
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .unknownError() = error {
-                    condition.fulfill()
-                }
+            if case .failure(let error) = result,
+                case .unknownError() = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testOddBehavior2() {
@@ -189,15 +159,11 @@ final class SpellingTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .unknownError() = error {
-                    condition.fulfill()
-                }
+            if case .failure(let error) = result,
+                case .unknownError() = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
 }

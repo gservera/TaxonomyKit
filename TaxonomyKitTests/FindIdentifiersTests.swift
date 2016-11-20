@@ -117,7 +117,7 @@ final class FindIdentifiersTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000, handler: nil)
+        waitForExpectations(timeout: 1000)
     }
     
     func testOddBehavior2() {

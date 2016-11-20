@@ -39,32 +39,25 @@ final class LinkTests: XCTestCase {
     func testGetLinks() {
         let query = "58334"
         let condition = expectation(description: "Finished")
-        Taxonomy.findLinkedResources(for: query) { (result) in
-            switch result {
-            case .success(let links):
+        Taxonomy.findLinkedResources(for: query) { result in
+            if case .success(let links) = result {
                 XCTAssertTrue(links.count > 0, "Should have retrieved some links.")
                 condition.fulfill()
-            case .failure(let error):
-                XCTFail("Should have succeeded. Error was: \(error)")
             }
         }
-        waitForExpectations(timeout: 10, handler: nil)
+        waitForExpectations(timeout: 10)
     }
     
     func testLinksForUnknownTaxon() {
         let query = "anpafnpanpifadn"
         let condition = expectation(description: "Finished")
-        Taxonomy.findLinkedResources(for: query) { (result) in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .badRequest(_) = error {
-                    condition.fulfill()
-                }
+        Taxonomy.findLinkedResources(for: query) { result in
+            if case .failure(let error) = result,
+                case .badRequest(_) = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 10, handler: nil)
+        waitForExpectations(timeout: 10)
     }
     
     func testMalformedXML() {
@@ -76,17 +69,13 @@ final class LinkTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findLinkedResources(for: "anything") { (result) in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .parseError(_) = error {
-                    condition.fulfill()
-                }
+        Taxonomy.findLinkedResources(for: "anything") { result in
+            if case .failure(let error) = result,
+                case .parseError(_) = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 10, handler: nil)
+        waitForExpectations(timeout: 10)
     }
     
     
@@ -99,17 +88,13 @@ final class LinkTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findLinkedResources(for: "anything") { (result) in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .unexpectedResponseError(500) = error {
-                    condition.fulfill()
-                }
+        Taxonomy.findLinkedResources(for: "anything") { result in
+            if case .failure(let error) = result,
+                case .unexpectedResponseError(500) = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 10, handler: nil)
+        waitForExpectations(timeout: 10)
     }
     
     func testNetworkError() {
@@ -117,36 +102,26 @@ final class LinkTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.findLinkedResources(for: "anything") { (result) in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .networkError(let err as NSError) = error {
-                    if err.code == -1 {
-                        condition.fulfill()
-                    }
-                }
+        Taxonomy.findLinkedResources(for: "anything") { result in
+            if case .failure(let error) = result,
+                case .networkError(let nErr as NSError) = error, nErr.code == -1 {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 10, handler: nil)
+        waitForExpectations(timeout: 10)
     }
     
     func testOddBehavior() {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findLinkedResources(for: "anything") { (result) in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .unknownError() = error {
-                    condition.fulfill()
-                }
+        Taxonomy.findLinkedResources(for: "anything") { result in
+            if case .failure(let error) = result,
+                case .unknownError() = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 10, handler: nil)
+        waitForExpectations(timeout: 10)
     }
     
     func testOddBehavior2() {
@@ -160,17 +135,13 @@ final class LinkTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findLinkedResources(for: "anything") { (result) in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .unknownError() = error {
-                    condition.fulfill()
-                }
+        Taxonomy.findLinkedResources(for: "anything") { result in
+            if case .failure(let error) = result,
+                case .unknownError() = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 10, handler: nil)
+        waitForExpectations(timeout: 10)
     }
 
     func testMissingInfoXML() {
@@ -184,17 +155,13 @@ final class LinkTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findLinkedResources(for: "anything") { (result) in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .parseError(_) = error {
-                    condition.fulfill()
-                }
+        Taxonomy.findLinkedResources(for: "anything") { result in
+            if case .failure(let error) = result,
+                case .parseError(_) = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 10, handler: nil)
+        waitForExpectations(timeout: 10)
     }
     
     func testMalformedURLXML() {
@@ -208,16 +175,12 @@ final class LinkTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findLinkedResources(for: "anything") { (result) in
-            switch result {
-            case .success(_):
-                XCTFail("Should have failed")
-            case .failure(let error):
-                if case .parseError(_) = error {
-                    condition.fulfill()
-                }
+        Taxonomy.findLinkedResources(for: "anything") { result in
+            if case .failure(let error) = result,
+                case .parseError(_) = error {
+                condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 10, handler: nil)
+        waitForExpectations(timeout: 10)
     }
 }
