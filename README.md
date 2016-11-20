@@ -32,7 +32,7 @@ Taxonomy.findIdentifiers(for: myCoolQuery, callback: { result in
     case .success(let foundIDs):
         print("Found identifiers: \(foundIDs).")
     case .failure(let error):
-        print("Oops! Something went wrong.")
+        print("Oops! Something went wrong. Error was: \(error)")
     }
 })
 ```
@@ -46,7 +46,7 @@ Taxonomy.downloadTaxon(withIdentifier: foundID, callback: { result in
     case .success(let taxon):
         print("Got taxon: \(taxon.name).")
     case .failure(let error):
-        print("Oops! Something went wrong.")
+        print("Oops! Something went wrong. Error was: \(error)")
     }
 })
 ```
