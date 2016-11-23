@@ -166,4 +166,26 @@ final class SpellingTests: XCTestCase {
         }
         waitForExpectations(timeout: 1000)
     }
+    
+    func testCancellation() {
+        Taxonomy._urlSession = MockSession()
+        (Taxonomy._urlSession as! MockSession).wait = 5
+        let response =
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
+                            statusCode: 200,
+                            httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        let dataTask = Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+            XCTFail("Should have been canceled")
+            
+            } as! MockSession.MockTask
+        dataTask.cancel()
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 7.0) {
+            condition.fulfill()
+        }
+        waitForExpectations(timeout: 10)
+    }
 }

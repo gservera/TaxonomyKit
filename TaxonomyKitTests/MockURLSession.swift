@@ -28,23 +28,30 @@ import Foundation
 import XCTest
 
 /// A class used to mock URLSession objects for testing purposes.
-final class MockSession: URLSession {
+@objc public class MockSession: URLSession {
+    
+    var wait: UInt32 = 0
     
     var completionHandler:((Data?, URLResponse?, Error?) -> Void)?
     
     static var mockResponse: (data: Data?, urlResponse: URLResponse?, error: Error?)
     
-    override class var shared: URLSession {
+    override public class var shared: URLSession {
         return MockSession()
         
     }
     
-    override func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+    override public func dataTask(with request: URLRequest, completionHandler: @escaping (Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
         self.completionHandler = completionHandler
-        return MockTask(response: MockSession.mockResponse, completionHandler: completionHandler)
+        let task = MockTask(response: MockSession.mockResponse, completionHandler: completionHandler)
+        task.wait = wait
+        return task
     }
     
-    final class MockTask: URLSessionDataTask {
+    @objc public class MockTask: URLSessionDataTask {
+        
+        var wait: UInt32 = 0
+        var canceled = false
         
         typealias Response = (data: Data?, urlResponse: URLResponse?, error: Error?)
         var mockResponse: Response
@@ -55,8 +62,27 @@ final class MockSession: URLSession {
             self.completionHandler = completionHandler
         }
         
-        override func resume() {
-            completionHandler!(mockResponse.data, mockResponse.urlResponse, mockResponse.error)
+        override public func resume() {
+            DispatchQueue.global(qos: .background).async {
+                let wait = self.wait 
+                if wait > 0 {
+                    sleep(wait)
+                }
+                DispatchQueue.main.async {
+                    if self.canceled {
+                        let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled, userInfo: nil)
+                        self.completionHandler!(nil, nil, error)
+                    } else {
+                        self.completionHandler!(self.mockResponse.data, self.mockResponse.urlResponse, self.mockResponse.error)
+                    }
+                    
+                }
+            }
+            
+        }
+
+        public override func cancel() {
+            canceled = true
         }
         
     }
@@ -66,6 +92,7 @@ final class MockSessionTests: XCTestCase {
     
     func testMockSessionCreation() {
         let mockSession = MockSession.shared
+        (mockSession as! MockSession).wait = 0
         XCTAssertTrue(mockSession is MockSession, "Failed")
     }
     

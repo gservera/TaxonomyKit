@@ -99,7 +99,7 @@ public final class Taxonomy {
                 default:
                     callback(.failure(.unexpectedResponseError(code: response.statusCode)))
                 }
-            } else if let rootError = error {
+            } else if let rootError = error as? NSError, rootError.code != NSURLErrorCancelled {
                 callback(.failure(.networkError(underlyingError: rootError)))
             }
         }
@@ -152,7 +152,7 @@ public final class Taxonomy {
                 default:
                     callback(.failure(.unexpectedResponseError(code: response.statusCode)))
                 }
-            } else if let rootError = error {
+            } else if let rootError = error as? NSError, rootError.code != NSURLErrorCancelled {
                 callback(.failure(.networkError(underlyingError: rootError)))
             }
         }
@@ -239,7 +239,7 @@ public final class Taxonomy {
                 default:
                     callback(.failure(.unexpectedResponseError(code: response.statusCode)))
                 }
-            } else if let rootError = error {
+            } else if let rootError = error as? NSError, rootError.code != NSURLErrorCancelled {
                 callback(.failure(.networkError(underlyingError: rootError)))
             }
         }
@@ -319,7 +319,7 @@ public final class Taxonomy {
                 } else {
                     callback(.failure(.unexpectedResponseError(code: response.statusCode)))
                 }
-            } else if let rootError = error {
+            } else if let rootError = error as? NSError, rootError.code != NSURLErrorCancelled {
                 callback(.failure(.networkError(underlyingError: rootError)))
             }
         }
