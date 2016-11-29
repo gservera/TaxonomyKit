@@ -67,18 +67,18 @@ final class TaxonTreeTests: XCTestCase {
     }
 
     func testTreeCreation() {
-        let taxonTree = TaxonTree(taxons: [testTaxon1, testTaxon2, testTaxon3])
-        XCTAssertTrue(taxonTree.taxons.count == 3, "Initialization failed")
+        let taxonTree = TaxonTree(taxa: [testTaxon1, testTaxon2, testTaxon3])
+        XCTAssertTrue(taxonTree.taxa.count == 3, "Initialization failed")
     }
     
     func testTreeProperties() {
-        let taxonTree = TaxonTree(taxons: [testTaxon1, testTaxon2, testTaxon3])
+        let taxonTree = TaxonTree(taxa: [testTaxon1, testTaxon2, testTaxon3])
         XCTAssertTrue(taxonTree.allNodes.count == 18, "Wrong node count")
         XCTAssertEqual(taxonTree.depth, 7, "Wrong tree depth")
     }
 
     func testNodeRepresentation() {
-        let tree = TaxonTree(taxons: [testTaxon1, testTaxon2, testTaxon3])
+        let tree = TaxonTree(taxa: [testTaxon1, testTaxon2, testTaxon3])
         XCTAssertTrue(tree.origin.represents(node: tree.origin), "Representation error")
         XCTAssertTrue(tree.origin.represents(node: TaxonTree.Node(valuesFrom: testTaxon1)), "Representation error")
         XCTAssertFalse(tree.origin.children[0].represents(node: tree.origin), "Representation error")

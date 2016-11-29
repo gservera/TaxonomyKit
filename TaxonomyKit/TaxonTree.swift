@@ -25,7 +25,7 @@
  */
 
 /// A value type that encapsulates functionality that allows to build a tree
-/// structure based on the lineages of a set of taxons.
+/// structure based on the lineages of a set of taxa.
 public struct TaxonTree {
     
     /// The class that represents each concrete unit in a taxon tree.
@@ -126,16 +126,16 @@ public struct TaxonTree {
     /// The depth of the longest branch in the tree (zero-based).
     private(set) var depth: Int = 0
     
-    /// The taxons used to build the tree.
-    public private(set) var taxons: [Taxon]
+    /// The taxa used to build the tree.
+    public private(set) var taxa: [Taxon]
     
-    /// Initializes a tree structure based on the lineages of a set of taxons.
+    /// Initializes a tree structure based on the lineages of a set of taxa.
     ///
-    /// - Parameter taxons: The taxons to be included in the tree.
-    public init(taxons: [Taxon]) {
-        self.taxons = taxons
+    /// - Parameter taxa: The taxa to be included in the tree.
+    public init(taxa: [Taxon]) {
+        self.taxa = taxa
         allNodes.insert(origin)
-        for taxon in taxons {
+        for taxon in taxa {
             var lastNode: Node = origin
             for (index, lineageItem) in taxon.lineageItems.enumerated() {
                 let node = Node(valuesFrom: lineageItem)
