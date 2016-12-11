@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		990CEE511DDF86E600A71727 /* TaxonomicRank.swift in Sources */ = {isa = PBXBuildFile; fileRef = 990CEE501DDF86E600A71727 /* TaxonomicRank.swift */; };
+		990E5B2C1DFCDB5C00421D43 /* AEXML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99B03FC21D9BEF53007F57AF /* AEXML.framework */; };
 		991641EF1DE0CF2100A584FE /* TaxonRepresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641EE1DE0CF2100A584FE /* TaxonRepresenting.swift */; };
 		991641F11DE0EAEE00A584FE /* TaxonTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641F01DE0EAEE00A584FE /* TaxonTreeTests.swift */; };
 		998260251DDC892600C46586 /* TaxonTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998260241DDC892600C46586 /* TaxonTree.swift */; };
@@ -87,6 +88,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				99CFC5CB1D9AB0FC00C8A415 /* TaxonomyKit.framework in Frameworks */,
+				990E5B2C1DFCDB5C00421D43 /* AEXML.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -181,7 +183,6 @@
 				99CFC5BC1D9AB0FC00C8A415 /* Sources */,
 				99CFC5BD1D9AB0FC00C8A415 /* Frameworks */,
 				99CFC5BE1D9AB0FC00C8A415 /* Headers */,
-				994C527F1D9BF03A009AF4B7 /* Copy dependencies */,
 			);
 			buildRules = (
 			);
@@ -199,6 +200,7 @@
 				99CFC5C61D9AB0FC00C8A415 /* Sources */,
 				99CFC5C71D9AB0FC00C8A415 /* Frameworks */,
 				99CFC5C81D9AB0FC00C8A415 /* Resources */,
+				990E5B2D1DFCDB7100421D43 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -262,14 +264,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		994C527F1D9BF03A009AF4B7 /* Copy dependencies */ = {
+		990E5B2D1DFCDB7100421D43 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Copy dependencies";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -494,12 +495,21 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = Q6R76RZ9Z8;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=appletvos*]" = "$(PROJECT_DIR)/Carthage/Build/tvOS";
+				"FRAMEWORK_SEARCH_PATHS[sdk=appletvsimulator*]" = "$(PROJECT_DIR)/Carthage/Build/tvOS";
+				"FRAMEWORK_SEARCH_PATHS[sdk=macosx*]" = "$(PROJECT_DIR)/Carthage/Build/Mac";
 				INFOPLIST_FILE = TaxonomyKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.gservera.TaxonomyKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3,4";
 			};
 			name = Debug;
 		};
@@ -508,12 +518,19 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				DEVELOPMENT_TEAM = Q6R76RZ9Z8;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Carthage/Build/iOS",
+				);
+				"FRAMEWORK_SEARCH_PATHS[sdk=macosx*]" = "$(PROJECT_DIR)/Carthage/Build/Mac";
 				INFOPLIST_FILE = TaxonomyKitTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @loader_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.gservera.TaxonomyKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = "1,2,3,4";
 			};
 			name = Release;
 		};
