@@ -1,9 +1,9 @@
 /*
- *  SpellingTests.swift
+ *  WikipediaTests.swift
  *  TaxonomyKitTests
  *
- *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016-2017 Guillem Servera (http://github.com/gservera)
+ *  Created:    Guillem Servera on 27/02/2017.
+ *  Copyright:  © 2017 Guillem Servera (http://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,82 +24,95 @@
  *  THE SOFTWARE.
  */
 
-
 import XCTest
 @testable import TaxonomyKit
 
-final class SpellingTests: XCTestCase {
+final class WikipediaTests: XCTestCase {
     
+    let existingTaxon = Taxon(identifier: "", name: "Quercus ilex", rank: nil, geneticCode: "", mitochondrialCode: "")
+    let nonExistingTaxon = Taxon(identifier: "", name: "angpadgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")
+
     override func setUp() {
         super.setUp()
-        Taxonomy._urlSession = URLSession.shared
+        // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
-    
-    func testValidQueryResult() {
+    override func tearDown() {
+        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        super.tearDown()
+    }
+
+    func testValidTaxon() {
         Taxonomy._urlSession = URLSession.shared
-        let query = "quercus ilex"
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: query) { result in
-            if case .success(let suggestion) = result {
-                XCTAssertNil(suggestion, "Should have returned a nil value.")
+        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
+            if case .success(let wrapper) = result {
+                XCTAssertNotNil(wrapper)
                 condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
             }
         }
         waitForExpectations(timeout: 1000)
     }
     
-    func testMatchingResult() {
+    func testValidTaxonWithCustomLocale() {
         Taxonomy._urlSession = URLSession.shared
-        let query = "Quercus iles"
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: query) { result in
-            if case .success(let suggestion) = result {
-                XCTAssertNotNil(suggestion, "Should have retrieved a string.")
+        let customLocale = WikipediaLanguage(locale: Locale(identifier: "ca-ES"))
+        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon, language: customLocale) { result in
+            if case .success(let wrapper) = result {
+                XCTAssertNotNil(wrapper)
+                XCTAssertEqual(wrapper!.language.subdomain, "ca")
                 condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
             }
         }
         waitForExpectations(timeout: 1000)
     }
     
-    func testUnmatchedQuery() {
+    func testValidTaxonWithFakeCustomLocale() {
         Taxonomy._urlSession = URLSession.shared
-        let query = "ngosdkmpdmgpsmsndosdng"
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: query) { result in
-            if case .success(let suggestion) = result {
-                XCTAssertNil(suggestion, "Should have returned a nil value.")
+        let customLocale = WikipediaLanguage(locale: Locale(identifier: "."))
+        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon, language: customLocale) { result in
+            if case .success(let wrapper) = result {
+                XCTAssertNotNil(wrapper)
+                XCTAssertEqual(wrapper!.language.subdomain, "en")
                 condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
             }
         }
         waitForExpectations(timeout: 1000)
     }
     
-    func testUnmatchedAndUppercaseQuery() {
+    func testInvalidTaxon() {
         Taxonomy._urlSession = URLSession.shared
-        let query = "Ngosdkmpdmgpsmsndosdng"
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: query) { result in
-            if case .success(let suggestion) = result {
-                XCTAssertNil(suggestion, "Should have returned a nil value.")
+        Taxonomy.retrieveWikipediaAbstract(for: nonExistingTaxon) { result in
+            if case .success(let wrapper) = result {
+                XCTAssertNil(wrapper)
                 condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
             }
         }
         waitForExpectations(timeout: 1000)
     }
     
-    func testMalformedXML() {
+    func testFakeMalformedJSON() {
         Taxonomy._urlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 200, httpVersion: "1.1",
                             headerFields: [:])! as URLResponse
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
-            if case .failure(let error) = result,
-                case .parseError(_) = error {
+        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
+            if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
         }
@@ -109,13 +122,13 @@ final class SpellingTests: XCTestCase {
     func testUnknownResponse() {
         Taxonomy._urlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 500, httpVersion: "1.1",
                             headerFields: [:])! as URLResponse
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unexpectedResponseError(500) = error {
                 condition.fulfill()
@@ -129,9 +142,9 @@ final class SpellingTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result,
-                case .networkError(let nErr as NSError) = error, nErr.code == -1 {
+                case .networkError(_) = error {
                 condition.fulfill()
             }
         }
@@ -142,7 +155,7 @@ final class SpellingTests: XCTestCase {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError() = error {
                 condition.fulfill()
@@ -154,15 +167,14 @@ final class SpellingTests: XCTestCase {
     func testOddBehavior2() {
         Taxonomy._urlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 200,
                             httpVersion: "1.1",
                             headerFields: [:])! as URLResponse
-        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><note><to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't forget me this weekend!</body></note>"
-        let data = wrongXML.data(using: .utf8)
+        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError() = error {
                 condition.fulfill()
@@ -182,7 +194,7 @@ final class SpellingTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        let dataTask = Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+        let dataTask = Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
             XCTFail("Should have been canceled")
             
             } as! MockSession.MockTask
@@ -192,4 +204,5 @@ final class SpellingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
+
 }

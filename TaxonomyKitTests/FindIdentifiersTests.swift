@@ -3,7 +3,7 @@
  *  TaxonomyKitTests
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016 Guillem Servera (http://github.com/gservera)
+ *  Copyright:  © 2016-2017 Guillem Servera (http://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +36,7 @@ final class FindIdentifiersTests: XCTestCase {
     }
     
     func testQueryWithSingleResult() {
+        Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Should have succeeded")
         Taxonomy.findIdentifiers(for: "Quercus ilex") { result in
             if case .success(let identifiers) = result {
@@ -48,6 +49,7 @@ final class FindIdentifiersTests: XCTestCase {
     }
     
     func testUnmatchedQuery() {
+        Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Unmatched query")
         Taxonomy.findIdentifiers(for: "invalid-invalid") { result in
             if case .success(let identifiers) = result {

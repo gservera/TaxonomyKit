@@ -3,7 +3,7 @@
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016 Guillem Servera (http://github.com/gservera)
+ *  Copyright:  © 2016-2017 Guillem Servera (http://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@ internal enum TaxonomyRequest {
     case links(identifier: TaxonID)
     case search(query: String)
     case spelling(failedQuery: String)
+    case wikipedia(query: String, language: WikipediaLanguage)
     
     var url: URL {
         var components = URLComponents()
@@ -57,6 +58,18 @@ internal enum TaxonomyRequest {
             ]
         case .spelling(let query): components.path = "/entrez/eutils/espell.fcgi"
             queryItems.append(URLQueryItem(name: "term", value: query))
+        case .wikipedia(let query, let lang):
+            components.host = "\(lang.subdomain).wikipedia.org"
+            components.path = "/w/api.php"
+            queryItems = [
+                URLQueryItem(name: "format", value: "json"),
+                URLQueryItem(name: "action", value: "query"),
+                URLQueryItem(name: "prop", value: "extracts"),
+                URLQueryItem(name: "exintro", value: ""),
+                URLQueryItem(name: "explaintext", value: ""),
+                URLQueryItem(name: "titles", value: query),
+                URLQueryItem(name: "redirects", value: "1"),
+            ]
         }
         components.queryItems = queryItems
         return components.url!

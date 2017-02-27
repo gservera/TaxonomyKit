@@ -3,7 +3,7 @@
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016 Guillem Servera (http://github.com/gservera)
+ *  Copyright:  © 2016-2017 Guillem Servera (http://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -248,22 +248,22 @@ public final class Taxonomy {
     }
     
     
-    /// Sends an asynchronous request to the NBCBI servers asking for external links related
+    /// Sends an asynchronous request to the NCBI servers asking for external links related
     /// to a given taxon identifier.
     ///
     /// - Since: TaxonomyKit 1.1.
     /// - Parameters:
     ///   - id: The NCBI internal identifier.
     ///   - callback: A callback closure that will be called when the request completes or
-    ///               if an error occurs. This closure has a `TaxonomyResult<[ExternalLink]>` 
-    ///               parameter that contains an array with the retrieved links when the 
+    ///               if an error occurs. This closure has a `TaxonomyResult<[ExternalLink]>`
+    ///               parameter that contains an array with the retrieved links when the
     ///               request succeeds.
     /// - Warning: Please note that the callback may not be called on the main thread.
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public static func findLinkedResources(for id: TaxonID,
-        callback: @escaping (TaxonomyResult<[ExternalLink]>) -> ()) -> URLSessionDataTask {
+                                                              callback: @escaping (TaxonomyResult<[ExternalLink]>) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.links(identifier: id)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
@@ -322,6 +322,72 @@ public final class Taxonomy {
             } else if let rootError = error as? NSError, rootError.code != NSURLErrorCancelled {
                 callback(.failure(.networkError(underlyingError: rootError)))
             }
+        }
+        task.resume()
+        return task
+    }
+    
+    
+    /// Sends an asynchronous request to Wikipedia servers asking for metadata such as an extract 
+    /// and the Wikipedia page URL for a concrete a taxon.
+    ///
+    /// - Since: TaxonomyKit 1.3.
+    /// - Parameters:
+    ///   - taxon: The taxon for which to retrieve Wikipedia metadata.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
+    ///               parameter that contains a wrapper with the requested metadata (or `nil` if
+    ///               no results are found) when the request succeeds.
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
+    @discardableResult public static func retrieveWikipediaAbstract(for taxon: Taxon,
+                                                                    language: WikipediaLanguage = WikipediaLanguage(),
+                                                              callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
+        
+        let request = TaxonomyRequest.wikipedia(query: taxon.name, language: language)
+        print("\(request.url)")
+        let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
+            if error == nil {
+                guard let response = response as? HTTPURLResponse, let data = data else {
+                    callback(.failure(.unknownError))
+                    return
+                }
+                
+                if response.statusCode == 200 {
+                    do {
+                        let JSON = try JSONSerialization.jsonObject(with: data)
+                        guard let casted = JSON as? [String:Any] else {
+                            callback(.failure(.unknownError)) // Unknown JSON structure
+                            return
+                        }
+                        if let pages = ((casted["query"] as? [String:Any])?["pages"] as? [String:[String:Any]]) {
+                            if let (firstID, firstDict) = pages.first {
+                                if firstID == "-1" || firstDict["extract"] == nil {
+                                    callback(.success(nil))
+                                } else {
+                                    let wikiResult = WikipediaResult(identifier: firstID,
+                                                                     url: URL(string:"https://\(language.subdomain).wikipedia.org/?curid=\(firstID)")!,
+                                                                     language: language,
+                                                                     extract: firstDict["extract"] as! String)
+                                    callback(.success(wikiResult))
+                                }
+                            } else {
+                                callback(.failure(.unknownError)) // Unknown JSON structure
+                            }
+                        } else {
+                            callback(.failure(.unknownError)) // Unknown JSON structure
+                        }
+                    } catch _ {
+                        callback(.failure(.parseError(message: "Could not parse JSON data")))
+                    }
+                } else {
+                    callback(.failure(.unexpectedResponseError(code: response.statusCode)))
+                }
+            } else if let rootError = error as? NSError, rootError.code != NSURLErrorCancelled {
+                callback(.failure(.networkError(underlyingError: rootError)))
+            } 
         }
         task.resume()
         return task

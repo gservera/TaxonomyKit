@@ -3,7 +3,7 @@
  *  TaxonomyKitTests
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016 Guillem Servera (http://github.com/gservera)
+ *  Copyright:  © 2016-2017 Guillem Servera (http://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -37,6 +37,7 @@ final class DownloadTests: XCTestCase {
     
     
     func testDownloadTaxon() {
+        Taxonomy._urlSession = URLSession.shared
         let query = "9606"
         let condition = expectation(description: "Finished")
         Taxonomy.downloadTaxon(withIdentifier: query) { result in
@@ -48,6 +49,7 @@ final class DownloadTests: XCTestCase {
     }
     
     func testDownloadUnknownTaxon() {
+        Taxonomy._urlSession = URLSession.shared
         let query = "anpafnpanpifadn"
         let condition = expectation(description: "Finished")
         Taxonomy.downloadTaxon(withIdentifier: query) { result in
