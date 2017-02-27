@@ -82,7 +82,7 @@ TaxonomyKit includes a suite of unit tests within the TaxonomyKitTests subdirect
 
 ## ☕️ Author
 
-Guillem Servera, [https://gservera.com](https://gservera.com)
+Proudly developed by [Guillem Servera](https://gservera.com) in Palma, Illes Balears.
 
 ## License
 
