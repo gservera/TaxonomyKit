@@ -39,6 +39,9 @@ public struct WikipediaResult {
     /// The HTTPS URL pointing to the taxon's Wikipedia page.
     public let url: URL
     
+    /// The HTTPS URL pointing to the taxon's Wikipedia mobile page.
+    public let mobileUrl: URL
+    
     /// The locale used to search Wikipedia.
     public let language: WikipediaLanguage
     

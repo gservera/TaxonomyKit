@@ -367,8 +367,10 @@ public final class Taxonomy {
                                     callback(.success(nil))
                                 } else {
                                     let url = URL(string:"https://\(language.subdomain).wikipedia.org/?curid=\(firstID)")!
+                                    let mobileUrl = URL(string:"https://\(language.subdomain).m.wikipedia.org/?curid=\(firstID)")!
                                     let wikiResult = WikipediaResult(identifier: firstID,
                                                                      url: url,
+                                                                     mobileUrl: mobileUrl,
                                                                      language: language,
                                                                      extract: firstDict["extract"] as! String)
                                     callback(.success(wikiResult))
