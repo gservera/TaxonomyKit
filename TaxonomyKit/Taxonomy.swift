@@ -263,7 +263,7 @@ public final class Taxonomy {
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public static func findLinkedResources(for id: TaxonID,
-                                                              callback: @escaping (TaxonomyResult<[ExternalLink]>) -> ()) -> URLSessionDataTask {
+        callback: @escaping (TaxonomyResult<[ExternalLink]>) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.links(identifier: id)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
@@ -347,7 +347,6 @@ public final class Taxonomy {
                                                               callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.wikipedia(query: taxon.name, language: language)
-        print("\(request.url)")
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
             if error == nil {
                 guard let response = response as? HTTPURLResponse, let data = data else {
@@ -367,8 +366,9 @@ public final class Taxonomy {
                                 if firstID == "-1" || firstDict["extract"] == nil {
                                     callback(.success(nil))
                                 } else {
+                                    let url = URL(string:"https://\(language.subdomain).wikipedia.org/?curid=\(firstID)")!
                                     let wikiResult = WikipediaResult(identifier: firstID,
-                                                                     url: URL(string:"https://\(language.subdomain).wikipedia.org/?curid=\(firstID)")!,
+                                                                     url: url,
                                                                      language: language,
                                                                      extract: firstDict["extract"] as! String)
                                     callback(.success(wikiResult))
