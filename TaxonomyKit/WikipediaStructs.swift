@@ -67,7 +67,7 @@ public struct WikipediaLanguage {
     ///         Wikipedia subdomain.
     ///
     /// - Parameter locale: The desired language code. Defaults to user's.
-    init(locale: Locale = Locale.current) {
+    public init(locale: Locale = Locale.current) {
         switch locale.languageCode {
         default:
             subdomain = locale.languageCode ?? "en"
