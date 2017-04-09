@@ -396,15 +396,16 @@ public final class Taxonomy {
     }
     
     
-    /// Sends an asynchronous request to Wikipedia servers asking for metadata such as an extract
-    /// and the Wikipedia page URL for a concrete a taxon.
+    /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page 
+    /// thumbnail for a concrete a taxon.
     ///
-    /// - Since: TaxonomyKit 1.3.
+    /// - Since: TaxonomyKit 1.4.
     /// - Parameters:
-    ///   - taxon: The taxon for which to retrieve Wikipedia metadata.
+    ///   - taxon: The taxon for which to retrieve Wikipedia thumbnail.
+    ///   - width: The max width in pixels of the image that the Wikipedia API should return.
     ///   - callback: A callback closure that will be called when the request completes or
-    ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
-    ///               parameter that contains a wrapper with the requested metadata (or `nil` if
+    ///               if an error occurs. This closure has a `TaxonomyResult<Data?>`
+    ///               parameter that contains a wrapper with the requested image data (or `nil` if
     ///               no results are found) when the request succeeds.
     /// - Warning: Please note that the callback may not be called on the main thread.
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
