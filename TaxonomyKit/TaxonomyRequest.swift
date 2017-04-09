@@ -79,7 +79,8 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "action", value: "query"),
                 URLQueryItem(name: "prop", value: "pageimages"),
                 URLQueryItem(name: "pithumbsize", value: "\(width)"),
-                URLQueryItem(name: "titles", value: query)
+                URLQueryItem(name: "titles", value: query),
+                URLQueryItem(name: "redirects", value: "1"),
             ]
         }
         
