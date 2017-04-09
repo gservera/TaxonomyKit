@@ -31,6 +31,7 @@
 		99CAA5BB1E647405008E19F9 /* WikipediaTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CAA5BA1E647405008E19F9 /* WikipediaTests.swift */; };
 		99CFC5CB1D9AB0FC00C8A415 /* TaxonomyKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99CFC5C11D9AB0FC00C8A415 /* TaxonomyKit.framework */; };
 		99CFC5D21D9AB0FC00C8A415 /* TaxonomyKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 99CFC5C41D9AB0FC00C8A415 /* TaxonomyKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		99D74B161E9A8D2700BA6804 /* ThumbnailTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D74B151E9A8D2700BA6804 /* ThumbnailTests.swift */; };
 		99D93E661DE0A13E0008EA3A /* TaxonomicRankTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D93E651DE0A13D0008EA3A /* TaxonomicRankTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -75,6 +76,7 @@
 		99CFC5C51D9AB0FC00C8A415 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		99CFC5CA1D9AB0FC00C8A415 /* TaxonomyKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TaxonomyKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		99CFC5D11D9AB0FC00C8A415 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		99D74B151E9A8D2700BA6804 /* ThumbnailTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThumbnailTests.swift; sourceTree = "<group>"; };
 		99D93E651DE0A13D0008EA3A /* TaxonomicRankTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaxonomicRankTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -154,6 +156,7 @@
 			children = (
 				99B03FB71D9BEEC3007F57AF /* MockURLSession.swift */,
 				99CAA5BA1E647405008E19F9 /* WikipediaTests.swift */,
+				99D74B151E9A8D2700BA6804 /* ThumbnailTests.swift */,
 				99B03FB81D9BEEC3007F57AF /* TaxonLineageItemTests.swift */,
 				99B03FB91D9BEEC3007F57AF /* TaxonTests.swift */,
 				99B03FBA1D9BEEC3007F57AF /* FindIdentifiersTests.swift */,
@@ -317,6 +320,7 @@
 				99D93E661DE0A13E0008EA3A /* TaxonomicRankTests.swift in Sources */,
 				99B99B871D9C17E700F77893 /* SpellingTests.swift in Sources */,
 				99B03FBF1D9BEEC3007F57AF /* FindIdentifiersTests.swift in Sources */,
+				99D74B161E9A8D2700BA6804 /* ThumbnailTests.swift in Sources */,
 				99B03FBC1D9BEEC3007F57AF /* MockURLSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

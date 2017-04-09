@@ -1,9 +1,9 @@
 /*
- *  WikipediaTests.swift
+ *  ThumbnailTests.swift
  *  TaxonomyKitTests
  *
- *  Created:    Guillem Servera on 27/02/2017.
- *  Copyright:  © 2017 Guillem Servera (http://github.com/gservera)
+ *  Created:    Guillem Servera on 09/04/2017.
+ *  Copyright:  © 2017 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,11 +27,11 @@
 import XCTest
 @testable import TaxonomyKit
 
-final class WikipediaTests: XCTestCase {
+final class ThumbnailTests: XCTestCase {
     
     let existingTaxon = Taxon(identifier: "", name: "Quercus ilex", rank: nil, geneticCode: "", mitochondrialCode: "")
     let nonExistingTaxon = Taxon(identifier: "", name: "angpadgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")
-
+    
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -41,29 +41,13 @@ final class WikipediaTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
-
+    
     func testValidTaxon() {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
+        Taxonomy.retrieveWikipediaThumbnail(for: existingTaxon, width: 500, language: WikipediaLanguage(locale: Locale(identifier: "en-US"))) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
-                condition.fulfill()
-            } else {
-                XCTFail("Wikipedia test should not have failed")
-            }
-        }
-        waitForExpectations(timeout: 1000)
-    }
-    
-    func testValidTaxonWithCustomLocale() {
-        Taxonomy._urlSession = URLSession.shared
-        let condition = expectation(description: "Finished")
-        let customLocale = WikipediaLanguage(locale: Locale(identifier: "ca-ES"))
-        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon, language: customLocale) { result in
-            if case .success(let wrapper) = result {
-                XCTAssertNotNil(wrapper)
-                XCTAssertEqual(wrapper!.language.subdomain, "ca")
                 condition.fulfill()
             } else {
                 XCTFail("Wikipedia test should not have failed")
@@ -91,7 +75,7 @@ final class WikipediaTests: XCTestCase {
     func testInvalidTaxon() {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.retrieveWikipediaAbstract(for: nonExistingTaxon) { result in
+        Taxonomy.retrieveWikipediaThumbnail(for: nonExistingTaxon, width: 500) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNil(wrapper)
                 condition.fulfill()
@@ -111,7 +95,7 @@ final class WikipediaTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
+        Taxonomy.retrieveWikipediaThumbnail(for: existingTaxon, width: 500) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
@@ -128,7 +112,7 @@ final class WikipediaTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
+        Taxonomy.retrieveWikipediaThumbnail(for: existingTaxon, width: 500) { result in
             if case .failure(let error) = result,
                 case .unexpectedResponseError(500) = error {
                 condition.fulfill()
@@ -142,7 +126,7 @@ final class WikipediaTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
+        Taxonomy.retrieveWikipediaThumbnail(for: existingTaxon, width: 500) { result in
             if case .failure(let error) = result,
                 case .networkError(_) = error {
                 condition.fulfill()
@@ -155,7 +139,7 @@ final class WikipediaTests: XCTestCase {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
+        Taxonomy.retrieveWikipediaThumbnail(for: existingTaxon, width: 500) { result in
             if case .failure(let error) = result,
                 case .unknownError() = error {
                 condition.fulfill()
@@ -174,7 +158,7 @@ final class WikipediaTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
+        Taxonomy.retrieveWikipediaThumbnail(for: existingTaxon, width: 500) { result in
             if case .failure(let error) = result,
                 case .unknownError() = error {
                 condition.fulfill()
@@ -193,7 +177,7 @@ final class WikipediaTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["query":["pages":[:]]])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
+        Taxonomy.retrieveWikipediaThumbnail(for: existingTaxon, width: 500) { result in
             if case .failure(let error) = result,
                 case .unknownError() = error {
                 condition.fulfill()
@@ -213,7 +197,7 @@ final class WikipediaTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        let dataTask = Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
+        let dataTask = Taxonomy.retrieveWikipediaThumbnail(for: existingTaxon, width: 500) { result in
             XCTFail("Should have been canceled")
             
             } as! MockSession.MockTask
@@ -223,5 +207,7 @@ final class WikipediaTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
+
+    
 
 }

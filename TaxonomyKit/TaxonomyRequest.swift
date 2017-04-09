@@ -33,6 +33,7 @@ internal enum TaxonomyRequest {
     case search(query: String)
     case spelling(failedQuery: String)
     case wikipedia(query: String, language: WikipediaLanguage)
+    case wikipediaThumbnail(query: String, width: Int, language: WikipediaLanguage)
     
     var url: URL {
         var components = URLComponents()
@@ -70,7 +71,18 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "titles", value: query),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
+        case .wikipediaThumbnail(let query, let width, let lang):
+            components.host = "\(lang.subdomain).wikipedia.org"
+            components.path = "/w/api.php"
+            queryItems = [
+                URLQueryItem(name: "format", value: "json"),
+                URLQueryItem(name: "action", value: "query"),
+                URLQueryItem(name: "prop", value: "pageimages"),
+                URLQueryItem(name: "pithumbsize", value: "\(width)"),
+                URLQueryItem(name: "titles", value: query)
+            ]
         }
+        
         components.queryItems = queryItems
         return components.url!
     }
