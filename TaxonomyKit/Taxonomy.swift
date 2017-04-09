@@ -372,7 +372,8 @@ public final class Taxonomy {
                                                                      url: url,
                                                                      mobileUrl: mobileUrl,
                                                                      language: language,
-                                                                     extract: firstDict["extract"] as! String)
+                                                                     extract: firstDict["extract"] as! String,
+                                                                     title: firstDict["title"] as! String)
                                     callback(.success(wikiResult))
                                 }
                             } else {

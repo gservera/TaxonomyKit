@@ -47,6 +47,9 @@ public struct WikipediaResult {
     
     /// The retrieved extract from the Wikipedia article.
     public let extract: String
+    
+    /// The title of the Wikipedia article.
+    public let title: String
 }
 
 
