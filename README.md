@@ -51,6 +51,19 @@ Taxonomy.downloadTaxon(withIdentifier: foundID, callback: { result in
 })
 ```
 
+### 📖 Get an extract from Wikipedia
+
+```swift
+Taxonomy.retrieveWikipediaAbstract(for: downloadedTaxon) { answer in
+    switch answer {
+    case .success(let result):
+        print("Got info: \(result.extract).")
+    case .failure(let error):
+        print("Oops! Something went wrong. Error was: \(error)")
+    }
+}
+```
+
 ## Installation with Carthage
 
 [Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks.
@@ -73,8 +86,9 @@ Run `carthage update` on your project's directory to build the framework and dra
 
 ## Requirements
 
-* **Xcode 8.0** or greater.
-* **AEXML >4.0**. A wonderful XML parser written in Swift. See more at [tadija/AEXML](https://github.com/tadija/AEXML).
+* macOS 10.10 Yosemite or greater.
+* **Xcode 8.3** or greater.
+* **AEXML >4.1**. A wonderful XML parser written in Swift. See more at [tadija/AEXML](https://github.com/tadija/AEXML).
 
 ## Unit Tests
 
