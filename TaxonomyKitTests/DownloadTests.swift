@@ -3,7 +3,7 @@
  *  TaxonomyKitTests
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016-2017 Guillem Servera (http://github.com/gservera)
+ *  Copyright:  © 2016-2017 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -138,6 +138,26 @@ final class DownloadTests: XCTestCase {
         Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
             if case .failure(let error) = result,
                 case .unknownError() = error {
+                condition.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 10)
+    }
+    
+    func testMock() {
+        Taxonomy._urlSession = MockSession()
+        let response =
+            HTTPURLResponse(url: URL(string: "http://github.com")!,
+                            statusCode: 200,
+                            httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><TaxaSet><Taxon><TaxId>2</TaxId><ScientificName>Bacteria</ScientificName><OtherNames><GenbankCommonName>eubacteria</GenbankCommonName><BlastName>bacteria; bacteria</BlastName><Synonym>not Bacteria Haeckel 1894</Synonym><Inpart>Monera</Inpart></OtherNames><ParentTaxId>131567</ParentTaxId><Rank>superkingdom</Rank><Division>Bacteria</Division><GeneticCode><GCId>11</GCId><GCName>Bacterial, Archaeal and Plant Plastid</GCName></GeneticCode><MitoGeneticCode><MGCId>0</MGCId><MGCName>Unspecified</MGCName></MitoGeneticCode><Lineage>cellular organisms</Lineage><LineageEx><Taxon><TaxId>131567</TaxId><ScientificName>cellular organisms</ScientificName><Rank>no rank</Rank></Taxon></LineageEx><CreateDate>1995/02/27 09:24:00</CreateDate><UpdateDate>2017/02/16 16:52:33</UpdateDate><PubDate>1993/04/20 01:00:00</PubDate></Taxon></TaxaSet>"
+        let data = xml.data(using: .utf8)
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+            if case .success(let taxon) = result {
+                XCTAssertNotNil(taxon)
                 condition.fulfill()
             }
         }
