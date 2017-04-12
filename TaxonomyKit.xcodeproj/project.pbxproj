@@ -11,6 +11,7 @@
 		990E5B2C1DFCDB5C00421D43 /* AEXML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99B03FC21D9BEF53007F57AF /* AEXML.framework */; };
 		991641EF1DE0CF2100A584FE /* TaxonRepresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641EE1DE0CF2100A584FE /* TaxonRepresenting.swift */; };
 		991641F11DE0EAEE00A584FE /* TaxonTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641F01DE0EAEE00A584FE /* TaxonTreeTests.swift */; };
+		998015341E9E7F7D00A37250 /* NameGuessingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998015331E9E7F7D00A37250 /* NameGuessingTests.swift */; };
 		998260251DDC892600C46586 /* TaxonTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998260241DDC892600C46586 /* TaxonTree.swift */; };
 		99B03FB21D9BEEB5007F57AF /* Taxonomy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B03FAD1D9BEEB5007F57AF /* Taxonomy.swift */; };
 		99B03FB31D9BEEB5007F57AF /* TaxonomyRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B03FAE1D9BEEB5007F57AF /* TaxonomyRequest.swift */; };
@@ -52,6 +53,7 @@
 		994A9B941DA7F94900A0796F /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		994A9B951DA7F9CC00A0796F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		994A9B961DA7FBED00A0796F /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
+		998015331E9E7F7D00A37250 /* NameGuessingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NameGuessingTests.swift; sourceTree = "<group>"; };
 		998260241DDC892600C46586 /* TaxonTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaxonTree.swift; sourceTree = "<group>"; };
 		99B03FAC1D9BEE4D007F57AF /* cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = cartfile; sourceTree = "<group>"; };
 		99B03FAD1D9BEEB5007F57AF /* Taxonomy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Taxonomy.swift; sourceTree = "<group>"; };
@@ -156,6 +158,7 @@
 			children = (
 				99B03FB71D9BEEC3007F57AF /* MockURLSession.swift */,
 				99CAA5BA1E647405008E19F9 /* WikipediaTests.swift */,
+				998015331E9E7F7D00A37250 /* NameGuessingTests.swift */,
 				99D74B151E9A8D2700BA6804 /* ThumbnailTests.swift */,
 				99B03FB81D9BEEC3007F57AF /* TaxonLineageItemTests.swift */,
 				99B03FB91D9BEEC3007F57AF /* TaxonTests.swift */,
@@ -321,6 +324,7 @@
 				99B99B871D9C17E700F77893 /* SpellingTests.swift in Sources */,
 				99B03FBF1D9BEEC3007F57AF /* FindIdentifiersTests.swift in Sources */,
 				99D74B161E9A8D2700BA6804 /* ThumbnailTests.swift in Sources */,
+				998015341E9E7F7D00A37250 /* NameGuessingTests.swift in Sources */,
 				99B03FBC1D9BEEC3007F57AF /* MockURLSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

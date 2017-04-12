@@ -30,6 +30,7 @@ import Foundation
 internal enum TaxonomyRequest {
     case download(identifier: TaxonID)
     case links(identifier: TaxonID)
+    case scientificNameGuess(query: String, language: WikipediaLanguage)
     case search(query: String)
     case spelling(failedQuery: String)
     case wikipedia(query: String, language: WikipediaLanguage)
@@ -59,6 +60,18 @@ internal enum TaxonomyRequest {
             ]
         case .spelling(let query): components.path = "/entrez/eutils/espell.fcgi"
             queryItems.append(URLQueryItem(name: "term", value: query))
+        case .scientificNameGuess(let query, let lang):
+            components.host = "\(lang.subdomain).wikipedia.org"
+            components.path = "/w/api.php"
+            queryItems = [
+                URLQueryItem(name: "format", value: "json"),
+                URLQueryItem(name: "action", value: "query"),
+                URLQueryItem(name: "prop", value: "extracts"),
+                URLQueryItem(name: "exintro", value: ""),
+                URLQueryItem(name: "explaintext", value: ""),
+                URLQueryItem(name: "titles", value: query),
+                URLQueryItem(name: "redirects", value: "1"),
+            ]
         case .wikipedia(let query, let lang):
             components.host = "\(lang.subdomain).wikipedia.org"
             components.path = "/w/api.php"

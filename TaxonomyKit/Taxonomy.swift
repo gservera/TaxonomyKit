@@ -108,12 +108,12 @@ public final class Taxonomy {
     }
     
     
-    /// Sends an asynchronous request to the NCBI servers asking for record names spelled 
+    /// Sends an asynchronous request to the NCBI servers asking for record names spelled
     /// similarly to an unmatched query.
     ///
     /// - Since: TaxonomyKit 1.0.
     /// - Parameters:
-    ///   - failedQuery: The user-entered and unmatched search query. If the query is valid, 
+    ///   - failedQuery: The user-entered and unmatched search query. If the query is valid,
     ///                  the callback will be called with a `nil` value.
     ///   - callback: A callback closure that will be called when the request completes or when
     ///               an error occurs. This closure has a `TaxonomyResult<String?>` parameter
@@ -125,7 +125,7 @@ public final class Taxonomy {
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public static func findSimilarSpelledCandidates(for failedQuery: String,
-        callback: @escaping (_ result: TaxonomyResult<String?>) -> ()) -> URLSessionDataTask {
+                                                                       callback: @escaping (_ result: TaxonomyResult<String?>) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.spelling(failedQuery: failedQuery.lowercased())
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
@@ -162,16 +162,95 @@ public final class Taxonomy {
     }
     
     
+    /// Attempts to guess scientific names that could match a specific query using info from
+    /// the corresponding Wikipedia article.
+    ///
+    /// - Since: TaxonomyKit 1.5.
+    /// - Parameters:
+    ///   - query: The query for which to retrieve Wikipedia metadata.
+    ///   - language: The language that should be used to search Wikipedia.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has a `TaxonomyResult<[String]>`
+    ///               parameter that contains a wrapper with the found names (or `[]` if
+    ///               no results are found) when the request succeeds.
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
+    @discardableResult public static func findPossibleScientificNames(matching query: String,
+                                                                      language: WikipediaLanguage = WikipediaLanguage(),
+                                                                      callback: @escaping (_ result: TaxonomyResult<[String]>) -> ()) -> URLSessionDataTask {
+        
+        let request = TaxonomyRequest.scientificNameGuess(query: query, language: language)
+        let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
+            if error == nil {
+                guard let response = response as? HTTPURLResponse, let data = data else {
+                    callback(.failure(.unknownError))
+                    return
+                }
+                
+                if response.statusCode == 200 {
+                    do {
+                        let JSON = try JSONSerialization.jsonObject(with: data)
+                        guard let casted = JSON as? [String:Any] else {
+                            callback(.failure(.unknownError)) // Unknown JSON structure
+                            return
+                        }
+                        if let pages = ((casted["query"] as? [String:Any])?["pages"] as? [String:[String:Any]]) {
+                            if let (firstID, firstDict) = pages.first {
+                                if firstID == "-1" || firstDict["extract"] == nil {
+                                    callback(.success([]))
+                                } else {
+                                    let title = firstDict["title"] as! String
+                                    var names: [String] = []
+                                    if title != query && title.components(separatedBy: " ").count > 1 {
+                                        names.append(firstDict["title"] as! String)
+                                    }
+                                    let extract = firstDict["extract"] as! NSString
+                                    let firstOpeningParenthesis = extract.range(of: "(").location
+                                    if firstOpeningParenthesis != NSNotFound {
+                                        let stopChars: CharacterSet = CharacterSet(charactersIn: ".,()[]{}\n")
+                                        let closingParenthesis = extract.rangeOfCharacter(from: stopChars, options: [], range: NSMakeRange(firstOpeningParenthesis+1, extract.length-firstOpeningParenthesis-1)).location
+                                        if closingParenthesis != NSNotFound {
+                                            let substring = extract.substring(with: NSMakeRange(firstOpeningParenthesis+1, closingParenthesis-firstOpeningParenthesis-1)).trimmingCharacters(in: CharacterSet.whitespaces)
+                                            if substring.components(separatedBy: " ").count < 4 && !names.contains(substring) {
+                                                names.append(substring)
+                                            }
+                                        }
+                                    }
+                                    callback(.success(names))
+                                }
+                            } else {
+                                callback(.failure(.unknownError)) // Unknown JSON structure
+                            }
+                        } else {
+                            callback(.failure(.unknownError)) // Unknown JSON structure
+                        }
+                    } catch _ {
+                        callback(.failure(.parseError(message: "Could not parse JSON data")))
+                    }
+                } else {
+                    callback(.failure(.unexpectedResponseError(code: response.statusCode)))
+                }
+            } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
+                callback(.failure(.networkError(underlyingError: rootError)))
+            }
+        }
+        task.resume()
+        return task
+    }
+    
+    
     /// Sends an asynchronous request to the NCBI servers asking for the taxon and lineage
     /// info for a given NCBI internal identifier.
     ///
     /// - Since: TaxonomyKit 1.0.
     /// - Parameters:
-    ///   - id:       The NCBI internal identifier.
-    ///   - callback: A callback closure that will be called when the request completes or when 
-    ///               an error occurs. This closure has a `TaxonomyResult<Taxon>` parameter
-    ///               that contains the retrieved taxon when the request succeeds.
-    ///
+    ///   - taxon: The taxon for which to retrieve Wikipedia metadata.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
+    ///               parameter that contains a wrapper with the requested metadata (or `nil` if
+    ///               no results are found) when the request succeeds.
     /// - Warning: Please note that the callback may not be called on the main thread.
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
@@ -334,6 +413,7 @@ public final class Taxonomy {
     /// - Since: TaxonomyKit 1.3.
     /// - Parameters:
     ///   - taxon: The taxon for which to retrieve Wikipedia metadata.
+    ///   - language: The language that should be used to search Wikipedia.
     ///   - callback: A callback closure that will be called when the request completes or
     ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
     ///               parameter that contains a wrapper with the requested metadata (or `nil` if
@@ -404,6 +484,7 @@ public final class Taxonomy {
     /// - Parameters:
     ///   - taxon: The taxon for which to retrieve Wikipedia thumbnail.
     ///   - width: The max width in pixels of the image that the Wikipedia API should return.
+    ///   - language: The language that should be used to search Wikipedia.
     ///   - callback: A callback closure that will be called when the request completes or
     ///               if an error occurs. This closure has a `TaxonomyResult<Data?>`
     ///               parameter that contains a wrapper with the requested image data (or `nil` if
