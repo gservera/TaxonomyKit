@@ -35,6 +35,8 @@ internal enum TaxonomyRequest {
     case spelling(failedQuery: String)
     case wikipedia(query: String, language: WikipediaLanguage)
     case wikipediaThumbnail(query: String, width: Int, language: WikipediaLanguage)
+    case knownWikipedia(id: String, language: WikipediaLanguage)
+    case knownWikipediaThumbnail(id: String, width: Int, language: WikipediaLanguage)
     
     var url: URL {
         var components = URLComponents()
@@ -70,6 +72,29 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "exintro", value: ""),
                 URLQueryItem(name: "explaintext", value: ""),
                 URLQueryItem(name: "titles", value: query),
+                URLQueryItem(name: "redirects", value: "1"),
+            ]
+        case .knownWikipedia(let id, let lang):
+            components.host = "\(lang.subdomain).wikipedia.org"
+            components.path = "/w/api.php"
+            queryItems = [
+                URLQueryItem(name: "format", value: "json"),
+                URLQueryItem(name: "action", value: "query"),
+                URLQueryItem(name: "prop", value: "extracts"),
+                URLQueryItem(name: "exintro", value: ""),
+                URLQueryItem(name: "explaintext", value: ""),
+                URLQueryItem(name: "pageids", value: id),
+                URLQueryItem(name: "redirects", value: "1"),
+            ]
+        case .knownWikipediaThumbnail(let id, let width, let lang):
+            components.host = "\(lang.subdomain).wikipedia.org"
+            components.path = "/w/api.php"
+            queryItems = [
+                URLQueryItem(name: "format", value: "json"),
+                URLQueryItem(name: "action", value: "query"),
+                URLQueryItem(name: "prop", value: "pageimages"),
+                URLQueryItem(name: "pithumbsize", value: "\(width)"),
+                URLQueryItem(name: "pageids", value: id),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
         case .wikipedia(let query, let lang):

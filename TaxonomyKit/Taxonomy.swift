@@ -427,6 +427,36 @@ public final class Taxonomy {
                                                                     callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.wikipedia(query: taxon.name, language: language)
+        return retrieveWikipediaAbstract(with: request, language: language, callback: callback)
+    }
+    
+    
+    /// Sends an asynchronous request to Wikipedia servers asking for metadata such as an extract
+    /// and the Wikipedia page URL for a concrete a taxon.
+    ///
+    /// - Since: TaxonomyKit 1.5.
+    /// - Parameters:
+    ///   - taxon: The taxon for which to retrieve Wikipedia metadata.
+    ///   - language: The language that should be used to search Wikipedia.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
+    ///               parameter that contains a wrapper with the requested metadata (or `nil` if
+    ///               no results are found) when the request succeeds.
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
+    @discardableResult public static func retrieveWikipediaAbstract(for id: String,
+                                                                    language: WikipediaLanguage = WikipediaLanguage(),
+                                                                    callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
+        
+        let request = TaxonomyRequest.knownWikipedia(id: id, language: language)
+        return retrieveWikipediaAbstract(with: request, language: language, callback: callback)
+    }
+    
+    private static func retrieveWikipediaAbstract(with request: TaxonomyRequest,
+                                           language: WikipediaLanguage = WikipediaLanguage(),
+                                           callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
             if error == nil {
                 guard let response = response as? HTTPURLResponse, let data = data else {
