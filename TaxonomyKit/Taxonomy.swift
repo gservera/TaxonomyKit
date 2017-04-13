@@ -507,7 +507,33 @@ public final class Taxonomy {
     }
     
     
-    /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page 
+    /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page
+    /// thumbnail for a concrete wikipedia page.
+    ///
+    /// - Since: TaxonomyKit 1.4.
+    /// - Parameters:
+    ///   - taxon: The taxon for which to retrieve Wikipedia thumbnail.
+    ///   - width: The max width in pixels of the image that the Wikipedia API should return.
+    ///   - language: The language that should be used to search Wikipedia.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has a `TaxonomyResult<Data?>`
+    ///               parameter that contains a wrapper with the requested image data (or `nil` if
+    ///               no results are found) when the request succeeds.
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
+    @discardableResult public static func retrieveWikipediaThumbnail(for id: String,
+                                                                     width: Int,
+                                                                     language: WikipediaLanguage = WikipediaLanguage(),
+                                                                     callback: @escaping (TaxonomyResult<Data?>) -> ()) -> URLSessionDataTask {
+        
+        let request = TaxonomyRequest.knownWikipediaThumbnail(id: id, width: width, language: language)
+        return retrieveWikipediaThumbnail(with: request, language: language, callback: callback)
+    }
+    
+    
+    /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page
     /// thumbnail for a concrete a taxon.
     ///
     /// - Since: TaxonomyKit 1.4.
@@ -529,6 +555,13 @@ public final class Taxonomy {
                                                                      callback: @escaping (TaxonomyResult<Data?>) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.wikipediaThumbnail(query: taxon.name, width: width, language: language)
+        return retrieveWikipediaThumbnail(with: request, language: language, callback: callback)
+    }
+    
+    
+    private static func retrieveWikipediaThumbnail(with request: TaxonomyRequest,
+                                                   language: WikipediaLanguage = WikipediaLanguage(),
+                                                   callback: @escaping (TaxonomyResult<Data?>) -> ()) -> URLSessionDataTask {
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
             if error == nil {
                 guard let response = response as? HTTPURLResponse, let data = data else {

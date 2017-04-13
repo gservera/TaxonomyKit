@@ -27,37 +27,37 @@ TaxonomyKit is a powerful, handy and cross-platform library that makes working w
 
 ```swift
 let myCoolQuery = "quercus ilex"
-Taxonomy.findIdentifiers(for: myCoolQuery, callback: { result in
+Taxonomy.findIdentifiers(for: myCoolQuery) { result in
     switch result {
     case .success(let foundIDs):
         print("Found identifiers: \(foundIDs).")
     case .failure(let error):
         print("Oops! Something went wrong. Error was: \(error)")
     }
-})
+}
 ```
 
 ### ⬇️ Download your taxon
 
 ```swift
 let foundID: TaxonID = "58334" // Use the one you got from previous step.
-Taxonomy.downloadTaxon(withIdentifier: foundID, callback: { result in
+Taxonomy.downloadTaxon(withIdentifier: foundID) { result in
     switch result {
     case .success(let taxon):
         print("Got taxon: \(taxon.name).")
     case .failure(let error):
         print("Oops! Something went wrong. Error was: \(error)")
     }
-})
+}
 ```
 
 ### 📖 Get an extract from Wikipedia
 
 ```swift
-Taxonomy.retrieveWikipediaAbstract(for: downloadedTaxon) { answer in
-    switch answer {
-    case .success(let result):
-        print("Got info: \(result.extract).")
+Taxonomy.retrieveWikipediaAbstract(for: downloadedTaxon) { result in
+    switch result {
+    case .success(let wikipediaResult):
+        print("Got info: \(wikipediaResult.extract).")
     case .failure(let error):
         print("Oops! Something went wrong. Error was: \(error)")
     }

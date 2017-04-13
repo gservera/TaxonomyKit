@@ -56,6 +56,20 @@ final class ThumbnailTests: XCTestCase {
         waitForExpectations(timeout: 1000)
     }
     
+    func testValidPageID() {
+        Taxonomy._urlSession = URLSession.shared
+        let condition = expectation(description: "Finished")
+        Taxonomy.retrieveWikipediaThumbnail(for: "344877", width: 500, language: WikipediaLanguage(locale: Locale(identifier: "en-US"))) { result in
+            if case .success(let wrapper) = result {
+                XCTAssertNotNil(wrapper)
+                condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
     func testValidTaxonWithFakeCustomLocale() {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")

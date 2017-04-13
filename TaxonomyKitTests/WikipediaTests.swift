@@ -56,6 +56,20 @@ final class WikipediaTests: XCTestCase {
         waitForExpectations(timeout: 1000)
     }
     
+    func testValidPageID() {
+        Taxonomy._urlSession = URLSession.shared
+        let condition = expectation(description: "Finished")
+        Taxonomy.retrieveWikipediaAbstract(for: "344877") { result in
+            if case .success(let wrapper) = result {
+                XCTAssertNotNil(wrapper)
+                condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
     func testValidTaxonWithCustomLocale() {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")

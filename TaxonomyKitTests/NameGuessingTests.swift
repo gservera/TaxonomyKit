@@ -30,11 +30,181 @@ final class NameGuessingTests: XCTestCase {
         Taxonomy.findPossibleScientificNames(matching: "Melicotoner", language: lang) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
+                XCTAssertEqual("Prunus persica", wrapper.first)
                 condition.fulfill()
             } else {
                 XCTFail("Wikipedia test should not have failed")
             }
         }
         waitForExpectations(timeout: 1000)
+    }
+    
+    func testValidTaxon2() {
+        Taxonomy._urlSession = URLSession.shared
+        let condition = expectation(description: "Finished")
+        let locale = Locale(identifier: "en-US")
+        let lang = WikipediaLanguage(locale: locale)
+        Taxonomy.findPossibleScientificNames(matching: "pork tapeworm", language: lang) { result in
+            if case .success(let wrapper) = result {
+                XCTAssertNotNil(wrapper)
+                XCTAssertEqual("Taenia solium", wrapper.first)
+                condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
+    func testValidTaxonWithFakeCustomLocale() {
+        Taxonomy._urlSession = URLSession.shared
+        let condition = expectation(description: "Finished")
+        let customLocale = WikipediaLanguage(locale: Locale(identifier: "."))
+        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter", language: customLocale) { result in
+            if case .success(let wrapper) = result {
+                XCTAssertNotNil(wrapper)
+                XCTAssertEqual("Lutra lutra", wrapper.first)
+                condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
+    func testUnmatchedQuery() {
+        Taxonomy._urlSession = URLSession.shared
+        let condition = expectation(description: "Finished")
+        Taxonomy.findPossibleScientificNames(matching: "ijgadngadngadfgnadfgnadlfgnaildfg") { result in
+            if case .success(let wrapper) = result {
+                XCTAssertTrue(wrapper.count == 0)
+                condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
+    func testFakeMalformedJSON() {
+        Taxonomy._urlSession = MockSession()
+        let response =
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
+                            statusCode: 200, httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+            if case .failure(let error) = result, case .parseError(_) = error {
+                condition.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
+    func testUnknownResponse() {
+        Taxonomy._urlSession = MockSession()
+        let response =
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
+                            statusCode: 500, httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+            if case .failure(let error) = result,
+                case .unexpectedResponseError(500) = error {
+                condition.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
+    func testNetworkError() {
+        Taxonomy._urlSession = MockSession()
+        let error = NSError(domain: "Custom", code: -1, userInfo: nil)
+        MockSession.mockResponse = (nil, nil, error)
+        let condition = expectation(description: "Finished")
+        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+            if case .failure(let error) = result,
+                case .networkError(_) = error {
+                condition.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
+    func testOddBehavior() {
+        Taxonomy._urlSession = MockSession()
+        MockSession.mockResponse = (nil, nil, nil)
+        let condition = expectation(description: "Finished")
+        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+            if case .failure(let error) = result,
+                case .unknownError() = error {
+                condition.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
+    func testOddBehavior2() {
+        Taxonomy._urlSession = MockSession()
+        let response =
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
+                            statusCode: 200,
+                            httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+            if case .failure(let error) = result,
+                case .unknownError() = error {
+                condition.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
+    func testOddBehavior3() {
+        Taxonomy._urlSession = MockSession()
+        let response =
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
+                            statusCode: 200,
+                            httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let data = try! JSONSerialization.data(withJSONObject: ["query":["pages":[:]]])
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+            if case .failure(let error) = result,
+                case .unknownError() = error {
+                condition.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 1000)
+    }
+    
+    func testCancellation() {
+        Taxonomy._urlSession = MockSession()
+        (Taxonomy._urlSession as! MockSession).wait = 5
+        let response =
+            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
+                            statusCode: 200,
+                            httpVersion: "1.1",
+                            headerFields: [:])! as URLResponse
+        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
+        MockSession.mockResponse = (data, response, nil)
+        let condition = expectation(description: "Finished")
+        let dataTask = Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+            XCTFail("Should have been canceled")
+            
+            } as! MockSession.MockTask
+        dataTask.cancel()
+        DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 7.0) {
+            condition.fulfill()
+        }
+        waitForExpectations(timeout: 10)
     }
 }
