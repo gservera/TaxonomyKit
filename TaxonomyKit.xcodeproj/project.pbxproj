@@ -13,6 +13,7 @@
 		991641F11DE0EAEE00A584FE /* TaxonTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641F01DE0EAEE00A584FE /* TaxonTreeTests.swift */; };
 		998015341E9E7F7D00A37250 /* NameGuessingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998015331E9E7F7D00A37250 /* NameGuessingTests.swift */; };
 		998260251DDC892600C46586 /* TaxonTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998260241DDC892600C46586 /* TaxonTree.swift */; };
+		998CA4211EE710ED00CF8063 /* NCBICoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998CA4201EE710ED00CF8063 /* NCBICoding.swift */; };
 		99B03FB21D9BEEB5007F57AF /* Taxonomy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B03FAD1D9BEEB5007F57AF /* Taxonomy.swift */; };
 		99B03FB31D9BEEB5007F57AF /* TaxonomyRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B03FAE1D9BEEB5007F57AF /* TaxonomyRequest.swift */; };
 		99B03FB41D9BEEB5007F57AF /* TaxonomyError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B03FAF1D9BEEB5007F57AF /* TaxonomyError.swift */; };
@@ -55,6 +56,7 @@
 		994A9B961DA7FBED00A0796F /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		998015331E9E7F7D00A37250 /* NameGuessingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NameGuessingTests.swift; sourceTree = "<group>"; };
 		998260241DDC892600C46586 /* TaxonTree.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaxonTree.swift; sourceTree = "<group>"; };
+		998CA4201EE710ED00CF8063 /* NCBICoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCBICoding.swift; sourceTree = "<group>"; };
 		99B03FAC1D9BEE4D007F57AF /* cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = cartfile; sourceTree = "<group>"; };
 		99B03FAD1D9BEEB5007F57AF /* Taxonomy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Taxonomy.swift; sourceTree = "<group>"; };
 		99B03FAE1D9BEEB5007F57AF /* TaxonomyRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaxonomyRequest.swift; sourceTree = "<group>"; };
@@ -146,6 +148,7 @@
 				991641EE1DE0CF2100A584FE /* TaxonRepresenting.swift */,
 				99B03FB01D9BEEB5007F57AF /* Taxon.swift */,
 				99B03FB11D9BEEB5007F57AF /* TaxonLineageItem.swift */,
+				998CA4201EE710ED00CF8063 /* NCBICoding.swift */,
 				998260241DDC892600C46586 /* TaxonTree.swift */,
 				99B4B3301DCDE5D500DC918A /* ExternalLink.swift */,
 				99CFC5C51D9AB0FC00C8A415 /* Info.plist */,
@@ -231,18 +234,19 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0800;
-				LastUpgradeCheck = 0810;
+				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Guillem Servera";
 				TargetAttributes = {
 					99CFC5C01D9AB0FC00C8A415 = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = Q6R76RZ9Z8;
+						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
 					};
 					99CFC5C91D9AB0FC00C8A415 = {
 						CreatedOnToolsVersion = 8.0;
 						DevelopmentTeam = Q6R76RZ9Z8;
-						LastSwiftMigration = 0810;
+						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -304,6 +308,7 @@
 				990CEE511DDF86E600A71727 /* TaxonomicRank.swift in Sources */,
 				99B03FB21D9BEEB5007F57AF /* Taxonomy.swift in Sources */,
 				991641EF1DE0CF2100A584FE /* TaxonRepresenting.swift in Sources */,
+				998CA4211EE710ED00CF8063 /* NCBICoding.swift in Sources */,
 				99B4B3311DCDE5D500DC918A /* ExternalLink.swift in Sources */,
 				99B03FB41D9BEEB5007F57AF /* TaxonomyError.swift in Sources */,
 			);
@@ -349,7 +354,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -357,7 +364,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -383,7 +394,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -403,7 +414,9 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
@@ -411,7 +424,11 @@
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
@@ -435,7 +452,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
-				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				TARGETED_DEVICE_FAMILY = "1,2,3,4";
@@ -470,7 +487,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3,4";
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
@@ -502,7 +520,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
 				TVOS_DEPLOYMENT_TARGET = 9.2;
 				WATCHOS_DEPLOYMENT_TARGET = 2.0;
 			};
@@ -526,7 +545,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.gservera.TaxonomyKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3,4";
 			};
 			name = Debug;
@@ -547,7 +567,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.gservera.TaxonomyKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator appletvos appletvsimulator watchos watchsimulator";
-				SWIFT_VERSION = 3.0;
+				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
+				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2,3,4";
 			};
 			name = Release;

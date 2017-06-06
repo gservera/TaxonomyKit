@@ -47,7 +47,7 @@ public struct TaxonLineageItem: TaxonRepresenting {
         self.name = name
         self.rank = rank
     }
-    
+       
     
     /// Returns `true` if the `rank` property is set. If `rank` is `nil`, this will return
     /// `false` instead.

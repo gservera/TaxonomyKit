@@ -27,7 +27,7 @@
 import Foundation
 
 /// A set of string-convertible values used to represent the different taxonomic ranks.
-public enum TaxonomicRank: String, Comparable, CustomStringConvertible {
+public enum TaxonomicRank: String, Comparable, CustomStringConvertible, Codable {
     /// An abstract 'root' taxonomic rank.
     case origin
     //case trunk
@@ -99,10 +99,10 @@ public enum TaxonomicRank: String, Comparable, CustomStringConvertible {
     case species
     /// The subspecies taxonomic rank.
     case subspecies
-    /// The variety taxonomic rank.
-    case variety
-    /// The subvariety taxonomic rank.
-    case subvariety
+    /// The varietas taxonomic rank.
+    case varietas
+    /// The subvarietas taxonomic rank.
+    case subvarietas
     /// The form taxonomic rank.
     case form
     /// The subform taxonomic rank.
@@ -121,7 +121,7 @@ public enum TaxonomicRank: String, Comparable, CustomStringConvertible {
             .section,.subsection,
             .series,.subseries,
             .species,.subspecies,
-            .variety,.subvariety,
+            .varietas,.subvarietas,
             .form,.subform
         ]
     }
