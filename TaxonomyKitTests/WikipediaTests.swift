@@ -29,8 +29,8 @@ import XCTest
 
 final class WikipediaTests: XCTestCase {
     
-    let existingTaxon = Taxon(identifier: "", name: "Quercus ilex", rank: nil, geneticCode: "", mitochondrialCode: "")
-    let nonExistingTaxon = Taxon(identifier: "", name: "angpadgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")
+    let existingTaxon = Taxon(identifier: -1, name: "Quercus ilex", rank: nil, geneticCode: "", mitochondrialCode: "")
+    let nonExistingTaxon = Taxon(identifier: -1, name: "angpadgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")
 
     override func setUp() {
         super.setUp()

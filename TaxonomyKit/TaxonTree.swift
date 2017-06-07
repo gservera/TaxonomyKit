@@ -121,7 +121,7 @@ public struct TaxonTree {
     /// - Warning: Avoid passing this node or its identifier as a parameter for
     ///            networking methods, since these values are not valid in the 
     ///            NCBI scope.
-    public let origin = Node(identifier: "-1", name: "origin", rank: .origin)
+    public let origin = Node(identifier: -1, name: "origin", rank: .origin)
     
     /// The depth of the longest branch in the tree (zero-based).
     private(set) var depth: Int = 0

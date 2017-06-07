@@ -97,7 +97,7 @@ public struct Taxon: TaxonRepresenting {
         urlComponents.scheme = "https"
         urlComponents.host = "ncbi.nlm.nih.gov"
         urlComponents.path = "/Taxonomy/Browser/wwwtax.cgi"
-        urlComponents.queryItems = [URLQueryItem(name: "id", value: identifier)]
+        urlComponents.queryItems = [URLQueryItem(name: "id", value: "\(identifier)")]
         return urlComponents.url!
     }
 }

@@ -29,13 +29,13 @@ import XCTest
 
 final class TaxonLineageItemTests: XCTestCase {
     
-    let testItem1 = TaxonLineageItem(identifier: "1234", name: "Quercus", rank: .genus)
-    let testItem2 = TaxonLineageItem(identifier: "5678", name: "No rank", rank: nil)
-    let testItem3 = TaxonLineageItem(identifier: "1234", name: "foofoof", rank: nil)
+    let testItem1 = TaxonLineageItem(identifier: 1234, name: "Quercus", rank: .genus)
+    let testItem2 = TaxonLineageItem(identifier: 5678, name: "No rank", rank: nil)
+    let testItem3 = TaxonLineageItem(identifier: 1234, name: "foofoof", rank: nil)
     
     func testInitialization() {
         
-        XCTAssertEqual(testItem1.identifier, "1234", "TaxonLineageItem init failed")
+        XCTAssertEqual(testItem1.identifier, 1234, "TaxonLineageItem init failed")
         XCTAssertEqual(testItem1.name, "Quercus", "TaxonLineageItem init failed")
         XCTAssertNotNil(testItem1.rank, "TaxonLineageItem init failed")
         XCTAssertEqual(testItem1.rank!, .genus, "TaxonLineageItem init failed")
@@ -54,6 +54,20 @@ final class TaxonLineageItemTests: XCTestCase {
     func testDescription() {
         XCTAssertEqual(testItem1.description, "genus: Quercus::TaxonLineageItem")
         XCTAssertEqual(testItem2.description, "no rank: No rank::TaxonLineageItem")
+    }
+    
+    func testDecoding() {
+        let JSONStr = "{\"TaxId\":1234,\"ScientificName\":\"Species Jsonus\",\"Rank\":\"species\"}"
+        let JSONData = JSONStr.data(using: .utf8)!
+        do {
+            let lineageItem = try JSONDecoder().decode(TaxonLineageItem.self, from: JSONData)
+            XCTAssertEqual(lineageItem.identifier, 1234, "Decode error")
+            XCTAssertEqual(lineageItem.rank, .species, "Decode error")
+            XCTAssertEqual(lineageItem.name, "Species Jsonus", "Decode error")
+            print(lineageItem)
+        } catch let error {
+            XCTFail("Could not decode lineage item. Error \(error)")
+        }
     }
     
 }

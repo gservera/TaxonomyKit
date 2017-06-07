@@ -29,35 +29,35 @@ import XCTest
 
 final class TaxonTreeTests: XCTestCase {
     
-    var testTaxon1 = Taxon(identifier: "1", name: "Test1", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
-    var testTaxon2 = Taxon(identifier: "2", name: "Test2", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
-    var testTaxon3 = Taxon(identifier: "3", name: "Test3", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
+    var testTaxon1 = Taxon(identifier: 1, name: "Test1", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
+    var testTaxon2 = Taxon(identifier: 2, name: "Test2", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
+    var testTaxon3 = Taxon(identifier: 3, name: "Test3", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
 
     override func setUp() {
         super.setUp()
         testTaxon1.lineageItems = [
-            TaxonLineageItem(identifier: "101", name: "Eukaryota", rank: .superkingdom),
-            TaxonLineageItem(identifier: "201", name: "Viridiplantae", rank: .kingdom),
-            TaxonLineageItem(identifier: "301", name: "Streptophyta", rank: .phylum),
-            TaxonLineageItem(identifier: "401", name: "Fagales", rank: .order),
-            TaxonLineageItem(identifier: "501", name: "Fagaceae", rank: .family),
-            TaxonLineageItem(identifier: "601", name: "Quercus", rank: .genus),
+            TaxonLineageItem(identifier: 101, name: "Eukaryota", rank: .superkingdom),
+            TaxonLineageItem(identifier: 201, name: "Viridiplantae", rank: .kingdom),
+            TaxonLineageItem(identifier: 301, name: "Streptophyta", rank: .phylum),
+            TaxonLineageItem(identifier: 401, name: "Fagales", rank: .order),
+            TaxonLineageItem(identifier: 501, name: "Fagaceae", rank: .family),
+            TaxonLineageItem(identifier: 601, name: "Quercus", rank: .genus),
         ]
         testTaxon2.lineageItems = [
-            TaxonLineageItem(identifier: "101", name: "Eukaryota", rank: .superkingdom),
-            TaxonLineageItem(identifier: "202", name: "Metazoa", rank: .kingdom),
-            TaxonLineageItem(identifier: "302", name: "Chordata", rank: .phylum),
-            TaxonLineageItem(identifier: "402", name: "Primates", rank: .order),
-            TaxonLineageItem(identifier: "502", name: "Hominidae", rank: .family),
-            TaxonLineageItem(identifier: "602", name: "Homo", rank: .genus),
+            TaxonLineageItem(identifier: 101, name: "Eukaryota", rank: .superkingdom),
+            TaxonLineageItem(identifier: 202, name: "Metazoa", rank: .kingdom),
+            TaxonLineageItem(identifier: 302, name: "Chordata", rank: .phylum),
+            TaxonLineageItem(identifier: 402, name: "Primates", rank: .order),
+            TaxonLineageItem(identifier: 502, name: "Hominidae", rank: .family),
+            TaxonLineageItem(identifier: 602, name: "Homo", rank: .genus),
         ]
         testTaxon3.lineageItems = [
-            TaxonLineageItem(identifier: "101", name: "Eukaryota", rank: .superkingdom),
-            TaxonLineageItem(identifier: "202", name: "Metazoa", rank: .kingdom),
-            TaxonLineageItem(identifier: "302", name: "Chordata", rank: .phylum),
-            TaxonLineageItem(identifier: "403", name: "Cyprinodontiformes", rank: .order),
-            TaxonLineageItem(identifier: "503", name: "Poeciliidae", rank: .family),
-            TaxonLineageItem(identifier: "603", name: "Xiphophorus", rank: .genus),
+            TaxonLineageItem(identifier: 101, name: "Eukaryota", rank: .superkingdom),
+            TaxonLineageItem(identifier: 202, name: "Metazoa", rank: .kingdom),
+            TaxonLineageItem(identifier: 302, name: "Chordata", rank: .phylum),
+            TaxonLineageItem(identifier: 403, name: "Cyprinodontiformes", rank: .order),
+            TaxonLineageItem(identifier: 503, name: "Poeciliidae", rank: .family),
+            TaxonLineageItem(identifier: 603, name: "Xiphophorus", rank: .genus),
         ]
     }
     

@@ -41,7 +41,7 @@ final class FindIdentifiersTests: XCTestCase {
         Taxonomy.findIdentifiers(for: "Quercus ilex") { result in
             if case .success(let identifiers) = result {
                 XCTAssertEqual(identifiers.count, 1)
-                XCTAssertEqual(identifiers[0], "58334")
+                XCTAssertEqual(identifiers[0], 58334)
                 condition.fulfill()
             }
         }

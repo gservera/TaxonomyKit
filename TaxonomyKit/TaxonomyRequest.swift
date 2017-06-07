@@ -46,11 +46,11 @@ internal enum TaxonomyRequest {
         switch self {
         case .download(let identifier):
             components.path = "/entrez/eutils/efetch.fcgi"
-            queryItems.append(URLQueryItem(name: "id", value: identifier))
+            queryItems.append(URLQueryItem(name: "id", value: "\(identifier)"))
         case .links(let identifier):
             components.path = "/entrez/eutils/elink.fcgi"
             queryItems += [
-                URLQueryItem(name: "id", value: identifier),
+                URLQueryItem(name: "id", value: "\(identifier)"),
                 URLQueryItem(name: "dbfrom", value: "taxonomy"),
                 URLQueryItem(name: "cmd", value: "llinks")
             ]

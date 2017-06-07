@@ -3,7 +3,7 @@
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016-2017 Guillem Servera (http://github.com/gservera)
+ *  Copyright:  © 2016-2017 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,14 +27,17 @@
 
 /// The `TaxonLineageItem` is a value that describes an element from a retrieved
 /// taxon's lineage.
-public struct TaxonLineageItem: TaxonRepresenting {
+public struct TaxonLineageItem: TaxonRepresenting, Decodable {
 
     public let identifier: TaxonID
 
     public let name: String
 
     public let rank: TaxonomicRank?
-
+    
+    enum CodingKeys : String, CodingKey {
+        case identifier = "TaxId", name = "ScientificName", rank = "Rank"
+    }
     
     /// Initializes a new instance using its three defining parameters.
     ///

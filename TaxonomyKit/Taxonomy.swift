@@ -28,7 +28,7 @@ import Foundation
 import AEXML
 
 /// A numeric string representing an entrez record.
-public typealias TaxonID = String
+public typealias TaxonID = Int
 
 
 /// The generic wrapper type returned by all TaxonomyKit newtorking methods. It 
@@ -89,7 +89,8 @@ public final class Taxonomy {
                             return
                         }
                         if let list = casted["esearchresult"]?["idlist"] as? [String] {
-                            callback(.success(list))
+                            let mapped: [TaxonID] = list.map { Int($0)! }
+                            callback(.success(mapped))
                         } else {
                             callback(.failure(.unknownError)) // Unknown JSON structure
                         }
@@ -300,7 +301,7 @@ public final class Taxonomy {
                                 let itemNameOpt = lineageItem["ScientificName"].value
                                 let itemRankOpt = lineageItem["Rank"].value
                                 
-                                guard let itemId = itemIdOpt, let itemName = itemNameOpt, let itemRank = itemRankOpt else {
+                                guard let itemIdStr = itemIdOpt, let itemId = Int(itemIdStr), let itemName = itemNameOpt, let itemRank = itemRankOpt else {
                                     throw TaxonomyError.parseError(message: "Could not parse XML data")
                                 }
                                 let itemRankValue = TaxonomicRank(rawValue: itemRank)

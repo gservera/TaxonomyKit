@@ -30,20 +30,20 @@ import XCTest
 
 final class TaxonTests: XCTestCase {
     
-    var test1 = Taxon(identifier: "1234", name: "Quercus", rank: .genus, geneticCode: "Standard", mitochondrialCode: "Standard")
-    var test2 = Taxon(identifier: "5678", name: "No rank", rank: nil, geneticCode: "Standard", mitochondrialCode: "Unspecified")
-    var test3 = Taxon(identifier: "1234", name: "foofoof", rank: nil, geneticCode: "Standard", mitochondrialCode: "Standard")
+    var test1 = Taxon(identifier: 1234, name: "Quercus", rank: .genus, geneticCode: "Standard", mitochondrialCode: "Standard")
+    var test2 = Taxon(identifier: 5678, name: "No rank", rank: nil, geneticCode: "Standard", mitochondrialCode: "Unspecified")
+    var test3 = Taxon(identifier: 1234, name: "foofoof", rank: nil, geneticCode: "Standard", mitochondrialCode: "Standard")
     
     override func setUp() {
         super.setUp()
         test3.commonNames = ["holly oak"]
         test3.genbankCommonName = "holly oak"
         test3.synonyms = ["cool oak"]
-        test3.lineageItems = [TaxonLineageItem(identifier: "111", name: "any", rank: nil)]
+        test3.lineageItems = [TaxonLineageItem(identifier: 111, name: "any", rank: nil)]
     }
     
     func testInitialization() {
-        XCTAssertEqual(test1.identifier, "1234", "Taxon init failed")
+        XCTAssertEqual(test1.identifier, 1234, "Taxon init failed")
         XCTAssertEqual(test1.name, "Quercus", "Taxon init failed")
         XCTAssertNotNil(test1.rank, "Taxon init failed")
         XCTAssertEqual(test1.rank!, .genus, "Taxon init failed")

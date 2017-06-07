@@ -38,7 +38,7 @@
 public enum TaxonomyError: Error {
     
     /// The passed NCBI internal ID is invalid.
-    case badRequest(identifier: String)
+    case badRequest(identifier: TaxonID)
     
     /// A network error. More details can be found inspecting the associated error object.
     case networkError(underlyingError: Error)

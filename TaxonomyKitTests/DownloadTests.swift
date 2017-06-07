@@ -38,7 +38,7 @@ final class DownloadTests: XCTestCase {
     
     func testDownloadTaxon() {
         Taxonomy._urlSession = URLSession.shared
-        let query = "9606"
+        let query = 9606
         let condition = expectation(description: "Finished")
         Taxonomy.downloadTaxon(withIdentifier: query) { result in
             if case .success(_) = result {
@@ -50,7 +50,7 @@ final class DownloadTests: XCTestCase {
     
     func testDownloadUnknownTaxon() {
         Taxonomy._urlSession = URLSession.shared
-        let query = "anpafnpanpifadn"
+        let query = 561469854169419684
         let condition = expectation(description: "Finished")
         Taxonomy.downloadTaxon(withIdentifier: query) { result in
             if case .failure(let error) = result,
@@ -70,7 +70,7 @@ final class DownloadTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
                 case .parseError(_) = error {
                 condition.fulfill()
@@ -88,7 +88,7 @@ final class DownloadTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
                 case .unexpectedResponseError(500) = error {
                 condition.fulfill()
@@ -102,7 +102,7 @@ final class DownloadTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
                 case .networkError(let nErr as NSError) = error, nErr.code == -1 {
                 condition.fulfill()
@@ -115,7 +115,7 @@ final class DownloadTests: XCTestCase {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
                 case .unknownError() = error {
                 condition.fulfill()
@@ -135,7 +135,7 @@ final class DownloadTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
                 case .unknownError() = error {
                 condition.fulfill()
@@ -155,7 +155,7 @@ final class DownloadTests: XCTestCase {
         let data = xml.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .success(let taxon) = result {
                 XCTAssertNotNil(taxon)
                 condition.fulfill()
@@ -175,7 +175,7 @@ final class DownloadTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
                 case .parseError(_) = error {
                 condition.fulfill()
@@ -195,7 +195,7 @@ final class DownloadTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
                 case .parseError(_) = error {
                 condition.fulfill()
@@ -215,7 +215,7 @@ final class DownloadTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
                 case .parseError(_) = error {
                 condition.fulfill()
@@ -235,7 +235,7 @@ final class DownloadTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        let dataTask = Taxonomy.downloadTaxon(withIdentifier: "anything") { result in
+        let dataTask = Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             XCTFail("Should have been canceled")
             
             } as! MockSession.MockTask
