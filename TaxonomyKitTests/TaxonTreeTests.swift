@@ -27,14 +27,17 @@
 import XCTest
 @testable import TaxonomyKit
 
-final class TaxonTreeTests: XCTestCase {
+final class LineageTreeTests: XCTestCase {
     
     var testTaxon1 = Taxon(identifier: 1, name: "Test1", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
     var testTaxon2 = Taxon(identifier: 2, name: "Test2", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
     var testTaxon3 = Taxon(identifier: 3, name: "Test3", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
+    
+    var lineageTree = LineageTree()
 
     override func setUp() {
         super.setUp()
+        lineageTree = LineageTree()
         testTaxon1.lineageItems = [
             TaxonLineageItem(identifier: 101, name: "Eukaryota", rank: .superkingdom),
             TaxonLineageItem(identifier: 201, name: "Viridiplantae", rank: .kingdom),
@@ -62,29 +65,39 @@ final class TaxonTreeTests: XCTestCase {
     }
     
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        lineageTree = LineageTree()
         super.tearDown()
     }
 
-    func testTreeCreation() {
-        let taxonTree = TaxonTree(taxa: [testTaxon1, testTaxon2, testTaxon3])
-        XCTAssertTrue(taxonTree.taxa.count == 3, "Initialization failed")
+    func testTreeInsertion() {
+        let node2 = lineageTree.register(testTaxon2)
+        XCTAssertNotNil(node2)
+        XCTAssertEqual(lineageTree.nodeCount, 8)
+        
+        let node3 = lineageTree.register(testTaxon3)
+        XCTAssertNotNil(node3)
+        XCTAssertEqual(lineageTree.nodeCount, 12)
     }
     
-    func testTreeProperties() {
-        let taxonTree = TaxonTree(taxa: [testTaxon1, testTaxon2, testTaxon3])
-        XCTAssertTrue(taxonTree.allNodes.count == 18, "Wrong node count")
-        XCTAssertEqual(taxonTree.depth, 7, "Wrong tree depth")
-    }
-
-    func testNodeRepresentation() {
-        let tree = TaxonTree(taxa: [testTaxon1, testTaxon2, testTaxon3])
-        XCTAssertTrue(tree.origin.represents(node: tree.origin), "Representation error")
-        XCTAssertTrue(tree.origin.represents(node: TaxonTree.Node(valuesFrom: testTaxon1)), "Representation error")
-        XCTAssertFalse(tree.origin.children[0].represents(node: tree.origin), "Representation error")
-        XCTAssertTrue(tree.origin.isRepresented(by: tree.origin), "Representation error")
-        XCTAssertFalse(tree.origin.isRepresented(by: TaxonTree.Node(valuesFrom: testTaxon1)), "Representation error")
-        XCTAssertTrue(tree.origin.children[0].isRepresented(by: tree.origin), "Representation error")
+    func testClosestCommonAncestor() {
+        let node2 = lineageTree.register(testTaxon2)
+        let node3 = lineageTree.register(testTaxon3)
+        do {
+            let commonAncestor = try lineageTree.closestCommonAncestor(for: [node2, node3])
+            XCTAssertNotEqual(commonAncestor, lineageTree.rootNode)
+            XCTAssertEqual(commonAncestor.identifier, 302)
+        } catch let error {
+            XCTFail("\(error)")
+        }
+        
+        let node1 = lineageTree.register(testTaxon1)
+        do {
+            let commonAncestor = try lineageTree.closestCommonAncestor(for: [node1, node2, node3])
+            XCTAssertNotEqual(commonAncestor, lineageTree.rootNode)
+            XCTAssertEqual(commonAncestor.identifier, 101)
+        } catch let error {
+            XCTFail("\(error)")
+        }
     }
     
 }

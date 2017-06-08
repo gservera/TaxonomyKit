@@ -108,7 +108,7 @@ public enum TaxonomicRank: String, Comparable, CustomStringConvertible, Codable 
     /// The subform taxonomic rank.
     case subform
     
-    private static var hierarchy: [TaxonomicRank] {
+    static var hierarchy: [TaxonomicRank] {
         return [
             .origin,//.trunk,
             .superkingdom,.kingdom,.subkingdom,.infrakingdom,
