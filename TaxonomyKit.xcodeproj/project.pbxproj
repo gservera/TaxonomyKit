@@ -36,6 +36,7 @@
 		99D3D4691EE8969C00F2B077 /* LineageAlignmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D3D4681EE8969C00F2B077 /* LineageAlignmentTests.swift */; };
 		99D74B161E9A8D2700BA6804 /* ThumbnailTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D74B151E9A8D2700BA6804 /* ThumbnailTests.swift */; };
 		99D93E661DE0A13E0008EA3A /* TaxonomicRankTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D93E651DE0A13D0008EA3A /* TaxonomicRankTests.swift */; };
+		99FB3D6C1EEA8279007A9A1A /* WikipediaResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FB3D6B1EEA8279007A9A1A /* WikipediaResponse.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +85,7 @@
 		99D3D4681EE8969C00F2B077 /* LineageAlignmentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineageAlignmentTests.swift; sourceTree = "<group>"; };
 		99D74B151E9A8D2700BA6804 /* ThumbnailTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThumbnailTests.swift; sourceTree = "<group>"; };
 		99D93E651DE0A13D0008EA3A /* TaxonomicRankTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaxonomicRankTests.swift; sourceTree = "<group>"; };
+		99FB3D6B1EEA8279007A9A1A /* WikipediaResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WikipediaResponse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +148,7 @@
 				99B03FAF1D9BEEB5007F57AF /* TaxonomyError.swift */,
 				99B03FAE1D9BEEB5007F57AF /* TaxonomyRequest.swift */,
 				99CAA5B81E646FFC008E19F9 /* WikipediaStructs.swift */,
+				99FB3D6B1EEA8279007A9A1A /* WikipediaResponse.swift */,
 				990CEE501DDF86E600A71727 /* TaxonomicRank.swift */,
 				991641EE1DE0CF2100A584FE /* TaxonRepresenting.swift */,
 				99B03FB01D9BEEB5007F57AF /* Taxon.swift */,
@@ -311,6 +314,7 @@
 				990CEE511DDF86E600A71727 /* TaxonomicRank.swift in Sources */,
 				99B03FB21D9BEEB5007F57AF /* Taxonomy.swift in Sources */,
 				991641EF1DE0CF2100A584FE /* TaxonRepresenting.swift in Sources */,
+				99FB3D6C1EEA8279007A9A1A /* WikipediaResponse.swift in Sources */,
 				99B4B3311DCDE5D500DC918A /* ExternalLink.swift in Sources */,
 				99B03FB41D9BEEB5007F57AF /* TaxonomyError.swift in Sources */,
 				99A07A331EE838860075B1F0 /* LineageAlignment.swift in Sources */,

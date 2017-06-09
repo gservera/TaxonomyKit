@@ -190,7 +190,7 @@ final class WikipediaTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.retrieveWikipediaAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result,
-                case .unknownError() = error {
+                case .parseError(_) = error {
                 condition.fulfill()
             }
         }

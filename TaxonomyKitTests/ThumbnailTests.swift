@@ -97,7 +97,7 @@ final class ThumbnailTests: XCTestCase {
                 XCTFail("Wikipedia test should not have failed")
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
     
     func testFakeMalformedJSON() {
@@ -114,7 +114,7 @@ final class ThumbnailTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
     
     func testUnknownResponse() {
@@ -132,7 +132,7 @@ final class ThumbnailTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
     
     func testNetworkError() {
@@ -146,7 +146,7 @@ final class ThumbnailTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
     
     func testOddBehavior() {
@@ -159,7 +159,7 @@ final class ThumbnailTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
     
     func testOddBehavior2() {
@@ -174,11 +174,11 @@ final class ThumbnailTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.retrieveWikipediaThumbnail(for: existingTaxon, width: 500) { result in
             if case .failure(let error) = result,
-                case .unknownError() = error {
+                case .parseError(_) = error {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
     
     func testOddBehavior3() {
@@ -197,7 +197,7 @@ final class ThumbnailTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
     
     func testCancellation() {

@@ -34,7 +34,7 @@ import Foundation
 public struct WikipediaResult {
     
     /// The Wikipedia page ID for the query that was sent.
-    public let identifier: String
+    public let identifier: Int
     
     /// The HTTPS URL pointing to the taxon's Wikipedia page.
     public let url: URL
@@ -50,6 +50,23 @@ public struct WikipediaResult {
     
     /// The title of the Wikipedia article.
     public let title: String
+    
+    /// The remote HTTPS URL pointing to the Wikipedia page's main image if requested and available.
+    public let pageImageUrl: URL?
+    
+    /// The downloaded Wikipedia page's main image if requested and available.
+    public let pageImageData: Data?
+    
+    init(language: WikipediaLanguage, identifier: Int, extract: String, title: String, imageUrl: URL? = nil, imageData: Data? = nil) {
+        self.language = language
+        self.identifier = identifier
+        self.extract = extract
+        self.title = title
+        self.pageImageUrl = imageUrl
+        self.pageImageData = imageData
+        self.url = URL(string:"https://\(language.subdomain).wikipedia.org/?curid=\(identifier)")!
+        self.mobileUrl = URL(string:"https://\(language.subdomain).m.wikipedia.org/?curid=\(identifier)")!
+    }
 }
 
 

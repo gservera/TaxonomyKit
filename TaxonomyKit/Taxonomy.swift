@@ -48,7 +48,7 @@ public enum TaxonomyResult<T> {
 /// The base class from which all the Taxonomy related tasks are initiated. This class
 /// is not meant to be instantiated but it serves as a start node to invoke the
 /// TaxonomyKit functions in your code.
-public final class Taxonomy {
+public struct Taxonomy {
     
     internal init() { /* We prevent this struct from being instantiated. */ }
     
@@ -263,7 +263,7 @@ public final class Taxonomy {
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
             if error == nil {
                 guard let response = response as? HTTPURLResponse, let data = data else {
-                    callback(.failure(.unknownError))
+                    callback(.failure(.badRequest(identifier: id)))
                     return
                 }
                 switch response.statusCode {
@@ -272,7 +272,7 @@ public final class Taxonomy {
                         let xmlDoc = try AEXMLDocument(xml: data)
                         let taxonRoot = xmlDoc["TaxaSet"]["Taxon"]
                         guard taxonRoot.count > 0 else {
-                            callback(.failure(.unknownError))
+                            callback(.failure(.badRequest(identifier: id)))
                             return
                         }
                         
@@ -363,7 +363,7 @@ public final class Taxonomy {
                                 callback(.failure(.badRequest(identifier: id)))
                                 return
                             }
-                            callback(.failure(.unknownError))
+                            callback(.failure(.badRequest(identifier: id)))
                             return
                         }
                         var links: [ExternalLink] = []
@@ -427,7 +427,7 @@ public final class Taxonomy {
                                                                     language: WikipediaLanguage = WikipediaLanguage(),
                                                                     callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         
-        let request = TaxonomyRequest.wikipedia(query: taxon.name, language: language)
+        let request = TaxonomyRequest.wikipediaAbstract(query: taxon.name, language: language)
         return retrieveWikipediaAbstract(with: request, language: language, callback: callback)
     }
     
@@ -451,7 +451,7 @@ public final class Taxonomy {
                                                                     language: WikipediaLanguage = WikipediaLanguage(),
                                                                     callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         
-        let request = TaxonomyRequest.knownWikipedia(id: id, language: language)
+        let request = TaxonomyRequest.knownWikipediaAbstract(id: id, language: language)
         return retrieveWikipediaAbstract(with: request, language: language, callback: callback)
     }
     
@@ -466,30 +466,16 @@ public final class Taxonomy {
                 }
                 
                 if response.statusCode == 200 {
+                    let decoder = JSONDecoder()
                     do {
-                        let JSON = try JSONSerialization.jsonObject(with: data)
-                        guard let casted = JSON as? [String:Any] else {
-                            callback(.failure(.unknownError)) // Unknown JSON structure
-                            return
-                        }
-                        if let pages = ((casted["query"] as? [String:Any])?["pages"] as? [String:[String:Any]]) {
-                            if let (firstID, firstDict) = pages.first {
-                                if firstID == "-1" || firstDict["extract"] == nil {
-                                    callback(.success(nil))
-                                } else {
-                                    let url = URL(string:"https://\(language.subdomain).wikipedia.org/?curid=\(firstID)")!
-                                    let mobileUrl = URL(string:"https://\(language.subdomain).m.wikipedia.org/?curid=\(firstID)")!
-                                    let wikiResult = WikipediaResult(identifier: firstID,
-                                                                     url: url,
-                                                                     mobileUrl: mobileUrl,
-                                                                     language: language,
-                                                                     extract: firstDict["extract"] as! String,
-                                                                     title: firstDict["title"] as! String)
-                                    callback(.success(wikiResult))
-                                }
-                            } else {
-                                callback(.failure(.unknownError)) // Unknown JSON structure
+                        let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
+                        if let page = wikipediaResponse.query.pages.values.first {
+                            guard !page.isMissing, let id = page.id, let extract = page.extract else {
+                                callback(.success(nil))
+                                return
                             }
+                            let wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title)
+                            callback(.success(wikiResult))
                         } else {
                             callback(.failure(.unknownError)) // Unknown JSON structure
                         }
@@ -571,25 +557,127 @@ public final class Taxonomy {
                 }
                 
                 if response.statusCode == 200 {
+                    let decoder = JSONDecoder()
                     do {
-                        let JSON = try JSONSerialization.jsonObject(with: data)
-                        guard let casted = JSON as? [String:Any] else {
+                        let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
+                        if let page = wikipediaResponse.query.pages.values.first {
+                            guard !page.isMissing, let thumbnail = page.thumbnail else {
+                                callback(.success(nil))
+                                return
+                            }
+                            var downloadedImage: Data?
+                            let semaphore = DispatchSemaphore(value: 0)
+                            let dlSession = URLSession(configuration: .default)
+                            let dlTask = dlSession.dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
+                                if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
+                                    downloadedImage = dlData
+                                }
+                                semaphore.signal()
+                            }
+                            dlTask.resume()
+                            _ = semaphore.wait(timeout: .distantFuture)
+                            
+                            if let data = downloadedImage {
+                                callback(.success(data))
+                            } else {
+                                callback(.failure(.unknownError)) // Unknown JSON structure
+                            }
+                        } else {
                             callback(.failure(.unknownError)) // Unknown JSON structure
-                            return
                         }
-                        if let pages = ((casted["query"] as? [String:Any])?["pages"] as? [String:[String:Any]]) {
-                            if let (firstID, firstDict) = pages.first {
-                                if firstID == "-1" || firstDict["thumbnail"] == nil {
-                                    callback(.success(nil))
-                                } else {
-                                    let thumbnailDict = firstDict["thumbnail"] as! [String:Any]
-                                    let thumbnailUrlString = thumbnailDict["source"] as! String
-                                    let thumbnailUrl = URL(string: thumbnailUrlString)!
-                                    
-                                    var downloadedImage: Data?
+                    } catch let error {
+                        callback(.failure(.parseError(message: "Could not parse JSON data. Error: \(error)")))
+                    }
+                } else {
+                    callback(.failure(.unexpectedResponseError(code: response.statusCode)))
+                }
+            } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
+                callback(.failure(.networkError(underlyingError: rootError)))
+            }
+        }
+        task.resume()
+        return task
+    }
+    
+    /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page
+    /// thumbnail for a concrete wikipedia page.
+    ///
+    /// - Since: TaxonomyKit 1.5.
+    /// - Parameters:
+    ///   - taxon: The taxon for which to retrieve Wikipedia thumbnail.
+    ///   - width: The max width in pixels of the image that the Wikipedia API should return.
+    ///   - language: The language that should be used to search Wikipedia.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has a `TaxonomyResult<Data?>`
+    ///               parameter that contains a wrapper with the requested image data (or `nil` if
+    ///               no results are found) when the request succeeds.
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
+    @discardableResult public static func retrieveWikipediaFullRecord(for id: String,
+                                                                      width: Int,
+                                                                      inlineImage: Bool = false,
+                                                                      language: WikipediaLanguage = WikipediaLanguage(),
+                                                                      callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
+        
+        let request = TaxonomyRequest.knownWikipediaFullRecord(id: id, thumbnailWidth: width, language: language)
+        return retrieveWikipediaFullRecord(with: request, inlineImage: inlineImage, language: language, callback: callback)
+    }
+    
+    
+    /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page
+    /// thumbnail for a concrete a taxon.
+    ///
+    /// - Since: TaxonomyKit 1.5.
+    /// - Parameters:
+    ///   - taxon: The taxon for which to retrieve Wikipedia thumbnail.
+    ///   - width: The max width in pixels of the image that the Wikipedia API should return.
+    ///   - language: The language that should be used to search Wikipedia.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has a `TaxonomyResult<Data?>`
+    ///               parameter that contains a wrapper with the requested image data (or `nil` if
+    ///               no results are found) when the request succeeds.
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
+    @discardableResult public static func retrieveWikipediaFullRecord(for taxon: Taxon,
+                                                                     width: Int,
+                                                                     inlineImage: Bool = false,
+                                                                     language: WikipediaLanguage = WikipediaLanguage(),
+                                                                     callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
+        
+        let request = TaxonomyRequest.wikipediaFullRecord(query: taxon.name, thumbnailWidth: width, language: language)
+        return retrieveWikipediaFullRecord(with: request, inlineImage: inlineImage, language: language, callback: callback)
+    }
+    
+    private static func retrieveWikipediaFullRecord(with request: TaxonomyRequest,
+                                                    inlineImage: Bool = false,
+                                                    language: WikipediaLanguage = WikipediaLanguage(),
+                                                    callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
+        let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
+            if error == nil {
+                guard let response = response as? HTTPURLResponse, let data = data else {
+                    callback(.failure(.unknownError))
+                    return
+                }
+                
+                if response.statusCode == 200 {
+                    let decoder = JSONDecoder()
+                    do {
+                        let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
+                        if let page = wikipediaResponse.query.pages.values.first {
+                            guard !page.isMissing, let id = page.id, let extract = page.extract else {
+                                callback(.success(nil))
+                                return
+                            }
+                            if let thumbnail = page.thumbnail {
+                                var downloadedImage: Data? = nil
+                                if inlineImage {
                                     let semaphore = DispatchSemaphore(value: 0)
                                     let dlSession = URLSession(configuration: .default)
-                                    let dlTask = dlSession.dataTask(with: thumbnailUrl) { (dlData, dlResponse, dlError) in
+                                    let dlTask = dlSession.dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
                                         if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
                                             downloadedImage = dlData
                                         }
@@ -597,21 +685,18 @@ public final class Taxonomy {
                                     }
                                     dlTask.resume()
                                     _ = semaphore.wait(timeout: .distantFuture)
-                                    
-                                    if let data = downloadedImage {
-                                        callback(.success(data))
-                                    } else {
-                                        callback(.failure(.unknownError)) // Unknown JSON structure
-                                    }
                                 }
+                                let wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title, imageUrl: thumbnail.source, imageData: downloadedImage)
+                                callback(.success(wikiResult))
                             } else {
-                                callback(.failure(.unknownError)) // Unknown JSON structure
+                                let wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title)
+                                callback(.success(wikiResult))
                             }
                         } else {
                             callback(.failure(.unknownError)) // Unknown JSON structure
                         }
-                    } catch _ {
-                        callback(.failure(.parseError(message: "Could not parse JSON data")))
+                    } catch let error {
+                        callback(.failure(.parseError(message: "Could not parse JSON data. Error: \(error)")))
                     }
                 } else {
                     callback(.failure(.unexpectedResponseError(code: response.statusCode)))
