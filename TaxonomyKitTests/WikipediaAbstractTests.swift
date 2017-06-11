@@ -27,7 +27,7 @@
 import XCTest
 @testable import TaxonomyKit
 
-final class WikipediaTests: XCTestCase {
+final class WikipediaAbstractTests: XCTestCase {
     
     let existingTaxon = Taxon(identifier: -1, name: "Quercus ilex", rank: nil, geneticCode: "", mitochondrialCode: "")
     let nonExistingTaxon = Taxon(identifier: -1, name: "angpadgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")

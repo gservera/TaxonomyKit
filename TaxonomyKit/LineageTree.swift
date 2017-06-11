@@ -88,7 +88,7 @@ public class LineageTree {
         return nodeMap[taxon.identifier] != nil
     }
     
-    private func contains<T: TaxonRepresenting>(taxa: [T]) -> Bool {
+    private func contains<T: TaxonRepresenting>(taxa: Set<T>) -> Bool {
         for taxon in taxa {
             if !contains(taxon: taxon) {
                 return false
@@ -120,19 +120,21 @@ public class LineageTree {
         return node
     }
     
-    /// <#Description#>
+    /// Returns the deepest ancestor common to all elements in a given taxa set.
     ///
-    /// - Parameter taxa: <#taxa description#>
-    /// - Returns: <#return value description#>
-    /// - Throws: <#throws value description#>
-    public func closestCommonAncestor<T: TaxonRepresenting>(for taxa: [T]) throws -> Node {
+    /// - Parameter taxa: The taxa to be evaluated.
+    /// - Returns: The deepest ancestor common to all elements in a given taxa set. If no common
+    ///            ancestor can be found, the LineageTree's rootNode is returned.
+    /// - Throws: `TaxonomyError.unregisteredTaxa` when any of the specified taxa was not
+    ///           registered, or `TaxonomyError.insufficientTaxa` when less than 2 taxa were passed.
+    public func closestCommonAncestor<T: TaxonRepresenting>(for taxa: Set<T>) throws -> Node {
         guard self.contains(taxa: taxa) else {
             throw TaxonomyError.unregisteredTaxa
         }
         guard taxa.count >= 2 else {
-            throw TaxonomyError.unknownError
+            throw TaxonomyError.insufficientTaxa
         }
-        var nodes = taxa.map { nodeMap[$0.identifier] }
+        var nodes = taxa.map { nodeMap[$0.identifier]! }
         let sample = nodes.popLast()!
         var currentNode = sample
         while currentNode !== rootNode {
@@ -145,7 +147,7 @@ public class LineageTree {
                         testHit = true
                         break
                     } else {
-                        testPtr = testPtr?.parent
+                        testPtr = testPtr.parent!
                     }
                 }
                 if !testHit {
@@ -156,9 +158,9 @@ public class LineageTree {
             if presentInEveryOtherNodes {
                 break
             } else {
-                currentNode = currentNode?.parent
+                currentNode = currentNode.parent!
             }
         }
-        return currentNode ?? rootNode
+        return currentNode
     }
 }

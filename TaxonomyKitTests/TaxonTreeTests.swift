@@ -77,6 +77,8 @@ final class LineageTreeTests: XCTestCase {
         let node3 = lineageTree.register(testTaxon3)
         XCTAssertNotNil(node3)
         XCTAssertEqual(lineageTree.nodeCount, 12)
+        
+        XCTAssertEqual(lineageTree.register(testTaxon2), node2)
     }
     
     func testClosestCommonAncestor() {
@@ -94,9 +96,41 @@ final class LineageTreeTests: XCTestCase {
         do {
             let commonAncestor = try lineageTree.closestCommonAncestor(for: [node1, node2, node3])
             XCTAssertNotEqual(commonAncestor, lineageTree.rootNode)
-            XCTAssertEqual(commonAncestor.identifier, 101)
+            XCTAssertEqual(commonAncestor.debugDescription, "<101:Eukaryota>")
         } catch let error {
             XCTFail("\(error)")
+        }
+    }
+    
+    func testClosestCommonAncestorUnregistered() {
+        let node2 = lineageTree.register(testTaxon2)
+        let otherTree = LineageTree()
+        let node3 = otherTree.register(testTaxon3)
+        do {
+            let _ = try lineageTree.closestCommonAncestor(for: [node2, node3])
+            XCTFail("Should have raised")
+        } catch let error as TaxonomyError {
+            guard case .unregisteredTaxa = error else {
+                XCTFail("Wrong error thrown")
+                return
+            }
+        } catch _ {
+            XCTFail("Wrong error thrown")
+        }
+    }
+    
+    func testClosestCommonAncestorTooFewTaxa() {
+        let node2 = lineageTree.register(testTaxon2)
+        do {
+            let _ = try lineageTree.closestCommonAncestor(for: [node2])
+            XCTFail("Should have raised")
+        } catch let error as TaxonomyError {
+            guard case .insufficientTaxa = error else {
+                XCTFail("Wrong error thrown")
+                return
+            }
+        } catch _ {
+            XCTFail("Wrong error thrown")
         }
     }
     

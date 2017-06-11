@@ -314,8 +314,6 @@ public struct Taxonomy {
                     } catch _ {
                         callback(.failure(.parseError(message: "Could not parse XML data")))
                     }
-                case 400:
-                    callback(.failure(.badRequest(identifier: id)))
                 default:
                     callback(.failure(.unexpectedResponseError(code: response.statusCode)))
                 }
@@ -358,11 +356,6 @@ public struct Taxonomy {
                         let xmlDoc = try AEXMLDocument(xml: data)
                         let linkRoot = xmlDoc["eLinkResult"]["LinkSet"]["IdUrlList"]["IdUrlSet"]["ObjUrl"]
                         guard linkRoot.count > 0, let linkNodes = linkRoot.all else {
-                            let linkRoot = xmlDoc["eLinkResult"]["LinkSet"]["IdUrlList"]["IdUrlSet"]
-                            if let zeroInfo = linkRoot["Info"].value, zeroInfo.hasPrefix("Incorrect UID") {
-                                callback(.failure(.badRequest(identifier: id)))
-                                return
-                            }
                             callback(.failure(.badRequest(identifier: id)))
                             return
                         }
@@ -580,7 +573,7 @@ public struct Taxonomy {
                             if let data = downloadedImage {
                                 callback(.success(data))
                             } else {
-                                callback(.failure(.unknownError)) // Unknown JSON structure
+                                callback(.failure(.unknownError)) // Could not download image
                             }
                         } else {
                             callback(.failure(.unknownError)) // Unknown JSON structure

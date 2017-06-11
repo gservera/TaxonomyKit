@@ -20,23 +20,23 @@ internal struct WikipediaResponse: Codable {
                 let height: Int
             }
             
-            var thumbnail: Thumbnail? = nil
+            let thumbnail: Thumbnail?
             
-            var extract: String? = nil
-            var id: Int? = -1
-            var title: String
+            let extract: String?
+            let id: Int?
+            let title: String
             
             enum CodingKeys : String, CodingKey {
                 case id = "pageid", title, extract, thumbnail
             }
             
             var isMissing: Bool {
-                return id == -1
+                return id == -1 || id == nil
             }
             
         }
         
-        var pages: [Int:WikipediaResponse.Query.Page]
+        let pages: [Int:WikipediaResponse.Query.Page]
         
     }
     let query: Query

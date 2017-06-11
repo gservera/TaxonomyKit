@@ -49,8 +49,11 @@ public enum TaxonomyError: Error {
     /// An unexpected server response (other than 200) from the NCBI servers.
     case unexpectedResponseError(code: Int)
     
-    /// An unexpected taxon passed to a LineageGraph method.
+    /// An unexpected taxon passed to a LineageTree method.
     case unregisteredTaxa
+    
+    /// Too few taxa passed to a LineageTree method.
+    case insufficientTaxa
     
     /// Any other error, including unexpected structure or missing values in 
     /// the XML/JSON data that was downloaded.
