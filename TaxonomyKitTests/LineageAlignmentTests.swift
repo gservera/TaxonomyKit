@@ -99,10 +99,8 @@ final class LineageAlignmentTests: XCTestCase {
     }
     
     func testAlignment() {
-        let nodeSapiens = lineageTree.register(homoSapiens)
-        let nodeIlex = lineageTree.register(quercusIlex)
-    
-        
+        let _ = lineageTree.register(homoSapiens)
+        let _ = lineageTree.register(quercusIlex)
         let alignment = LineageAlignment(lineageTree: lineageTree)
         let cleanedUp = alignment.cleanedUp
         print(alignment)
