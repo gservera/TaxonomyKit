@@ -618,7 +618,7 @@ public struct Taxonomy {
                                                                       callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.knownWikipediaFullRecord(id: id, richText: useRichText, thumbnailWidth: width, language: language)
-        return retrieveWikipediaFullRecord(with: request, inlineImage: inlineImage, language: language, callback: callback)
+        return retrieveWikipediaFullRecord(with: request, inlineImage: inlineImage, language: language, useRichText: useRichText, callback: callback)
     }
     
     
