@@ -418,9 +418,10 @@ public struct Taxonomy {
     ///            point.
     @discardableResult public static func retrieveWikipediaAbstract(for taxon: Taxon,
                                                                     language: WikipediaLanguage = WikipediaLanguage(),
+                                                                    useRichText: Bool = false,
                                                                     callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         
-        let request = TaxonomyRequest.wikipediaAbstract(query: taxon.name, language: language)
+        let request = TaxonomyRequest.wikipediaAbstract(query: taxon.name, richText: useRichText, language: language)
         return retrieveWikipediaAbstract(with: request, language: language, callback: callback)
     }
     
@@ -442,9 +443,10 @@ public struct Taxonomy {
     ///            point.
     @discardableResult public static func retrieveWikipediaAbstract(for id: String,
                                                                     language: WikipediaLanguage = WikipediaLanguage(),
+                                                                    useRichText: Bool = false,
                                                                     callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         
-        let request = TaxonomyRequest.knownWikipediaAbstract(id: id, language: language)
+        let request = TaxonomyRequest.knownWikipediaAbstract(id: id, richText: useRichText, language: language)
         return retrieveWikipediaAbstract(with: request, language: language, callback: callback)
     }
     
@@ -612,9 +614,10 @@ public struct Taxonomy {
                                                                       width: Int,
                                                                       inlineImage: Bool = false,
                                                                       language: WikipediaLanguage = WikipediaLanguage(),
+                                                                      useRichText: Bool = false,
                                                                       callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         
-        let request = TaxonomyRequest.knownWikipediaFullRecord(id: id, thumbnailWidth: width, language: language)
+        let request = TaxonomyRequest.knownWikipediaFullRecord(id: id, richText: useRichText, thumbnailWidth: width, language: language)
         return retrieveWikipediaFullRecord(with: request, inlineImage: inlineImage, language: language, callback: callback)
     }
     
@@ -639,15 +642,17 @@ public struct Taxonomy {
                                                                      width: Int,
                                                                      inlineImage: Bool = false,
                                                                      language: WikipediaLanguage = WikipediaLanguage(),
+                                                                     useRichText: Bool = false,
                                                                      callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         
-        let request = TaxonomyRequest.wikipediaFullRecord(query: taxon.name, thumbnailWidth: width, language: language)
-        return retrieveWikipediaFullRecord(with: request, inlineImage: inlineImage, language: language, callback: callback)
+        let request = TaxonomyRequest.wikipediaFullRecord(query: taxon.name, richText: useRichText, thumbnailWidth: width, language: language)
+        return retrieveWikipediaFullRecord(with: request, inlineImage: inlineImage, language: language, useRichText: useRichText, callback: callback)
     }
     
     private static func retrieveWikipediaFullRecord(with request: TaxonomyRequest,
                                                     inlineImage: Bool = false,
                                                     language: WikipediaLanguage = WikipediaLanguage(),
+                                                    useRichText: Bool = false,
                                                     callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
             if error == nil {
@@ -679,10 +684,22 @@ public struct Taxonomy {
                                     dlTask.resume()
                                     _ = semaphore.wait(timeout: .distantFuture)
                                 }
-                                let wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title, imageUrl: thumbnail.source, imageData: downloadedImage)
+                                var wikiResult: WikipediaResult
+                                if useRichText {
+                                    let attributedExtract = WikipediaAttributedExtract(htmlString: extract)
+                                    wikiResult = WikipediaResult(language: language, identifier: id, extract: attributedExtract, title: page.title, imageUrl: thumbnail.source, imageData: downloadedImage)
+                                } else {
+                                    wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title, imageUrl: thumbnail.source, imageData: downloadedImage)
+                                }
                                 callback(.success(wikiResult))
                             } else {
-                                let wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title)
+                                var wikiResult: WikipediaResult
+                                if useRichText {
+                                    let attributedExtract = WikipediaAttributedExtract(htmlString: extract)
+                                    wikiResult = WikipediaResult(language: language, identifier: id, extract: attributedExtract, title: page.title)
+                                } else {
+                                    wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title)
+                                }
                                 callback(.success(wikiResult))
                             }
                         } else {

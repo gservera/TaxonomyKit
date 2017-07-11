@@ -33,12 +33,12 @@ internal enum TaxonomyRequest {
     case scientificNameGuess(query: String, language: WikipediaLanguage)
     case search(query: String)
     case spelling(failedQuery: String)
-    case wikipediaAbstract(query: String, language: WikipediaLanguage)
-    case wikipediaFullRecord(query: String, thumbnailWidth: Int, language: WikipediaLanguage)
+    case wikipediaAbstract(query: String, richText: Bool, language: WikipediaLanguage)
+    case wikipediaFullRecord(query: String, richText: Bool, thumbnailWidth: Int, language: WikipediaLanguage)
     case wikipediaThumbnail(query: String, width: Int, language: WikipediaLanguage)
-    case knownWikipediaAbstract(id: String, language: WikipediaLanguage)
+    case knownWikipediaAbstract(id: String, richText: Bool, language: WikipediaLanguage)
     case knownWikipediaThumbnail(id: String, width: Int, language: WikipediaLanguage)
-    case knownWikipediaFullRecord(id: String, thumbnailWidth: Int, language: WikipediaLanguage)
+    case knownWikipediaFullRecord(id: String, richText: Bool, thumbnailWidth: Int, language: WikipediaLanguage)
     
     var url: URL {
         var components = URLComponents()
@@ -76,7 +76,7 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "titles", value: query),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
-        case .knownWikipediaAbstract(let id, let lang):
+        case .knownWikipediaAbstract(let id, let useRichText, let lang):
             components.host = "\(lang.subdomain).wikipedia.org"
             components.path = "/w/api.php"
             queryItems = [
@@ -84,10 +84,12 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "action", value: "query"),
                 URLQueryItem(name: "prop", value: "extracts"),
                 URLQueryItem(name: "exintro", value: ""),
-                URLQueryItem(name: "explaintext", value: ""),
                 URLQueryItem(name: "pageids", value: id),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
+            if useRichText {
+                queryItems.append(URLQueryItem(name: "explaintext", value: ""))
+            }
         case .knownWikipediaThumbnail(let id, let width, let lang):
             components.host = "\(lang.subdomain).wikipedia.org"
             components.path = "/w/api.php"
@@ -99,7 +101,7 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "pageids", value: id),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
-        case .knownWikipediaFullRecord(let id, let width, let lang):
+        case .knownWikipediaFullRecord(let id, let useRichText, let width, let lang):
             components.host = "\(lang.subdomain).wikipedia.org"
             components.path = "/w/api.php"
             queryItems = [
@@ -107,12 +109,14 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "action", value: "query"),
                 URLQueryItem(name: "prop", value: "extracts|pageimages"),
                 URLQueryItem(name: "exintro", value: ""),
-                URLQueryItem(name: "explaintext", value: ""),
                 URLQueryItem(name: "pithumbsize", value: "\(width)"),
                 URLQueryItem(name: "pageids", value: id),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
-        case .wikipediaAbstract(let query, let lang):
+            if useRichText {
+                queryItems.append(URLQueryItem(name: "explaintext", value: ""))
+            }
+        case .wikipediaAbstract(let query, let useRichText, let lang):
             components.host = "\(lang.subdomain).wikipedia.org"
             components.path = "/w/api.php"
             queryItems = [
@@ -120,10 +124,12 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "action", value: "query"),
                 URLQueryItem(name: "prop", value: "extracts"),
                 URLQueryItem(name: "exintro", value: ""),
-                URLQueryItem(name: "explaintext", value: ""),
                 URLQueryItem(name: "titles", value: query),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
+            if useRichText {
+                queryItems.append(URLQueryItem(name: "explaintext", value: ""))
+            }
         case .wikipediaThumbnail(let query, let width, let lang):
             components.host = "\(lang.subdomain).wikipedia.org"
             components.path = "/w/api.php"
@@ -135,7 +141,7 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "titles", value: query),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
-        case .wikipediaFullRecord(let query, let width, let lang):
+        case .wikipediaFullRecord(let query, let useRichText, let width, let lang):
             components.host = "\(lang.subdomain).wikipedia.org"
             components.path = "/w/api.php"
             queryItems = [
@@ -143,11 +149,13 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "action", value: "query"),
                 URLQueryItem(name: "prop", value: "extracts|pageimages"),
                 URLQueryItem(name: "exintro", value: ""),
-                URLQueryItem(name: "explaintext", value: ""),
                 URLQueryItem(name: "pithumbsize", value: "\(width)"),
                 URLQueryItem(name: "titles", value: query),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
+            if useRichText {
+                queryItems.append(URLQueryItem(name: "explaintext", value: ""))
+            }
         }
         
         components.queryItems = queryItems
