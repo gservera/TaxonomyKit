@@ -126,14 +126,27 @@ public struct WikipediaAttributedExtract {
     #if os(iOS) || os(watchOS) || os(tvOS) || os(OSX)
     public func attributedString(using font: _OSFontType) throws -> NSAttributedString {
         do {
+            return try htmlString.parseHTML(setting: font)
+        } catch let error {
+            throw error
+        }
+    }
+    #endif
+    
+}
+
+#if os(iOS) || os(watchOS) || os(tvOS) || os(OSX)
+public extension String {
+    public func parseHTML(setting font: _OSFontType) throws -> NSAttributedString {
+        do {
             #if os(iOS) || os(watchOS) || os(tvOS)
-            let fontFamily = font.familyName
+                let fontFamily = font.familyName
             #else
-            let fontFamily = font.familyName ?? font.fontName
+                let fontFamily = font.familyName ?? font.fontName
             #endif
             let fontSize = font.pointSize
             let stylePrefix = NSString(format: "<style>body{font-family: '%@';font-size:%fpx;}</style>", fontFamily, fontSize)
-            let styledString = (stylePrefix as String) + htmlString
+            let styledString = (stylePrefix as String) + self
             guard let styledData = styledString.data(using: .utf8) else {
                 throw TaxonomyError.unknownError
             }
@@ -146,6 +159,5 @@ public struct WikipediaAttributedExtract {
             throw error
         }
     }
-    #endif
-    
 }
+#endif
