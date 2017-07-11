@@ -87,7 +87,7 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "pageids", value: id),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
-            if useRichText {
+            if !useRichText {
                 queryItems.append(URLQueryItem(name: "explaintext", value: ""))
             }
         case .knownWikipediaThumbnail(let id, let width, let lang):
@@ -113,7 +113,7 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "pageids", value: id),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
-            if useRichText {
+            if !useRichText {
                 queryItems.append(URLQueryItem(name: "explaintext", value: ""))
             }
         case .wikipediaAbstract(let query, let useRichText, let lang):
@@ -127,7 +127,7 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "titles", value: query),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
-            if useRichText {
+            if !useRichText {
                 queryItems.append(URLQueryItem(name: "explaintext", value: ""))
             }
         case .wikipediaThumbnail(let query, let width, let lang):
@@ -153,7 +153,7 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "titles", value: query),
                 URLQueryItem(name: "redirects", value: "1"),
             ]
-            if useRichText {
+            if !useRichText {
                 queryItems.append(URLQueryItem(name: "explaintext", value: ""))
             }
         }
