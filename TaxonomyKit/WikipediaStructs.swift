@@ -150,10 +150,11 @@ public extension String {
             guard let styledData = styledString.data(using: .utf8) else {
                 throw TaxonomyError.unknownError
             }
-            let attributed = try NSAttributedString(data: styledData, options: [
+            let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
                 .documentType: NSAttributedString.DocumentType.html,
-                .characterEncoding: String.Encoding.utf8
-                ], documentAttributes: nil)
+                .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue)
+            ]
+            let attributed = try NSAttributedString(data: styledData, options: options, documentAttributes: nil)
             return attributed
         } catch let error {
             throw error
