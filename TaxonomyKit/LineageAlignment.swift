@@ -17,7 +17,7 @@ public class LineageAlignment {
             self.rank = rank
         }
         
-        var debugDescription: String {
+        public var debugDescription: String {
             return "[\(nodes.count):\(String(describing: rank))]: \(nodes.map{$0.name}.joined(separator:", "))"
         }
     }
