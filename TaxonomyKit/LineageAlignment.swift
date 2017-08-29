@@ -8,11 +8,11 @@
 
 import Foundation
 
-internal class LineageAlignment {
+public class LineageAlignment {
     
-    internal class Pair: CustomDebugStringConvertible {
-        var rank: TaxonomicRank? = nil
-        var nodes: [LineageTree.Node] = []
+    public class Pair: CustomDebugStringConvertible {
+        public var rank: TaxonomicRank? = nil
+        public var nodes: [LineageTree.Node] = []
         init(rank: TaxonomicRank?) {
             self.rank = rank
         }
@@ -22,7 +22,7 @@ internal class LineageAlignment {
         }
     }
     
-    var table: [Pair] = TaxonomicRank.hierarchy.map { Pair(rank: $0) }
+    public private(set) var table: [Pair] = TaxonomicRank.hierarchy.map { Pair(rank: $0) }
     
     private func currentDepth(for rank: TaxonomicRank) -> Int {
         var i = 0
@@ -35,11 +35,11 @@ internal class LineageAlignment {
         return -1
     }
     
-    var cleanedUp: [[LineageTree.Node]] {
+    public var cleanedUp: [[LineageTree.Node]] {
         return table.filter{ $0.nodes.count > 0 }.map{$0.nodes}
     }
     
-    init(lineageTree: LineageTree) {
+    public init(lineageTree: LineageTree) {
         let root = lineageTree.rootNode
         parseNode(root, depth: 0)
     }
