@@ -98,7 +98,7 @@ public struct Taxonomy {
                         callback(.failure(.parseError(message: "Could not parse JSON data")))
                     }
                 default:
-                    callback(.failure(.unexpectedResponseError(code: response.statusCode)))
+                    callback(.failure(.unexpectedResponse(code: response.statusCode)))
                 }
             } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
                 callback(.failure(.networkError(underlyingError: rootError)))

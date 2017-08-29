@@ -25,8 +25,8 @@
  */
 
 
-/// The `TaxonLineageItem` is a value that describes an element from a retrieved
-/// taxon's lineage.
+/// The `Taxon` struct represents a record downloaded from the NCBI's
+/// Taxonomy database.
 public struct Taxon: TaxonRepresenting {
     
     /// The internal NCBI identifier for the record.

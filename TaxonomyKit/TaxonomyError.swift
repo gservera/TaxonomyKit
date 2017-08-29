@@ -47,7 +47,7 @@ public enum TaxonomyError: Error {
     case parseError(message: String)
     
     /// An unexpected server response (other than 200) from the NCBI servers.
-    case unexpectedResponseError(code: Int)
+    case unexpectedResponse(code: Int)
     
     /// An unexpected taxon passed to a LineageTree method.
     case unregisteredTaxa
