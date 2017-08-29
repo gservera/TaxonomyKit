@@ -45,7 +45,7 @@ public struct TaxonLineageItem: TaxonRepresenting, Decodable {
     ///   - identifier: The internal NCBI identifier for the record.
     ///   - name: The scientific name of the record.
     ///   - rank: The rank of the record or `nil` if not set.
-    internal init(identifier: TaxonID, name: String, rank: TaxonomicRank?) {
+    public init(identifier: TaxonID, name: String, rank: TaxonomicRank?) {
         self.identifier = identifier
         self.name = name
         self.rank = rank
