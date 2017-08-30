@@ -32,6 +32,7 @@ public class LineageAlignment {
         public subscript(index: Int) -> LineageTree.Node {
             return nodes[index]
         }
+        
     }
     
     public private(set) var grid: [Column] = TaxonomicRank.hierarchy.map { Column(rank: $0) }
@@ -95,7 +96,8 @@ public class LineageAlignment {
                 parseNode(node, depth: depth)
             } else {
                 grid[depth].nodes.append(node)
-                for child in node.children {
+                let sortedChildren = node.children.sorted { $0.sortString < $1.sortString }
+                for child in sortedChildren {
                     parseNode(child, depth: depth + 1)
                 }
             }
