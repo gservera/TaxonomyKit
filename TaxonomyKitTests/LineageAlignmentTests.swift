@@ -102,7 +102,7 @@ final class LineageAlignmentTests: XCTestCase {
         let _ = lineageTree.register(homoSapiens)
         let _ = lineageTree.register(quercusIlex)
         let alignment = LineageAlignment(lineageTree: lineageTree)
-        let cleanedUp = alignment.cleanedUp
+        let _ = alignment.cleanedUp
         print(alignment)
     }
     

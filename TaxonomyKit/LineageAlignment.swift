@@ -10,7 +10,7 @@ import Foundation
 
 public class LineageAlignment {
     
-    public class Pair: CustomDebugStringConvertible {
+    public class Column: CustomDebugStringConvertible {
         public var rank: TaxonomicRank? = nil
         public var nodes: [LineageTree.Node] = []
         init(rank: TaxonomicRank?) {
@@ -18,19 +18,27 @@ public class LineageAlignment {
         }
         
         public var debugDescription: String {
-            return "[\(nodes.count):\(String(describing: rank))]: \(nodes.map{$0.name}.joined(separator:", "))"
+            return "[\(nodes.count):\(rank?.rawValue ?? "no rank")]: \(nodes.map{$0.name}.joined(separator:", "))"
         }
         
         public var span: Int {
             return nodes.reduce(0) { $0 + $1.span }
         }
+        
+        public var count: Int {
+            return nodes.count
+        }
+        
+        public subscript(index: Int) -> LineageTree.Node {
+            return nodes[index]
+        }
     }
     
-    public private(set) var table: [Pair] = TaxonomicRank.hierarchy.map { Pair(rank: $0) }
+    public private(set) var grid: [Column] = TaxonomicRank.hierarchy.map { Column(rank: $0) }
     
     private func currentDepth(for rank: TaxonomicRank) -> Int {
         var i = 0
-        for pair in table {
+        for pair in grid {
             if pair.rank == rank {
                 return i
             }
@@ -39,8 +47,8 @@ public class LineageAlignment {
         return -1
     }
     
-    public var cleanedUp: [[LineageTree.Node]] {
-        return table.filter{ $0.nodes.count > 0 }.map{$0.nodes}
+    public var cleanedUp: [Column] {
+        return grid.filter{ $0.nodes.count > 0 }
     }
     
     public init(lineageTree: LineageTree) {
@@ -54,14 +62,14 @@ public class LineageAlignment {
             // Node has rank
             let currentDepth = self.currentDepth(for: rank)
             if currentDepth == depth {
-                table[depth].nodes.append(node)
+                grid[depth].nodes.append(node)
                 let sortedChildren = node.children.sorted { $0.sortString < $1.sortString }
                 for child in sortedChildren {
                     parseNode(child, depth: depth + 1)
                 }
             } else if currentDepth < depth {
-                let emptyPair = Pair(rank: nil)
-                table.insert(emptyPair, at: depth)
+                let emptyPair = Column(rank: nil)
+                grid.insert(emptyPair, at: depth)
                 parseNode(node, depth: depth)
             } else {
                 parseNode(node, depth: currentDepth)
@@ -76,9 +84,9 @@ public class LineageAlignment {
             let previousRankedNodePos = depth - extraIterations
             var willRecall = false
             for i in previousRankedNodePos+1...depth {
-                if table[i].rank != nil {
-                    let emptyPair = Pair(rank: nil)
-                    table.insert(emptyPair, at: depth)
+                if grid[i].rank != nil {
+                    let emptyPair = Column(rank: nil)
+                    grid.insert(emptyPair, at: depth)
                     willRecall = true
                     break
                 }
@@ -86,7 +94,7 @@ public class LineageAlignment {
             if willRecall {
                 parseNode(node, depth: depth)
             } else {
-                table[depth].nodes.append(node)
+                grid[depth].nodes.append(node)
                 for child in node.children {
                     parseNode(child, depth: depth + 1)
                 }
