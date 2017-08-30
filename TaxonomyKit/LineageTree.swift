@@ -68,6 +68,25 @@ public class LineageTree {
         public var debugDescription: String {
             return "<\(identifier):\(name)>"
         }
+        
+        public var span: Int {
+            var _span: Int = 0
+            for child in children {
+                _span += child.span
+            }
+            return (_span == 0) ? 1 : _span
+        }
+        
+        public lazy var sortString: String = {
+            var lineage: [LineageTree.Node] = [self]
+            var currentItem: LineageTree.Node? = nil
+            currentItem = parent
+            while let current = currentItem {
+                lineage.append(current)
+                currentItem = current.parent
+            }
+            return lineage.reversed().map{$0.name}.joined(separator: ";")
+        }()
     }
     
     private var nodeMap: [Int:Node] = [:]

@@ -114,7 +114,7 @@ final class NameGuessingTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .failure(let error) = result,
-                case .unexpectedResponseError(500) = error {
+                case .unexpectedResponse(500) = error {
                 condition.fulfill()
             }
         }
@@ -141,7 +141,7 @@ final class NameGuessingTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .failure(let error) = result,
-                case .unknownError() = error {
+                case .unknownError = error {
                 condition.fulfill()
             }
         }
@@ -160,7 +160,7 @@ final class NameGuessingTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .failure(let error) = result,
-                case .unknownError() = error {
+                case .unknownError = error {
                 condition.fulfill()
             }
         }
@@ -179,7 +179,7 @@ final class NameGuessingTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .failure(let error) = result,
-                case .unknownError() = error {
+                case .unknownError = error {
                 condition.fulfill()
             }
         }

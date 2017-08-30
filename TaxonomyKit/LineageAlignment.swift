@@ -20,6 +20,10 @@ public class LineageAlignment {
         public var debugDescription: String {
             return "[\(nodes.count):\(String(describing: rank))]: \(nodes.map{$0.name}.joined(separator:", "))"
         }
+        
+        public var span: Int {
+            return nodes.reduce(0) { $0 + $1.span }
+        }
     }
     
     public private(set) var table: [Pair] = TaxonomicRank.hierarchy.map { Pair(rank: $0) }
@@ -45,11 +49,14 @@ public class LineageAlignment {
     }
     
     private func parseNode(_ node: LineageTree.Node, depth: Int) {
+        // Check if node has rank
         if let rank = node.rank {
+            // Node has rank
             let currentDepth = self.currentDepth(for: rank)
             if currentDepth == depth {
                 table[depth].nodes.append(node)
-                for child in node.children {
+                let sortedChildren = node.children.sorted { $0.sortString < $1.sortString }
+                for child in sortedChildren {
                     parseNode(child, depth: depth + 1)
                 }
             } else if currentDepth < depth {

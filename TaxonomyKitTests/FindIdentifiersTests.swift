@@ -88,7 +88,7 @@ final class FindIdentifiersTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.findIdentifiers(for: "anything") { result in
             if case .failure(let error) = result,
-               case .unexpectedResponseError(500) = error {
+               case .unexpectedResponse(500) = error {
                 condition.fulfill()
             }
         }
@@ -115,7 +115,7 @@ final class FindIdentifiersTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.findIdentifiers(for: "anything") { result in
             if case .failure(let error) = result,
-                case .unknownError() = error {
+                case .unknownError = error {
                 condition.fulfill()
             }
         }
@@ -134,7 +134,7 @@ final class FindIdentifiersTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.findIdentifiers(for: "anything") { result in
             if case .failure(let error) = result,
-                case .unknownError() = error {
+                case .unknownError = error {
                 condition.fulfill()
             }
         }

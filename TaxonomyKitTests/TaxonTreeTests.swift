@@ -69,6 +69,17 @@ final class LineageTreeTests: XCTestCase {
         super.tearDown()
     }
 
+    func testSpan() {
+        let node1 = lineageTree.register(testTaxon1)
+        let node2 = lineageTree.register(testTaxon2)
+        let node3 = lineageTree.register(testTaxon3)
+        XCTAssertEqual(node1.span, 1)
+        XCTAssertEqual(node2.span, 1)
+        XCTAssertEqual(node3.span, 1)
+        XCTAssertEqual(node3.parent!.parent!.parent!.parent!.parent!.span, 2)
+        XCTAssertEqual(node3.parent!.parent!.parent!.parent!.parent!.parent!.span, 3)
+    }
+    
     func testTreeInsertion() {
         let node2 = lineageTree.register(testTaxon2)
         XCTAssertNotNil(node2)

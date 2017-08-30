@@ -90,7 +90,7 @@ final class DownloadTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
-                case .unexpectedResponseError(500) = error {
+                case .unexpectedResponse(500) = error {
                 condition.fulfill()
             }
         }

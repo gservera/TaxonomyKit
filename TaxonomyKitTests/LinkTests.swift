@@ -92,7 +92,7 @@ final class LinkTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: -1) { result in
             if case .failure(let error) = result,
-                case .unexpectedResponseError(500) = error {
+                case .unexpectedResponse(500) = error {
                 condition.fulfill()
             }
         }
