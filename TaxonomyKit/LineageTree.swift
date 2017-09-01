@@ -39,16 +39,19 @@ public class LineageTree {
         /// <#Description#>
         public let name: String
         /// <#Description#>
+        public let commonName: String?
+        /// <#Description#>
         public let rank: TaxonomicRank?
         /// <#Description#>
         public internal(set) weak var parent: Node?
         /// <#Description#>
         public internal(set) var children: Set<Node> = []
         
-        internal init(identifier: TaxonID, name: String, rank: TaxonomicRank?, parent: Node? = nil) {
+        internal init(identifier: TaxonID, name: String, rank: TaxonomicRank?, commonName: String? = nil, parent: Node? = nil) {
             self.identifier = identifier
             self.name = name
             self.rank = rank
+            self.commonName = commonName
             self.parent = parent
             parent?.children.insert(self)
         }
@@ -87,6 +90,20 @@ public class LineageTree {
             }
             return lineage.reversed().map{$0.name}.joined(separator: ";")
         }()
+        
+        public func isPresentInLineageOf(_ node: Node) -> Bool {
+            guard node != self else {
+                return true
+            }
+            var testNode: Node? = node.parent
+            while testNode != nil {
+                if testNode == self {
+                    return true
+                }
+                testNode = testNode?.parent
+            }
+            return false
+        }
     }
     
     private var nodeMap: [Int:Node] = [:]
@@ -101,6 +118,10 @@ public class LineageTree {
     
     public init() {
         nodeMap[-1] = self.rootNode
+    }
+    
+    public var endPoints: Set<Node> {
+        return Set(nodeMap.values.filter{$0.children.count == 0})
     }
     
     private func contains<T: TaxonRepresenting>(taxon: T) -> Bool {

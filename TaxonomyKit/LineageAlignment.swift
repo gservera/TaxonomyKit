@@ -10,27 +10,50 @@ import Foundation
 
 public class LineageAlignment {
     
+    public class Cell {
+        public internal(set) var offset: Int = 0
+        public private(set) var node: LineageTree.Node
+        
+        init(node: LineageTree.Node) {
+            self.node = node
+        }
+    
+    }
+    
     public class Column: CustomDebugStringConvertible {
         public var rank: TaxonomicRank? = nil
-        public var nodes: [LineageTree.Node] = []
+        public var cells: [Cell] = []
         init(rank: TaxonomicRank?) {
             self.rank = rank
         }
         
         public var debugDescription: String {
-            return "[\(nodes.count):\(rank?.rawValue ?? "no rank")]: \(nodes.map{$0.name}.joined(separator:", "))"
+            return "[\(cells.count):\(rank?.rawValue ?? "no rank")]: \(cells.map{$0.node.name}.joined(separator:", "))"
         }
         
         public var span: Int {
-            return nodes.reduce(0) { $0 + $1.span }
+            return cells.reduce(0) { $0 + $1.node.span }
         }
         
         public var count: Int {
-            return nodes.count
+            return cells.count
         }
         
-        public subscript(index: Int) -> LineageTree.Node {
-            return nodes[index]
+        public func participatesInLineageOf(_ endPoint: LineageTree.Node) -> Bool {
+            var testNode: LineageTree.Node? = endPoint
+            while testNode != nil {
+                for cell in cells {
+                    if testNode === cell.node {
+                        return true
+                    }
+                }
+                testNode = testNode?.parent
+            }
+            return false
+        }
+        
+        public subscript(index: Int) -> Cell {
+            return cells[index]
         }
         
     }
@@ -49,12 +72,37 @@ public class LineageAlignment {
     }
     
     public var cleanedUp: [Column] {
-        return grid.filter{ $0.nodes.count > 0 }
+        return grid.filter{ $0.cells.count > 0 }
     }
     
     public init(lineageTree: LineageTree) {
         let root = lineageTree.rootNode
         parseNode(root, depth: 0)
+        
+        let endPoints = lineageTree.endPoints.sorted{ $0.sortString < $1.sortString }
+        for column in grid {
+            for (x, cell) in column.cells.enumerated() {
+                guard let _ = cell.node.parent else {
+                    cell.offset = 0
+                    continue
+                }
+                var offset = x
+                for endPoint in endPoints {
+                    if endPoint === cell.node {
+                        break
+                    }
+                    
+                    if !column.participatesInLineageOf(endPoint) {
+                        offset += 1
+                    } else if !cell.node.isPresentInLineageOf(endPoint) {
+                        continue
+                    } else {
+                        cell.offset = offset
+                        break
+                    }
+                }
+            }
+        }
     }
     
     private func parseNode(_ node: LineageTree.Node, depth: Int) {
@@ -63,7 +111,7 @@ public class LineageAlignment {
             // Node has rank
             let currentDepth = self.currentDepth(for: rank)
             if currentDepth == depth {
-                grid[depth].nodes.append(node)
+                grid[depth].cells.append(Cell(node: node))
                 let sortedChildren = node.children.sorted { $0.sortString < $1.sortString }
                 for child in sortedChildren {
                     parseNode(child, depth: depth + 1)
@@ -95,7 +143,7 @@ public class LineageAlignment {
             if willRecall {
                 parseNode(node, depth: depth)
             } else {
-                grid[depth].nodes.append(node)
+                grid[depth].cells.append(Cell(node: node))
                 let sortedChildren = node.children.sorted { $0.sortString < $1.sortString }
                 for child in sortedChildren {
                     parseNode(child, depth: depth + 1)
