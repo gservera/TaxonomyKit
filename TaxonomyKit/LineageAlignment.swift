@@ -11,7 +11,7 @@ import Foundation
 public class LineageAlignment {
     
     public class Cell {
-        public internal(set) var offset: Int = 0
+        public internal(set) var offset: Int = -1
         public private(set) var node: LineageTree.Node
         
         init(node: LineageTree.Node) {
@@ -89,9 +89,9 @@ public class LineageAlignment {
                 var offset = x
                 for endPoint in endPoints {
                     if endPoint === cell.node {
+                        cell.offset = offset
                         break
                     }
-                    
                     if !column.participatesInLineageOf(endPoint) {
                         offset += 1
                     } else if !cell.node.isPresentInLineageOf(endPoint) {
@@ -100,6 +100,9 @@ public class LineageAlignment {
                         cell.offset = offset
                         break
                     }
+                }
+                if cell.offset == -1 {
+                    cell.offset = offset
                 }
             }
         }
