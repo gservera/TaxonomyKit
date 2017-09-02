@@ -81,12 +81,13 @@ public class LineageAlignment {
         
         let endPoints = lineageTree.endPoints.sorted{ $0.sortString < $1.sortString }
         for column in grid {
-            for (x, cell) in column.cells.enumerated() {
+            var elapsedSpan = 0
+            for cell in column.cells {
                 guard let _ = cell.node.parent else {
                     cell.offset = 0
                     continue
                 }
-                var offset = x
+                var offset = elapsedSpan
                 for endPoint in endPoints {
                     if endPoint === cell.node {
                         cell.offset = offset
@@ -104,6 +105,7 @@ public class LineageAlignment {
                 if cell.offset == -1 {
                     cell.offset = offset
                 }
+                elapsedSpan += cell.node.span
             }
         }
     }
