@@ -120,6 +120,10 @@ public class LineageTree {
         nodeMap[-1] = self.rootNode
     }
     
+    public var allNodes: Set<Node> {
+        return Set(nodeMap.values)
+    }
+    
     public var endPoints: Set<Node> {
         return Set(nodeMap.values.filter{$0.children.count == 0})
     }
