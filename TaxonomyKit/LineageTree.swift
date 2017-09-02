@@ -39,7 +39,7 @@ public class LineageTree {
         /// <#Description#>
         public let name: String
         /// <#Description#>
-        public let commonName: String?
+        public var commonName: String?
         /// <#Description#>
         public let rank: TaxonomicRank?
         /// <#Description#>
