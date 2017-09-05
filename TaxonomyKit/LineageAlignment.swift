@@ -26,16 +26,38 @@
 
 import Foundation
 
-public class LineageAlignment {
+
+/// The `LineageAlignment` struct parses the contents of a lineage tree and aligns
+/// its nodes in a succession of "columns" based on each node's rank in a way in
+/// which all the nodes with the same rank end up in the same column, while the
+/// ones without rank are placed in columns between the closest ranked columns.
+///
+/// Once generated, the alignment can be used with various purposes, such as
+/// serving as a model to draw the tree in a view.
+public struct LineageAlignment {
     
-    public class Cell {
-        public internal(set) var offset: Int = -1
+    
+    // MARK: LineageAlignment.Cell Class
+    
+    /// <#Description#>
+    public struct Cell {
+        
+        /// <#Description#>
         public private(set) var node: LineageTree.Node
         
-        init(node: LineageTree.Node) {
+        
+        /// <#Description#>
+        ///
+        /// - Parameter node: <#node description#>
+        internal init(node: LineageTree.Node) {
             self.node = node
         }
         
+        
+        /// <#Description#>
+        public internal(set) var offset: Int = -1
+        
+
         /// Calculates and returns the number of registered lineage endpoints that descend from
         /// this cell's node. If the node has no children (thus, it is an endpoint itself), this
         /// property returns 1.
@@ -45,25 +67,50 @@ public class LineageAlignment {
         
     }
     
-    public class Column: CustomDebugStringConvertible {
+    
+    // MARK: LineageAlignment.Column Class
+    
+    /// <#Description#>
+    public struct Column: CustomDebugStringConvertible {
+        
+        
+        /// <#Description#>
         public var rank: TaxonomicRank? = nil
+        
+        
+        /// <#Description#>
         public var cells: [Cell] = []
-        init(rank: TaxonomicRank?) {
+        
+        
+        /// <#Description#>
+        ///
+        /// - Parameter rank: <#rank description#>
+        internal init(rank: TaxonomicRank?) {
             self.rank = rank
         }
+        
         
         public var debugDescription: String {
             return "[\(cells.count):\(rank?.rawValue ?? "no rank")]: \(cells.map{$0.node.name}.joined(separator:", "))"
         }
         
+        
+        /// <#Description#>
         public var span: Int {
             return cells.reduce(0) { $0 + $1.node.span }
         }
         
+        
+        /// <#Description#>
         public var count: Int {
             return cells.count
         }
         
+        
+        /// <#Description#>
+        ///
+        /// - Parameter endPoint: <#endPoint description#>
+        /// - Returns: <#return value description#>
         public func participatesInLineageOf(_ endPoint: LineageTree.Node) -> Bool {
             var testNode: LineageTree.Node? = endPoint
             while testNode != nil {
@@ -77,78 +124,62 @@ public class LineageAlignment {
             return false
         }
         
-        public subscript(index: Int) -> Cell {
-            return cells[index]
-        }
-        
     }
     
-    public private(set) var grid: [Column] = TaxonomicRank.hierarchy.map { Column(rank: $0) }
     
+    /// <#Description#>
+    public private(set) var columns: [Column] = TaxonomicRank.hierarchy.map { Column(rank: $0) }
+    
+    
+    /// <#Description#>
+    ///
+    /// - Parameter rank: <#rank description#>
+    /// - Returns: <#return value description#>
     private func currentDepth(for rank: TaxonomicRank) -> Int {
-        var i = 0
-        for pair in grid {
-            if pair.rank == rank {
+        for (i, column) in columns.enumerated() {
+            if column.rank == rank {
                 return i
             }
-            i += 1
         }
         return -1
     }
     
+    
+    /// <#Description#>
     public var cleanedUp: [Column] {
-        return grid.filter{ $0.cells.count > 0 }
+        return columns.filter{ $0.cells.count > 0 }
     }
     
+    
+    /// <#Description#>
+    ///
+    /// - Parameter lineageTree: <#lineageTree description#>
     public init(lineageTree: LineageTree) {
-        let root = lineageTree.rootNode
-        parseNode(root, depth: 0)
-        
+        parseNode(lineageTree.rootNode, depth: 0)
         let endPoints = lineageTree.endPoints.sorted{ $0.sortString < $1.sortString }
-        for column in grid {
-            var elapsedSpan = 0
-            for cell in column.cells {
-                guard let _ = cell.node.parent else {
-                    cell.offset = 0
-                    continue
-                }
-                var offset = elapsedSpan
-                for endPoint in endPoints {
-                    if endPoint === cell.node {
-                        cell.offset = offset
-                        break
-                    }
-                    if !column.participatesInLineageOf(endPoint) {
-                        offset += 1
-                    } else if !cell.node.isPresentInLineageOf(endPoint) {
-                        continue
-                    } else {
-                        cell.offset = offset
-                        break
-                    }
-                }
-                if cell.offset == -1 {
-                    cell.offset = offset
-                }
-                elapsedSpan += cell.node.span
-            }
-        }
+        updateRowOffsets(with: endPoints)
     }
     
-    private func parseNode(_ node: LineageTree.Node, depth: Int) {
+    
+    /// <#Description#>
+    ///
+    /// - Parameters:
+    ///   - node: <#node description#>
+    ///   - depth: <#depth description#>
+    private mutating func parseNode(_ node: LineageTree.Node, depth: Int) {
         // Check if node has rank
         if let rank = node.rank {
             // Node has rank
             let currentDepth = self.currentDepth(for: rank)
             if currentDepth == depth {
-                grid[depth].cells.append(Cell(node: node))
+                columns[depth].cells.append(Cell(node: node))
                 let sortedChildren = node.children.sorted { $0.sortString < $1.sortString }
                 for child in sortedChildren {
                     parseNode(child, depth: depth + 1)
                 }
             } else if currentDepth < depth {
                 let emptyPair = Column(rank: nil)
-                grid.insert(emptyPair, at: depth)
+                columns.insert(emptyPair, at: depth)
                 parseNode(node, depth: depth)
             } else {
                 parseNode(node, depth: currentDepth)
@@ -163,9 +194,9 @@ public class LineageAlignment {
             let previousRankedNodePos = depth - extraIterations
             var willRecall = false
             for i in previousRankedNodePos+1...depth {
-                if grid[i].rank != nil {
+                if columns[i].rank != nil {
                     let emptyPair = Column(rank: nil)
-                    grid.insert(emptyPair, at: depth)
+                    columns.insert(emptyPair, at: depth)
                     willRecall = true
                     break
                 }
@@ -173,11 +204,38 @@ public class LineageAlignment {
             if willRecall {
                 parseNode(node, depth: depth)
             } else {
-                grid[depth].cells.append(Cell(node: node))
+                columns[depth].cells.append(Cell(node: node))
                 let sortedChildren = node.children.sorted { $0.sortString < $1.sortString }
                 for child in sortedChildren {
                     parseNode(child, depth: depth + 1)
                 }
+            }
+        }
+    }
+    
+    
+    /// <#Description#>
+    ///
+    /// - Parameter endPoints: <#endPoints description#>
+    private mutating func updateRowOffsets(with endPoints: [LineageTree.Node]) {
+        for (c, column) in columns.enumerated() {
+            var elapsedSpan = 0
+            for (r, cell) in column.cells.enumerated() {
+                var offset = elapsedSpan
+                for endPoint in endPoints {
+                    if !column.participatesInLineageOf(endPoint) {
+                        offset += 1
+                    } else if !cell.node.isPresentInLineageOf(endPoint) {
+                        continue
+                    } else {
+                        columns[c].cells[r].offset = offset
+                        break
+                    }
+                }
+                if cell.offset == -1 {
+                    columns[c].cells[r].offset = offset
+                }
+                elapsedSpan += cell.node.span
             }
         }
     }

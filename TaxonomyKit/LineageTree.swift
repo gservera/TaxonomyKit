@@ -30,7 +30,7 @@ import Foundation
 /// The `LineageTree` reference type manages a collection of nodes representing
 /// the lineage items associated with a particular set of taxa, and can be used
 /// to perform calculations based on the relationship between these taxa.
-public class LineageTree {
+public final class LineageTree {
     
     // MARK: LineageTree.Node Class
     
