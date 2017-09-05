@@ -30,7 +30,6 @@ import Foundation
 public enum TaxonomicRank: String, Comparable, CustomStringConvertible, Codable {
     /// An abstract 'root' taxonomic rank.
     case origin
-    //case trunk
     /// The superkingdom/domain taxonomic rank.
     case superkingdom
     /// The kingdom/regnum taxonomic rank.
@@ -110,7 +109,7 @@ public enum TaxonomicRank: String, Comparable, CustomStringConvertible, Codable 
     
     static var hierarchy: [TaxonomicRank] {
         return [
-            .origin,//.trunk,
+            .origin,
             .superkingdom,.kingdom,.subkingdom,.infrakingdom,
             .superphylum,.phylum,.subphylum,.infraphylum,.microphylum,
             .superclass,.`class`,.subclass,.infraclass,.parvclass,

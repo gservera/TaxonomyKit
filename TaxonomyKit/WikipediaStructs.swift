@@ -3,7 +3,7 @@
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 27/02/2017.
- *  Copyright:  © 2017 Guillem Servera (http://github.com/gservera)
+ *  Copyright:  © 2017 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -120,10 +120,23 @@ public struct WikipediaLanguage {
 }
 
 
+
+/// A struct used to hold a Wikipedia rich text extract. It can be used to
+/// generate NSAttributedString representations from it.
 public struct WikipediaAttributedExtract {
+    
+    /// The extract's HTML string.
     public let htmlString: String
     
+    
     #if os(iOS) || os(watchOS) || os(tvOS) || os(OSX)
+    
+    /// Generates and attributed string by parsing the receiver's htmlString and using a given font
+    /// as the resulting string base font.
+    ///
+    /// - Parameter font: The font to be used as the attributed string base font.
+    /// - Returns: The generated attributed string.
+    /// - Throws: A Foundation error in case the NSAttributedString could not be generated.
     public func attributedString(using font: _OSFontType) throws -> NSAttributedString {
         do {
             return try htmlString.parseHTML(setting: font)
@@ -131,12 +144,23 @@ public struct WikipediaAttributedExtract {
             throw error
         }
     }
-    #endif
     
+    #endif
 }
 
+
+
 #if os(iOS) || os(watchOS) || os(tvOS) || os(OSX)
+    
 public extension String {
+    
+    
+    /// Generates and attributed string by parsing the receiver's HTML contents and using a given font
+    /// as the resulting string base font.
+    ///
+    /// - Parameter font: The font to be used as the attributed string base font.
+    /// - Returns: The generated attributed string.
+    /// - Throws: A Foundation error in case the NSAttributedString could not be generated.
     public func parseHTML(setting font: _OSFontType) throws -> NSAttributedString {
         do {
             #if os(iOS) || os(watchOS) || os(tvOS)
@@ -151,14 +175,15 @@ public extension String {
                 throw TaxonomyError.unknownError
             }
             let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
-                .documentType: NSAttributedString.DocumentType.html,
+                .documentType: NSAttributedString.DocumentType.html, 
                 .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue)
             ]
-            let attributed = try NSAttributedString(data: styledData, options: options, documentAttributes: nil)
-            return attributed
+            return try NSAttributedString(data: styledData, options: options, documentAttributes: nil)
         } catch let error {
             throw error
         }
     }
+    
 }
+    
 #endif

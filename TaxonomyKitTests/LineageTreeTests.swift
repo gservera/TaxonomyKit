@@ -1,9 +1,9 @@
 /*
- *  TaxonTreeTests.swift
+ *  LineageTreeTests.swift
  *  TaxonomyKitTests
  *
  *  Created:    Guillem Servera on 19/11/2016.
- *  Copyright:  © 2016-2017 Guillem Servera (http://github.com/gservera)
+ *  Copyright:  © 2016-2017 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -29,9 +29,11 @@ import XCTest
 
 final class LineageTreeTests: XCTestCase {
     
-    var testTaxon1 = Taxon(identifier: 1, name: "Test1", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
-    var testTaxon2 = Taxon(identifier: 2, name: "Test2", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
-    var testTaxon3 = Taxon(identifier: 3, name: "Test3", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
+    var testTaxon1 = Taxon(identifier: 1, name: "Quercus ilex", rank: .species, geneticCode: "?", mitochondrialCode: "?")
+    var testTaxon2 = Taxon(identifier: 2, name: "Homo sapiens", rank: .species, geneticCode: "?", mitochondrialCode: "?")
+    var testTaxon3 = Taxon(identifier: 3, name: "Test3", rank: .species, geneticCode: "?", mitochondrialCode: "?")
+    var testTaxon4 = Taxon(identifier: 4, name: "Quercus robur", rank: .species, geneticCode: "?", mitochondrialCode: "?")
+    var testTaxon5 = Taxon(identifier: 5, name: "Homo sensorium", rank: .species, geneticCode: "?", mitochondrialCode: "?")
     
     var lineageTree = LineageTree()
 
@@ -62,6 +64,8 @@ final class LineageTreeTests: XCTestCase {
             TaxonLineageItem(identifier: 503, name: "Poeciliidae", rank: .family),
             TaxonLineageItem(identifier: 603, name: "Xiphophorus", rank: .genus),
         ]
+        testTaxon4.lineageItems = testTaxon1.lineageItems
+        testTaxon5.lineageItems = testTaxon2.lineageItems
     }
     
     override func tearDown() {
@@ -90,6 +94,40 @@ final class LineageTreeTests: XCTestCase {
         XCTAssertEqual(lineageTree.nodeCount, 12)
         
         XCTAssertEqual(lineageTree.register(testTaxon2), node2)
+    }
+    
+    func testTreeInsertionPerformance() {
+        measure {
+            lineageTree.register(testTaxon1)
+            lineageTree.register(testTaxon2)
+            lineageTree.register(testTaxon3)
+            lineageTree.register(testTaxon4)
+            lineageTree.register(testTaxon5)
+            lineageTree.register(testTaxon1)
+            lineageTree.register(testTaxon2)
+            lineageTree.register(testTaxon3)
+            lineageTree.register(testTaxon4)
+            lineageTree.register(testTaxon5)
+        }
+    }
+    
+    func testAllNodes() {
+        let _ = lineageTree.register(testTaxon1)
+        let _ = lineageTree.register(testTaxon2)
+        let _ = lineageTree.register(testTaxon3)
+        XCTAssertEqual(lineageTree.allNodes.count, 18, "Count for -allNodes is invalid")
+    }
+    
+    func testAncestorEvaluation() {
+        let quercusIlex = lineageTree.register(testTaxon1)
+        let ancestor = TaxonLineageItem(identifier: 201, name: "Viridiplantae", rank: .kingdom)
+        guard let ancestorNode = lineageTree.node(for: ancestor) else {
+            XCTFail("The tree should contain a node for Viridiplantae")
+            return
+        }
+        XCTAssertFalse(quercusIlex.isPresentInLineageOf(ancestorNode), "Quercus ilex is NOT an ancestor of Viridiplantae")
+        XCTAssertTrue(quercusIlex.isPresentInLineageOf(quercusIlex), "Quercus ilex must be present in its own lineage")
+        XCTAssertTrue(ancestorNode.isPresentInLineageOf(quercusIlex), "Viridiplantae must be present in Quercus ilex's lineage")
     }
     
     func testClosestCommonAncestor() {

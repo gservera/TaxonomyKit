@@ -55,6 +55,9 @@ public enum TaxonomyError: Error {
     /// Too few taxa passed to a LineageTree method.
     case insufficientTaxa
     
+    /// Thrown when passed nodes are registered in different LineageTree objects.
+    case incompatibleNodes
+    
     /// Any other error, including unexpected structure or missing values in 
     /// the XML/JSON data that was downloaded.
     case unknownError

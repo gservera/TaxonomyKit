@@ -49,6 +49,23 @@ final class WikipediaFullRecordTests: XCTestCase {
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageData)
+                XCTAssertNil(wrapper?.attributedExtract)
+                condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
+            }
+        }
+        waitForExpectations(timeout: 10)
+    }
+    
+    func testValidTaxonRichText() {
+        Taxonomy._urlSession = URLSession.shared
+        let condition = expectation(description: "Finished")
+        Taxonomy.retrieveWikipediaFullRecord(for: existingTaxon, width: 500, inlineImage: true, language: WikipediaLanguage(locale: Locale(identifier: "en-US")), useRichText: true) { result in
+            if case .success(let wrapper) = result {
+                XCTAssertNotNil(wrapper)
+                XCTAssertNotNil(wrapper?.pageImageData)
+                XCTAssertNotNil(wrapper?.attributedExtract)
                 condition.fulfill()
             } else {
                 XCTFail("Wikipedia test should not have failed")
@@ -64,6 +81,23 @@ final class WikipediaFullRecordTests: XCTestCase {
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNil(wrapper?.pageImageUrl)
+                XCTAssertNil(wrapper?.attributedExtract)
+                condition.fulfill()
+            } else {
+                XCTFail("Wikipedia test should not have failed")
+            }
+        }
+        waitForExpectations(timeout: 10)
+    }
+    
+    func testValidPageIDNoImageButRichText() {
+        Taxonomy._urlSession = URLSession.shared
+        let condition = expectation(description: "Finished")
+        Taxonomy.retrieveWikipediaFullRecord(for: "4976288", width: 500, inlineImage: true, language: WikipediaLanguage(locale: Locale(identifier: "en-US")), useRichText: true) { result in
+            if case .success(let wrapper) = result {
+                XCTAssertNotNil(wrapper)
+                XCTAssertNil(wrapper?.pageImageUrl)
+                XCTAssertNotNil(wrapper?.attributedExtract)
                 condition.fulfill()
             } else {
                 XCTFail("Wikipedia test should not have failed")

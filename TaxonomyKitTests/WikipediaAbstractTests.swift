@@ -237,5 +237,20 @@ final class WikipediaAbstractTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
+    
+    // MARK: - Attributed extracts
+    
+    #if os(iOS) || os(watchOS) || os(tvOS) || os(OSX)
+    
+    func testWikipediaAttributedExtract() {
+        let extract = WikipediaAttributedExtract(htmlString: "<i>Homo sapiens</i> is a <b>species</b>.")
+        guard let attributedString = try? extract.attributedString(using: _OSFontType(name: "Helvetica", size: 12.0)!) else {
+            XCTFail("Could not generate attributed string")
+            return
+        }
+        XCTAssertEqual(attributedString.string, "Homo sapiens is a species.")
+    }
+    
+    #endif
 
 }
