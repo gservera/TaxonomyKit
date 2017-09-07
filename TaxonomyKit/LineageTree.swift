@@ -97,7 +97,7 @@ public final class LineageTree {
         
         
         /// Generates a string that can be used in an alignment to sort a set of nodes in the same
-        /// column while respecting the row order from the previous columns.
+        /// column while respecting the row order from the previous columns. This value is computed only once.
         internal lazy var sortString: String = {
             var lineage: [LineageTree.Node] = [self]
             var currentItem: LineageTree.Node? = nil
