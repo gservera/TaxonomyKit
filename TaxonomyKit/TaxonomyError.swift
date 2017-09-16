@@ -27,7 +27,6 @@
 
 /// An error type that describes errors originated from the TaxonomyKit methods.
 ///
-/// - badRequest:              The passed NCBI internal ID is invalid.
 /// - networkError:            A network error. More details can be found inspecting the
 ///                            associated error object.
 /// - parseError:              An error due to a malformed XML/JSON object.
@@ -36,9 +35,6 @@
 /// - unknownError:            Any other error, including unexpected structure or missing values
 ///                            in the XML/JSON data that was downloaded.
 public enum TaxonomyError: Error {
-    
-    /// The passed NCBI internal ID is invalid.
-    case badRequest(identifier: TaxonID)
     
     /// A network error. More details can be found inspecting the associated error object.
     case networkError(underlyingError: Error)

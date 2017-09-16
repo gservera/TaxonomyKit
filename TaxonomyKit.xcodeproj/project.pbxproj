@@ -477,6 +477,7 @@
 		99CFC5D61D9AB0FC00C8A415 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = Q6R76RZ9Z8;
@@ -510,6 +511,7 @@
 		99CFC5D71D9AB0FC00C8A415 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEFINES_MODULE = YES;
 				DEVELOPMENT_TEAM = Q6R76RZ9Z8;

@@ -54,7 +54,7 @@ final class DownloadTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.downloadTaxon(withIdentifier: query) { result in
             if case .failure(let error) = result,
-                case .badRequest(_) = error {
+                case .unknownError = error {
                 condition.fulfill()
             }
         }
@@ -117,7 +117,7 @@ final class DownloadTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
-                case .badRequest(identifier: -1) = error {
+                case .unknownError = error {
                 condition.fulfill()
             }
         }
@@ -137,7 +137,7 @@ final class DownloadTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.downloadTaxon(withIdentifier: -1) { result in
             if case .failure(let error) = result,
-                case .badRequest(identifier: -1) = error {
+                case .unknownError = error {
                 condition.fulfill()
             }
         }

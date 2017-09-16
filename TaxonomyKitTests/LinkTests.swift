@@ -55,7 +55,7 @@ final class LinkTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: query) { result in
             if case .failure(let error) = result,
-                case .badRequest(_) = error {
+                case .unknownError = error {
                 condition.fulfill()
             }
         }
@@ -139,7 +139,7 @@ final class LinkTests: XCTestCase {
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: -1) { result in
             if case .failure(let error) = result,
-                case .badRequest(identifier: -1) = error {
+                case .unknownError = error {
                 condition.fulfill()
             }
         }

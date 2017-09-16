@@ -75,33 +75,23 @@ public struct Taxonomy {
         
         let request = TaxonomyRequest.search(query: query)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            if error == nil {
-                guard let response = response as? HTTPURLResponse, let data = data else {
-                    callback(.failure(.unknownError))
+            
+            guard let data = filter(response, data, error, callback) else { return }
+            
+            do {
+                let JSON = try JSONSerialization.jsonObject(with: data)
+                guard let casted = JSON as? [String:[String:Any]] else {
+                    callback(.failure(.unknownError)) // Unknown JSON structure
                     return
                 }
-                switch response.statusCode {
-                case 200:
-                    do {
-                        let JSON = try JSONSerialization.jsonObject(with: data)
-                        guard let casted = JSON as? [String:[String:Any]] else {
-                            callback(.failure(.unknownError)) // Unknown JSON structure
-                            return
-                        }
-                        if let list = casted["esearchresult"]?["idlist"] as? [String] {
-                            let mapped: [TaxonID] = list.map { Int($0)! }
-                            callback(.success(mapped))
-                        } else {
-                            callback(.failure(.unknownError)) // Unknown JSON structure
-                        }
-                    } catch _ {
-                        callback(.failure(.parseError(message: "Could not parse JSON data")))
-                    }
-                default:
-                    callback(.failure(.unexpectedResponse(code: response.statusCode)))
+                if let list = casted["esearchresult"]?["idlist"] as? [String] {
+                    let mapped: [TaxonID] = list.map { Int($0)! }
+                    callback(.success(mapped))
+                } else {
+                    callback(.failure(.unknownError)) // Unknown JSON structure
                 }
-            } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
-                callback(.failure(.networkError(underlyingError: rootError)))
+            } catch _ {
+                callback(.failure(.parseError(message: "Could not parse JSON data")))
             }
         }
         task.resume()
@@ -130,31 +120,21 @@ public struct Taxonomy {
         
         let request = TaxonomyRequest.spelling(failedQuery: failedQuery.lowercased())
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            if error == nil {
-                guard let response = response as? HTTPURLResponse, let data = data else {
+            
+            guard let data = filter(response, data, error, callback) else { return }
+            
+            do {
+                let xmlDoc = try AEXMLDocument(xml: data)
+                if let suggestedQuery = xmlDoc["eSpellResult"]["CorrectedQuery"].value {
+                    callback(.success(suggestedQuery))
+                } else if xmlDoc["eSpellResult"].count == 1 {
+                    //Either the original query is valid or no candidates were found.
+                    callback(.success(nil))
+                } else {
                     callback(.failure(.unknownError))
-                    return
                 }
-                switch response.statusCode {
-                case 200:
-                    do {
-                        let xmlDoc = try AEXMLDocument(xml: data)
-                        if let suggestedQuery = xmlDoc["eSpellResult"]["CorrectedQuery"].value {
-                            callback(.success(suggestedQuery))
-                        } else if xmlDoc["eSpellResult"].count == 1 {
-                            //Either the original query is valid or no candidates were found.
-                            callback(.success(nil))
-                        } else {
-                            callback(.failure(.unknownError))
-                        }
-                    } catch _ {
-                        callback(.failure(.parseError(message: "Could not parse XML data")))
-                    }
-                default:
-                    callback(.failure(.unexpectedResponse(code: response.statusCode)))
-                }
-            } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
-                callback(.failure(.networkError(underlyingError: rootError)))
+            } catch _ {
+                callback(.failure(.parseError(message: "Could not parse XML data")))
             }
         }
         task.resume()
@@ -184,57 +164,47 @@ public struct Taxonomy {
         
         let request = TaxonomyRequest.scientificNameGuess(query: query, language: language)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            if error == nil {
-                guard let response = response as? HTTPURLResponse, let data = data else {
-                    callback(.failure(.unknownError))
+            
+            guard let data = filter(response, data, error, callback) else { return }
+            
+            do {
+                let JSON = try JSONSerialization.jsonObject(with: data)
+                guard let casted = JSON as? [String:Any] else {
+                    callback(.failure(.unknownError)) // Unknown JSON structure
                     return
                 }
-                
-                if response.statusCode == 200 {
-                    do {
-                        let JSON = try JSONSerialization.jsonObject(with: data)
-                        guard let casted = JSON as? [String:Any] else {
-                            callback(.failure(.unknownError)) // Unknown JSON structure
-                            return
-                        }
-                        if let pages = ((casted["query"] as? [String:Any])?["pages"] as? [String:[String:Any]]) {
-                            if let (firstID, firstDict) = pages.first {
-                                if firstID == "-1" || firstDict["extract"] == nil {
-                                    callback(.success([]))
-                                } else {
-                                    let title = firstDict["title"] as! String
-                                    var names: [String] = []
-                                    if title != query && title.components(separatedBy: " ").count > 1 {
-                                        names.append(firstDict["title"] as! String)
-                                    }
-                                    let extract = firstDict["extract"] as! NSString
-                                    let firstOpeningParenthesis = extract.range(of: "(").location
-                                    if firstOpeningParenthesis != NSNotFound {
-                                        let stopChars: CharacterSet = CharacterSet(charactersIn: ".,()[]{}\n")
-                                        let closingParenthesis = extract.rangeOfCharacter(from: stopChars, options: [], range: NSMakeRange(firstOpeningParenthesis+1, extract.length-firstOpeningParenthesis-1)).location
-                                        if closingParenthesis != NSNotFound {
-                                            let substring = extract.substring(with: NSMakeRange(firstOpeningParenthesis+1, closingParenthesis-firstOpeningParenthesis-1)).trimmingCharacters(in: CharacterSet.whitespaces)
-                                            if substring.components(separatedBy: " ").count < 4 && !names.contains(substring) {
-                                                names.append(substring)
-                                            }
-                                        }
-                                    }
-                                    callback(.success(names))
-                                }
-                            } else {
-                                callback(.failure(.unknownError)) // Unknown JSON structure
-                            }
+                if let pages = ((casted["query"] as? [String:Any])?["pages"] as? [String:[String:Any]]) {
+                    if let (firstID, firstDict) = pages.first {
+                        if firstID == "-1" || firstDict["extract"] == nil {
+                            callback(.success([]))
                         } else {
-                            callback(.failure(.unknownError)) // Unknown JSON structure
+                            let title = firstDict["title"] as! String
+                            var names: [String] = []
+                            if title != query && title.components(separatedBy: " ").count > 1 {
+                                names.append(firstDict["title"] as! String)
+                            }
+                            let extract = firstDict["extract"] as! NSString
+                            let firstOpeningParenthesis = extract.range(of: "(").location
+                            if firstOpeningParenthesis != NSNotFound {
+                                let stopChars: CharacterSet = CharacterSet(charactersIn: ".,()[]{}\n")
+                                let closingParenthesis = extract.rangeOfCharacter(from: stopChars, options: [], range: NSMakeRange(firstOpeningParenthesis+1, extract.length-firstOpeningParenthesis-1)).location
+                                if closingParenthesis != NSNotFound {
+                                    let substring = extract.substring(with: NSMakeRange(firstOpeningParenthesis+1, closingParenthesis-firstOpeningParenthesis-1)).trimmingCharacters(in: CharacterSet.whitespaces)
+                                    if substring.components(separatedBy: " ").count < 4 && !names.contains(substring) {
+                                        names.append(substring)
+                                    }
+                                }
+                            }
+                            callback(.success(names))
                         }
-                    } catch _ {
-                        callback(.failure(.parseError(message: "Could not parse JSON data")))
+                    } else {
+                        callback(.failure(.unknownError)) // Unknown JSON structure
                     }
                 } else {
-                    callback(.failure(.unexpectedResponse(code: response.statusCode)))
+                    callback(.failure(.unknownError)) // Unknown JSON structure
                 }
-            } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
-                callback(.failure(.networkError(underlyingError: rootError)))
+            } catch _ {
+                callback(.failure(.parseError(message: "Could not parse JSON data")))
             }
         }
         task.resume()
@@ -261,70 +231,60 @@ public struct Taxonomy {
         
         let request = TaxonomyRequest.download(identifier: id)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            if error == nil {
-                guard let response = response as? HTTPURLResponse, let data = data else {
-                    callback(.failure(.badRequest(identifier: id)))
+            
+            guard let data = filter(response, data, error, callback) else { return }
+            
+            do {
+                let xmlDoc = try AEXMLDocument(xml: data)
+                let taxonRoot = xmlDoc["TaxaSet"]["Taxon"]
+                guard taxonRoot.count > 0 else {
+                    callback(.failure(.unknownError))
                     return
                 }
-                switch response.statusCode {
-                case 200:
-                    do {
-                        let xmlDoc = try AEXMLDocument(xml: data)
-                        let taxonRoot = xmlDoc["TaxaSet"]["Taxon"]
-                        guard taxonRoot.count > 0 else {
-                            callback(.failure(.badRequest(identifier: id)))
-                            return
-                        }
+                
+                let nameOpt = taxonRoot["ScientificName"].value
+                let commonNames = taxonRoot["OtherNames"]["CommonName"].all ?? []
+                let genbankCommonName = taxonRoot["OtherNames"]["GenbankCommonName"].value
+                let synonyms = taxonRoot["OtherNames"]["Synonym"].all ?? []
+                let rankOpt = taxonRoot["Rank"].value
+                let mainCodeOpt = taxonRoot["GeneticCode"]["GCName"].value
+                let mitoCodeOpt = taxonRoot["MitoGeneticCode"]["MGCName"].value
+                
+                guard let name = nameOpt, let rank = rankOpt, let mainCode = mainCodeOpt, let mitoCode = mitoCodeOpt else {
+                    throw TaxonomyError.parseError(message: "Could not parse XML data")
+                }
+                let rankValue = TaxonomicRank(rawValue: rank)
+                var taxon = Taxon(identifier: id, name: name, rank: rankValue,
+                                  geneticCode: mainCode, mitochondrialCode: mitoCode)
+                taxon.commonNames = commonNames.map {$0.value ?? ""}
+                taxon.genbankCommonName = genbankCommonName
+                taxon.synonyms = synonyms.map {$0.value ?? ""}
+                
+                var lineage: [TaxonLineageItem] = []
+                if let lineageItems = taxonRoot["LineageEx"]["Taxon"].all {
+                    for lineageItem in lineageItems {
+                        let itemIdOpt = lineageItem["TaxId"].value
+                        let itemNameOpt = lineageItem["ScientificName"].value
+                        let itemRankOpt = lineageItem["Rank"].value
                         
-                        let nameOpt = taxonRoot["ScientificName"].value
-                        let commonNames = taxonRoot["OtherNames"]["CommonName"].all ?? []
-                        let genbankCommonName = taxonRoot["OtherNames"]["GenbankCommonName"].value
-                        let synonyms = taxonRoot["OtherNames"]["Synonym"].all ?? []
-                        let rankOpt = taxonRoot["Rank"].value
-                        let mainCodeOpt = taxonRoot["GeneticCode"]["GCName"].value
-                        let mitoCodeOpt = taxonRoot["MitoGeneticCode"]["MGCName"].value
-                        
-                        guard let name = nameOpt, let rank = rankOpt, let mainCode = mainCodeOpt, let mitoCode = mitoCodeOpt else {
+                        guard let itemIdStr = itemIdOpt, let itemId = Int(itemIdStr), let itemName = itemNameOpt, let itemRank = itemRankOpt else {
                             throw TaxonomyError.parseError(message: "Could not parse XML data")
                         }
-                        let rankValue = TaxonomicRank(rawValue: rank)
-                        var taxon = Taxon(identifier: id, name: name, rank: rankValue,
-                                          geneticCode: mainCode, mitochondrialCode: mitoCode)
-                        taxon.commonNames = commonNames.map {$0.value ?? ""}
-                        taxon.genbankCommonName = genbankCommonName
-                        taxon.synonyms = synonyms.map {$0.value ?? ""}
-                        
-                        var lineage: [TaxonLineageItem] = []
-                        if let lineageItems = taxonRoot["LineageEx"]["Taxon"].all {
-                            for lineageItem in lineageItems {
-                                let itemIdOpt = lineageItem["TaxId"].value
-                                let itemNameOpt = lineageItem["ScientificName"].value
-                                let itemRankOpt = lineageItem["Rank"].value
-                                
-                                guard let itemIdStr = itemIdOpt, let itemId = Int(itemIdStr), let itemName = itemNameOpt, let itemRank = itemRankOpt else {
-                                    throw TaxonomyError.parseError(message: "Could not parse XML data")
-                                }
-                                let itemRankValue = TaxonomicRank(rawValue: itemRank)
-                                let item = TaxonLineageItem(identifier: itemId, name: itemName, rank: itemRankValue)
-                                lineage.append(item)
-                            }
-                            taxon.lineageItems = lineage
-                        }
-                        callback(.success(taxon))
-                    } catch _ {
-                        callback(.failure(.parseError(message: "Could not parse XML data")))
+                        let itemRankValue = TaxonomicRank(rawValue: itemRank)
+                        let item = TaxonLineageItem(identifier: itemId, name: itemName, rank: itemRankValue)
+                        lineage.append(item)
                     }
-                default:
-                    callback(.failure(.unexpectedResponse(code: response.statusCode)))
+                    taxon.lineageItems = lineage
                 }
-            } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
-                callback(.failure(.networkError(underlyingError: rootError)))
+                callback(.success(taxon))
+            } catch _ {
+                callback(.failure(.parseError(message: "Could not parse XML data")))
             }
         }
         task.resume()
         return task
     }
-    
+
     
     /// Sends an asynchronous request to the NCBI servers asking for external links related
     /// to a given taxon identifier.
@@ -345,55 +305,45 @@ public struct Taxonomy {
         
         let request = TaxonomyRequest.links(identifier: id)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            if error == nil {
-                guard let response = response as? HTTPURLResponse, let data = data else {
+            
+            guard let data = filter(response, data, error, callback) else { return }
+            
+            do {
+                let xmlDoc = try AEXMLDocument(xml: data)
+                let linkRoot = xmlDoc["eLinkResult"]["LinkSet"]["IdUrlList"]["IdUrlSet"]["ObjUrl"]
+                guard linkRoot.count > 0, let linkNodes = linkRoot.all else {
                     callback(.failure(.unknownError))
                     return
                 }
-                
-                if response.statusCode == 200 {
-                    do {
-                        let xmlDoc = try AEXMLDocument(xml: data)
-                        let linkRoot = xmlDoc["eLinkResult"]["LinkSet"]["IdUrlList"]["IdUrlSet"]["ObjUrl"]
-                        guard linkRoot.count > 0, let linkNodes = linkRoot.all else {
-                            callback(.failure(.badRequest(identifier: id)))
-                            return
-                        }
-                        var links: [ExternalLink] = []
-                        for linkNode in linkNodes {
-                            let title = linkNode["LinkName"].value
-                            let urlStringOpt = linkNode["Url"].value
-                            let srcIdOpt = linkNode["Provider"]["Id"].value
-                            let srcNameOpt = linkNode["Provider"]["Name"].value
-                            let srcAbbrOpt = linkNode["Provider"]["NameAbbr"].value
-                            let srcURLStringOpt = linkNode["Provider"]["Url"].value
-                            
-                            guard let urlString = urlStringOpt,
-                                let srcId = srcIdOpt,
-                                let srcName = srcNameOpt,
-                                let srcAbbr = srcAbbrOpt,
-                                let srcURLString = srcURLStringOpt else {
-                                    throw TaxonomyError.parseError(message: "Could not parse XML data. Missing data.")
-                            }
-                            
-                            guard let url = URL(string: urlString), let srcURL = URL(string: srcURLString) else {
-                                throw TaxonomyError.parseError(message: "Could not parse XML data.")
-                            }
-                            
-                            let linkProvider = ExternalLink.Provider(id: srcId, name: srcName, abbreviation: srcAbbr, url: srcURL)
-                            let linkOut = ExternalLink(url: url, title: title, provider: linkProvider)
-                            links.append(linkOut)
-                        }
-                        
-                        callback(.success(links))
-                    } catch _ {
-                        callback(.failure(.parseError(message: "Could not parse XML data")))
+                var links: [ExternalLink] = []
+                for linkNode in linkNodes {
+                    let title = linkNode["LinkName"].value
+                    let urlStringOpt = linkNode["Url"].value
+                    let srcIdOpt = linkNode["Provider"]["Id"].value
+                    let srcNameOpt = linkNode["Provider"]["Name"].value
+                    let srcAbbrOpt = linkNode["Provider"]["NameAbbr"].value
+                    let srcURLStringOpt = linkNode["Provider"]["Url"].value
+                    
+                    guard let urlString = urlStringOpt,
+                        let srcId = srcIdOpt,
+                        let srcName = srcNameOpt,
+                        let srcAbbr = srcAbbrOpt,
+                        let srcURLString = srcURLStringOpt else {
+                            throw TaxonomyError.parseError(message: "Could not parse XML data. Missing data.")
                     }
-                } else {
-                    callback(.failure(.unexpectedResponse(code: response.statusCode)))
+                    
+                    guard let url = URL(string: urlString), let srcURL = URL(string: srcURLString) else {
+                        throw TaxonomyError.parseError(message: "Could not parse XML data.")
+                    }
+                    
+                    let linkProvider = ExternalLink.Provider(id: srcId, name: srcName, abbreviation: srcAbbr, url: srcURL)
+                    let linkOut = ExternalLink(url: url, title: title, provider: linkProvider)
+                    links.append(linkOut)
                 }
-            } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
-                callback(.failure(.networkError(underlyingError: rootError)))
+                
+                callback(.success(links))
+            } catch _ {
+                callback(.failure(.parseError(message: "Could not parse XML data")))
             }
         }
         task.resume()
@@ -454,34 +404,24 @@ public struct Taxonomy {
                                            language: WikipediaLanguage = WikipediaLanguage(),
                                            callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            if error == nil {
-                guard let response = response as? HTTPURLResponse, let data = data else {
-                    callback(.failure(.unknownError))
-                    return
-                }
-                
-                if response.statusCode == 200 {
-                    let decoder = JSONDecoder()
-                    do {
-                        let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
-                        if let page = wikipediaResponse.query.pages.values.first {
-                            guard !page.isMissing, let id = page.id, let extract = page.extract else {
-                                callback(.success(nil))
-                                return
-                            }
-                            let wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title)
-                            callback(.success(wikiResult))
-                        } else {
-                            callback(.failure(.unknownError)) // Unknown JSON structure
-                        }
-                    } catch _ {
-                        callback(.failure(.parseError(message: "Could not parse JSON data")))
+            
+            guard let data = filter(response, data, error, callback) else { return }
+            
+            do {
+                let decoder = JSONDecoder()
+                let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
+                if let page = wikipediaResponse.query.pages.values.first {
+                    guard !page.isMissing, let id = page.id, let extract = page.extract else {
+                        callback(.success(nil))
+                        return
                     }
+                    let wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title)
+                    callback(.success(wikiResult))
                 } else {
-                    callback(.failure(.unexpectedResponse(code: response.statusCode)))
+                    callback(.failure(.unknownError)) // Unknown JSON structure
                 }
-            } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
-                callback(.failure(.networkError(underlyingError: rootError)))
+            } catch _ {
+                callback(.failure(.parseError(message: "Could not parse JSON data")))
             }
         }
         task.resume()
@@ -545,49 +485,39 @@ public struct Taxonomy {
                                                    language: WikipediaLanguage = WikipediaLanguage(),
                                                    callback: @escaping (TaxonomyResult<Data?>) -> ()) -> URLSessionDataTask {
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            if error == nil {
-                guard let response = response as? HTTPURLResponse, let data = data else {
-                    callback(.failure(.unknownError))
-                    return
-                }
-                
-                if response.statusCode == 200 {
-                    let decoder = JSONDecoder()
-                    do {
-                        let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
-                        if let page = wikipediaResponse.query.pages.values.first {
-                            guard !page.isMissing, let thumbnail = page.thumbnail else {
-                                callback(.success(nil))
-                                return
-                            }
-                            var downloadedImage: Data?
-                            let semaphore = DispatchSemaphore(value: 0)
-                            let dlSession = URLSession(configuration: .default)
-                            let dlTask = dlSession.dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
-                                if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
-                                    downloadedImage = dlData
-                                }
-                                semaphore.signal()
-                            }
-                            dlTask.resume()
-                            _ = semaphore.wait(timeout: .distantFuture)
-                            
-                            if let data = downloadedImage {
-                                callback(.success(data))
-                            } else {
-                                callback(.failure(.unknownError)) // Could not download image
-                            }
-                        } else {
-                            callback(.failure(.unknownError)) // Unknown JSON structure
+            
+            guard let data = filter(response, data, error, callback) else { return }
+            
+            do {
+                let decoder = JSONDecoder()
+                let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
+                if let page = wikipediaResponse.query.pages.values.first {
+                    guard !page.isMissing, let thumbnail = page.thumbnail else {
+                        callback(.success(nil))
+                        return
+                    }
+                    var downloadedImage: Data?
+                    let semaphore = DispatchSemaphore(value: 0)
+                    let dlSession = URLSession(configuration: .default)
+                    let dlTask = dlSession.dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
+                        if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
+                            downloadedImage = dlData
                         }
-                    } catch let error {
-                        callback(.failure(.parseError(message: "Could not parse JSON data. Error: \(error)")))
+                        semaphore.signal()
+                    }
+                    dlTask.resume()
+                    _ = semaphore.wait(timeout: .distantFuture)
+                    
+                    if let data = downloadedImage {
+                        callback(.success(data))
+                    } else {
+                        callback(.failure(.unknownError)) // Could not download image
                     }
                 } else {
-                    callback(.failure(.unexpectedResponse(code: response.statusCode)))
+                    callback(.failure(.unknownError)) // Unknown JSON structure
                 }
-            } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
-                callback(.failure(.networkError(underlyingError: rootError)))
+            } catch let error {
+                callback(.failure(.parseError(message: "Could not parse JSON data. Error: \(error)")))
             }
         }
         task.resume()
@@ -655,67 +585,76 @@ public struct Taxonomy {
                                                     useRichText: Bool = false,
                                                     callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            if error == nil {
-                guard let response = response as? HTTPURLResponse, let data = data else {
-                    callback(.failure(.unknownError))
-                    return
-                }
-                
-                if response.statusCode == 200 {
-                    let decoder = JSONDecoder()
-                    do {
-                        let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
-                        if let page = wikipediaResponse.query.pages.values.first {
-                            guard !page.isMissing, let id = page.id, let extract = page.extract else {
-                                callback(.success(nil))
-                                return
+            
+            guard let data = filter(response, data, error, callback) else { return }
+            
+            do {
+                let decoder = JSONDecoder()
+                let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
+                if let page = wikipediaResponse.query.pages.values.first {
+                    guard !page.isMissing, let id = page.id, let extract = page.extract else {
+                        callback(.success(nil))
+                        return
+                    }
+                    if let thumbnail = page.thumbnail {
+                        var downloadedImage: Data? = nil
+                        if inlineImage {
+                            let semaphore = DispatchSemaphore(value: 0)
+                            let dlSession = URLSession(configuration: .default)
+                            let dlTask = dlSession.dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
+                                if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
+                                    downloadedImage = dlData
+                                }
+                                semaphore.signal()
                             }
-                            if let thumbnail = page.thumbnail {
-                                var downloadedImage: Data? = nil
-                                if inlineImage {
-                                    let semaphore = DispatchSemaphore(value: 0)
-                                    let dlSession = URLSession(configuration: .default)
-                                    let dlTask = dlSession.dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
-                                        if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
-                                            downloadedImage = dlData
-                                        }
-                                        semaphore.signal()
-                                    }
-                                    dlTask.resume()
-                                    _ = semaphore.wait(timeout: .distantFuture)
-                                }
-                                var wikiResult: WikipediaResult
-                                if useRichText {
-                                    let attributedExtract = WikipediaAttributedExtract(htmlString: extract)
-                                    wikiResult = WikipediaResult(language: language, identifier: id, extract: attributedExtract, title: page.title, imageUrl: thumbnail.source, imageData: downloadedImage)
-                                } else {
-                                    wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title, imageUrl: thumbnail.source, imageData: downloadedImage)
-                                }
-                                callback(.success(wikiResult))
-                            } else {
-                                var wikiResult: WikipediaResult
-                                if useRichText {
-                                    let attributedExtract = WikipediaAttributedExtract(htmlString: extract)
-                                    wikiResult = WikipediaResult(language: language, identifier: id, extract: attributedExtract, title: page.title)
-                                } else {
-                                    wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title)
-                                }
-                                callback(.success(wikiResult))
-                            }
-                        } else {
-                            callback(.failure(.unknownError)) // Unknown JSON structure
+                            dlTask.resume()
+                            _ = semaphore.wait(timeout: .distantFuture)
                         }
-                    } catch let error {
-                        callback(.failure(.parseError(message: "Could not parse JSON data. Error: \(error)")))
+                        var wikiResult: WikipediaResult
+                        if useRichText {
+                            let attributedExtract = WikipediaAttributedExtract(htmlString: extract)
+                            wikiResult = WikipediaResult(language: language, identifier: id, extract: attributedExtract, title: page.title, imageUrl: thumbnail.source, imageData: downloadedImage)
+                        } else {
+                            wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title, imageUrl: thumbnail.source, imageData: downloadedImage)
+                        }
+                        callback(.success(wikiResult))
+                    } else {
+                        var wikiResult: WikipediaResult
+                        if useRichText {
+                            let attributedExtract = WikipediaAttributedExtract(htmlString: extract)
+                            wikiResult = WikipediaResult(language: language, identifier: id, extract: attributedExtract, title: page.title)
+                        } else {
+                            wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title)
+                        }
+                        callback(.success(wikiResult))
                     }
                 } else {
-                    callback(.failure(.unexpectedResponse(code: response.statusCode)))
+                    callback(.failure(.unknownError)) // Unknown JSON structure
                 }
-            } else if let rootError = error as NSError?, rootError.code != NSURLErrorCancelled {
-                callback(.failure(.networkError(underlyingError: rootError)))
+            } catch let error {
+                callback(.failure(.parseError(message: "Could not parse JSON data. Error: \(error)")))
             }
         }
         task.resume()
         return task
     }
+}
+
+private func filter<T>(_ response: URLResponse?, _ data: Data?, _ error: Error?,
+                       _ callback: @escaping (TaxonomyResult<T>) -> Void) -> Data? {
+    if let error = error as NSError? {
+        if error.code != NSURLErrorCancelled {
+            callback(.failure(.networkError(underlyingError: error)))
+        }
+        return nil
+    }
+    guard let response = response as? HTTPURLResponse, let data = data else {
+        callback(.failure(.unknownError))
+        return nil
+    }
+    guard response.statusCode == 200 else {
+        callback(.failure(.unexpectedResponse(code: response.statusCode)))
+        return nil
+    }
+    return data
 }
