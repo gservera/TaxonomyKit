@@ -41,124 +41,126 @@ internal enum TaxonomyRequest {
     case knownWikipediaFullRecord(id: String, richText: Bool, thumbnailWidth: Int, language: WikipediaLanguage)
     
     var url: URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = "eutils.ncbi.nlm.nih.gov"
-        var queryItems = [URLQueryItem(name: "db", value: "taxonomy")]
+        var components: URLComponents
         switch self {
         case .download(let identifier):
+            components = URLComponents()
+            components.scheme = "https"
+            components.host = "eutils.ncbi.nlm.nih.gov"
             components.path = "/entrez/eutils/efetch.fcgi"
-            queryItems.append(URLQueryItem(name: "id", value: "\(identifier)"))
+            components.queryItems = [
+                URLQueryItem(name: "db", value: "taxonomy"),
+                URLQueryItem(name: "id", value: "\(identifier)")
+            ]
         case .links(let identifier):
+            components = URLComponents()
+            components.scheme = "https"
+            components.host = "eutils.ncbi.nlm.nih.gov"
             components.path = "/entrez/eutils/elink.fcgi"
-            queryItems += [
+            components.queryItems = [
+                URLQueryItem(name: "db", value: "taxonomy"),
                 URLQueryItem(name: "id", value: "\(identifier)"),
                 URLQueryItem(name: "dbfrom", value: "taxonomy"),
                 URLQueryItem(name: "cmd", value: "llinks")
             ]
         case .search(let query):
+            components = URLComponents()
+            components.scheme = "https"
+            components.host = "eutils.ncbi.nlm.nih.gov"
             components.path = "/entrez/eutils/esearch.fcgi"
-            queryItems += [
+            components.queryItems = [
+                URLQueryItem(name: "db", value: "taxonomy"),
                 URLQueryItem(name: "term", value: query),
                 URLQueryItem(name: "retmode", value: "json")
             ]
-        case .spelling(let query): components.path = "/entrez/eutils/espell.fcgi"
-            queryItems.append(URLQueryItem(name: "term", value: query))
+        case .spelling(let query):
+            components = URLComponents()
+            components.scheme = "https"
+            components.host = "eutils.ncbi.nlm.nih.gov"
+            components.path = "/entrez/eutils/espell.fcgi"
+            components.queryItems = [
+                URLQueryItem(name: "db", value: "taxonomy"),
+                URLQueryItem(name: "term", value: query)
+            ]
+            
         case .scientificNameGuess(let query, let lang):
-            components.host = "\(lang.subdomain).wikipedia.org"
-            components.path = "/w/api.php"
-            queryItems = [
-                URLQueryItem(name: "format", value: "json"),
-                URLQueryItem(name: "action", value: "query"),
-                URLQueryItem(name: "prop", value: "extracts"),
-                URLQueryItem(name: "exintro", value: ""),
-                URLQueryItem(name: "explaintext", value: ""),
-                URLQueryItem(name: "titles", value: query),
-                URLQueryItem(name: "redirects", value: "1"),
-            ]
-        case .knownWikipediaAbstract(let id, let useRichText, let lang):
-            components.host = "\(lang.subdomain).wikipedia.org"
-            components.path = "/w/api.php"
-            queryItems = [
-                URLQueryItem(name: "format", value: "json"),
-                URLQueryItem(name: "action", value: "query"),
-                URLQueryItem(name: "prop", value: "extracts"),
-                URLQueryItem(name: "exintro", value: ""),
-                URLQueryItem(name: "pageids", value: id),
-                URLQueryItem(name: "redirects", value: "1"),
-            ]
-            if !useRichText {
-                queryItems.append(URLQueryItem(name: "explaintext", value: ""))
-            }
-        case .knownWikipediaThumbnail(let id, let width, let lang):
-            components.host = "\(lang.subdomain).wikipedia.org"
-            components.path = "/w/api.php"
-            queryItems = [
-                URLQueryItem(name: "format", value: "json"),
-                URLQueryItem(name: "action", value: "query"),
-                URLQueryItem(name: "prop", value: "pageimages"),
-                URLQueryItem(name: "pithumbsize", value: "\(width)"),
-                URLQueryItem(name: "pageids", value: id),
-                URLQueryItem(name: "redirects", value: "1"),
-            ]
-        case .knownWikipediaFullRecord(let id, let useRichText, let width, let lang):
-            components.host = "\(lang.subdomain).wikipedia.org"
-            components.path = "/w/api.php"
-            queryItems = [
-                URLQueryItem(name: "format", value: "json"),
-                URLQueryItem(name: "action", value: "query"),
-                URLQueryItem(name: "prop", value: "extracts|pageimages"),
-                URLQueryItem(name: "exintro", value: ""),
-                URLQueryItem(name: "pithumbsize", value: "\(width)"),
-                URLQueryItem(name: "pageids", value: id),
-                URLQueryItem(name: "redirects", value: "1"),
-            ]
-            if !useRichText {
-                queryItems.append(URLQueryItem(name: "explaintext", value: ""))
-            }
+            components = wikipediaComponents(for: .extract(useRichText: false), query: query, language: lang)
+            
         case .wikipediaAbstract(let query, let useRichText, let lang):
-            components.host = "\(lang.subdomain).wikipedia.org"
-            components.path = "/w/api.php"
-            queryItems = [
-                URLQueryItem(name: "format", value: "json"),
-                URLQueryItem(name: "action", value: "query"),
-                URLQueryItem(name: "prop", value: "extracts"),
-                URLQueryItem(name: "exintro", value: ""),
-                URLQueryItem(name: "titles", value: query),
-                URLQueryItem(name: "redirects", value: "1"),
-            ]
-            if !useRichText {
-                queryItems.append(URLQueryItem(name: "explaintext", value: ""))
-            }
+            components = wikipediaComponents(for: .extract(useRichText: useRichText), query: query, language: lang)
+            
         case .wikipediaThumbnail(let query, let width, let lang):
-            components.host = "\(lang.subdomain).wikipedia.org"
-            components.path = "/w/api.php"
-            queryItems = [
-                URLQueryItem(name: "format", value: "json"),
-                URLQueryItem(name: "action", value: "query"),
-                URLQueryItem(name: "prop", value: "pageimages"),
-                URLQueryItem(name: "pithumbsize", value: "\(width)"),
-                URLQueryItem(name: "titles", value: query),
-                URLQueryItem(name: "redirects", value: "1"),
-            ]
+            components = wikipediaComponents(for: .thumbnail(width: width), query: query, language: lang)
+            
         case .wikipediaFullRecord(let query, let useRichText, let width, let lang):
-            components.host = "\(lang.subdomain).wikipedia.org"
-            components.path = "/w/api.php"
-            queryItems = [
-                URLQueryItem(name: "format", value: "json"),
-                URLQueryItem(name: "action", value: "query"),
-                URLQueryItem(name: "prop", value: "extracts|pageimages"),
-                URLQueryItem(name: "exintro", value: ""),
-                URLQueryItem(name: "pithumbsize", value: "\(width)"),
-                URLQueryItem(name: "titles", value: query),
-                URLQueryItem(name: "redirects", value: "1"),
-            ]
-            if !useRichText {
-                queryItems.append(URLQueryItem(name: "explaintext", value: ""))
-            }
+            components = wikipediaComponents(for: .full(useRichText: useRichText, width: width), query: query, language: lang)
+            
+        case .knownWikipediaAbstract(let id, let useRichText, let lang):
+            components = wikipediaComponents(for: .extract(useRichText: useRichText), pageID: id, language: lang)
+            
+        case .knownWikipediaThumbnail(let id, let width, let lang):
+            components = wikipediaComponents(for: .thumbnail(width: width), pageID: id, language: lang)
+            
+        case .knownWikipediaFullRecord(let id, let useRichText, let width, let lang):
+            components = wikipediaComponents(for: .full(useRichText: useRichText, width: width), pageID: id, language: lang)
         }
         
-        components.queryItems = queryItems
         return components.url!
     }
+    
+    private enum WikipediaRequestType {
+        case extract(useRichText: Bool)
+        case thumbnail(width: Int)
+        case full(useRichText: Bool, width: Int)
+        
+        var queryItems: [URLQueryItem] {
+            var queryItems: [URLQueryItem] = []
+            switch self {
+            case .extract(let prefersRichText):
+                queryItems += [
+                    URLQueryItem(name: "prop", value: "extracts"),
+                    URLQueryItem(name: "exintro", value: "")
+                ]
+                if !prefersRichText {
+                    queryItems.append(URLQueryItem(name: "explaintext", value: ""))
+                }
+            case .thumbnail(let width):
+                queryItems += [
+                    URLQueryItem(name: "prop", value: "pageimages"),
+                    URLQueryItem(name: "pithumbsize", value: "\(width)")
+                ]
+            case .full(let prefersRichText, let width):
+                queryItems += [
+                    URLQueryItem(name: "prop", value: "extracts|pageimages"),
+                    URLQueryItem(name: "exintro", value: ""),
+                    URLQueryItem(name: "pithumbsize", value: "\(width)")
+                ]
+                if !prefersRichText {
+                    queryItems.append(URLQueryItem(name: "explaintext", value: ""))
+                }
+            }
+            return queryItems
+        }
+    }
+    
+    private func wikipediaComponents(for type: WikipediaRequestType, pageID: String? = nil, query: String? = nil, language: WikipediaLanguage) -> URLComponents {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "\(language.subdomain).wikipedia.org"
+        components.path = "/w/api.php"
+        var queryItems = [
+            URLQueryItem(name: "format", value: "json"),
+            URLQueryItem(name: "action", value: "query"),
+            URLQueryItem(name: "redirects", value: "1"),
+        ]
+        if let pageID = pageID {
+            queryItems.append(URLQueryItem(name: "pageids", value: pageID))
+        } else if let query = query {
+            queryItems.append(URLQueryItem(name: "titles", value: query))
+        }
+        queryItems += type.queryItems
+        components.queryItems = queryItems
+        return components
+    }
+    
 }
