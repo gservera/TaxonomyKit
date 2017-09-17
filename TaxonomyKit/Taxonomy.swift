@@ -94,8 +94,7 @@ public struct Taxonomy {
                 callback(.failure(.parseError(message: "Could not parse JSON data")))
             }
         }
-        task.resume()
-        return task
+        return task.resumed()
     }
     
     
@@ -137,9 +136,7 @@ public struct Taxonomy {
                 callback(.failure(.parseError(message: "Could not parse XML data")))
             }
         }
-        task.resume()
-        return task
-        
+        return task.resumed()
     }
     
     
@@ -185,8 +182,7 @@ public struct Taxonomy {
                     throw TaxonomyError.parseError(message: "Could not parse XML data")
                 }
                 let rankValue = TaxonomicRank(rawValue: rank)
-                var taxon = Taxon(identifier: id, name: name, rank: rankValue,
-                                  geneticCode: mainCode, mitochondrialCode: mitoCode)
+                var taxon = Taxon(identifier: id, name: name, rank: rankValue, geneticCode: mainCode, mitochondrialCode: mitoCode)
                 taxon.commonNames = commonNames.map {$0.value ?? ""}
                 taxon.genbankCommonName = genbankCommonName
                 taxon.synonyms = synonyms.map {$0.value ?? ""}
@@ -212,8 +208,7 @@ public struct Taxonomy {
                 callback(.failure(.parseError(message: "Could not parse XML data")))
             }
         }
-        task.resume()
-        return task
+        return task.resumed()
     }
 
     
@@ -255,11 +250,8 @@ public struct Taxonomy {
                     let srcAbbrOpt = linkNode["Provider"]["NameAbbr"].value
                     let srcURLStringOpt = linkNode["Provider"]["Url"].value
                     
-                    guard let urlString = urlStringOpt,
-                        let srcId = srcIdOpt,
-                        let srcName = srcNameOpt,
-                        let srcAbbr = srcAbbrOpt,
-                        let srcURLString = srcURLStringOpt else {
+                    guard let urlString = urlStringOpt, let srcId = srcIdOpt, let srcName = srcNameOpt,
+                        let srcAbbr = srcAbbrOpt, let srcURLString = srcURLStringOpt else {
                             throw TaxonomyError.parseError(message: "Could not parse XML data. Missing data.")
                     }
                     
@@ -277,8 +269,7 @@ public struct Taxonomy {
                 callback(.failure(.parseError(message: "Could not parse XML data")))
             }
         }
-        task.resume()
-        return task
+        return task.resumed()
     }    
 }
 
@@ -299,4 +290,11 @@ internal func filter<T>(_ response: URLResponse?, _ data: Data?, _ error: Error?
         return nil
     }
     return data
+}
+
+internal extension URLSessionDataTask {
+    func resumed() -> URLSessionDataTask {
+        self.resume()
+        return self
+    }
 }
