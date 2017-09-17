@@ -45,7 +45,8 @@ final class WikipediaAbstractTests: XCTestCase {
     func testValidTaxon() {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.Wikipedia.retrieveAbstract(for: existingTaxon) { result in
+        let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
+        wikipedia.retrieveAbstract(for: existingTaxon) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 condition.fulfill()
@@ -59,7 +60,8 @@ final class WikipediaAbstractTests: XCTestCase {
     func testValidPageID() {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.Wikipedia.retrieveAbstract(for: "344877") { result in
+        let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
+        wikipedia.retrieveAbstract(for: "344877") { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 condition.fulfill()
@@ -74,7 +76,8 @@ final class WikipediaAbstractTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let customLocale = WikipediaLanguage(locale: Locale(identifier: "ca-ES"))
-        Taxonomy.Wikipedia.retrieveAbstract(for: existingTaxon, language: customLocale) { result in
+        let wikipedia = Wikipedia(language: customLocale)
+        wikipedia.retrieveAbstract(for: existingTaxon) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertEqual(wrapper!.language.subdomain, "ca")
@@ -90,7 +93,8 @@ final class WikipediaAbstractTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let customLocale = WikipediaLanguage(locale: Locale(identifier: "."))
-        Taxonomy.Wikipedia.retrieveAbstract(for: existingTaxon, language: customLocale) { result in
+        let wikipedia = Wikipedia(language: customLocale)
+        wikipedia.retrieveAbstract(for: existingTaxon) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertEqual(wrapper!.language.subdomain, "en")
@@ -105,7 +109,8 @@ final class WikipediaAbstractTests: XCTestCase {
     func testInvalidTaxon() {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.Wikipedia.retrieveAbstract(for: nonExistingTaxon) { result in
+        let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
+        wikipedia.retrieveAbstract(for: nonExistingTaxon) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNil(wrapper)
                 condition.fulfill()
@@ -125,7 +130,8 @@ final class WikipediaAbstractTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.Wikipedia.retrieveAbstract(for: existingTaxon) { result in
+        let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
+        wikipedia.retrieveAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
@@ -142,7 +148,8 @@ final class WikipediaAbstractTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.Wikipedia.retrieveAbstract(for: existingTaxon) { result in
+        let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
+        wikipedia.retrieveAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unexpectedResponse(500) = error {
                 condition.fulfill()
@@ -156,7 +163,8 @@ final class WikipediaAbstractTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.Wikipedia.retrieveAbstract(for: existingTaxon) { result in
+        let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
+        wikipedia.retrieveAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .networkError(_) = error {
                 condition.fulfill()
@@ -169,7 +177,8 @@ final class WikipediaAbstractTests: XCTestCase {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.Wikipedia.retrieveAbstract(for: existingTaxon) { result in
+        let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
+        wikipedia.retrieveAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -188,7 +197,8 @@ final class WikipediaAbstractTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.Wikipedia.retrieveAbstract(for: existingTaxon) { result in
+        let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
+        wikipedia.retrieveAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .parseError(_) = error {
                 condition.fulfill()
@@ -207,7 +217,8 @@ final class WikipediaAbstractTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["query":["pages":[:]]])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.Wikipedia.retrieveAbstract(for: existingTaxon) { result in
+        let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
+        wikipedia.retrieveAbstract(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -227,7 +238,8 @@ final class WikipediaAbstractTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        let dataTask = Taxonomy.Wikipedia.retrieveAbstract(for: existingTaxon) { result in
+        let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
+        let dataTask = wikipedia.retrieveAbstract(for: existingTaxon) { result in
             XCTFail("Should have been canceled")
             
             } as! MockSession.MockTask

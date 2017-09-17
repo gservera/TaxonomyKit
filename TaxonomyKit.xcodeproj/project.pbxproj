@@ -11,6 +11,7 @@
 		990E5B2C1DFCDB5C00421D43 /* AEXML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99B03FC21D9BEF53007F57AF /* AEXML.framework */; };
 		991641EF1DE0CF2100A584FE /* TaxonRepresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641EE1DE0CF2100A584FE /* TaxonRepresenting.swift */; };
 		991641F11DE0EAEE00A584FE /* LineageTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641F01DE0EAEE00A584FE /* LineageTreeTests.swift */; };
+		9956D1811F6E783800FC7385 /* Wikipedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9956D1801F6E783800FC7385 /* Wikipedia.swift */; };
 		998015341E9E7F7D00A37250 /* NameGuessingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998015331E9E7F7D00A37250 /* NameGuessingTests.swift */; };
 		99A07A311EE81E320075B1F0 /* LineageTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A07A301EE81E320075B1F0 /* LineageTree.swift */; };
 		99A07A331EE838860075B1F0 /* LineageAlignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A07A321EE838860075B1F0 /* LineageAlignment.swift */; };
@@ -57,6 +58,7 @@
 		994A9B941DA7F94900A0796F /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		994A9B951DA7F9CC00A0796F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		994A9B961DA7FBED00A0796F /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
+		9956D1801F6E783800FC7385 /* Wikipedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wikipedia.swift; sourceTree = "<group>"; };
 		998015331E9E7F7D00A37250 /* NameGuessingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NameGuessingTests.swift; sourceTree = "<group>"; };
 		99A07A301EE81E320075B1F0 /* LineageTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineageTree.swift; sourceTree = "<group>"; };
 		99A07A321EE838860075B1F0 /* LineageAlignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineageAlignment.swift; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 				99B4B3301DCDE5D500DC918A /* ExternalLink.swift */,
 				99A07A301EE81E320075B1F0 /* LineageTree.swift */,
 				99A07A321EE838860075B1F0 /* LineageAlignment.swift */,
+				9956D1801F6E783800FC7385 /* Wikipedia.swift */,
 				99CFC5C51D9AB0FC00C8A415 /* Info.plist */,
 			);
 			path = TaxonomyKit;
@@ -319,6 +322,7 @@
 				991641EF1DE0CF2100A584FE /* TaxonRepresenting.swift in Sources */,
 				99FB3D6C1EEA8279007A9A1A /* WikipediaResponse.swift in Sources */,
 				99B4B3311DCDE5D500DC918A /* ExternalLink.swift in Sources */,
+				9956D1811F6E783800FC7385 /* Wikipedia.swift in Sources */,
 				99B03FB41D9BEEB5007F57AF /* TaxonomyError.swift in Sources */,
 				99A07A331EE838860075B1F0 /* LineageAlignment.swift in Sources */,
 			);

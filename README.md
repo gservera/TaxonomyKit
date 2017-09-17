@@ -10,7 +10,8 @@
 [![codecov.io](https://codecov.io/github/gservera/TaxonomyKit/coverage.svg?branch=master)](https://codecov.io/github/gservera/TaxonomyKit?branch=master)
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/gservera/TaxonomyKit/master/LICENSE.md) 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-![Swift version](https://img.shields.io/badge/swift-3.1-orange.svg)
+![Swift version](https://img.shields.io/badge/swift-4-orange.svg)
+[![codebeat badge](https://codebeat.co/badges/0a40e0c1-5100-4b9e-9b0c-b2b08c011eb9)](https://codebeat.co/projects/github-com-gservera-taxonomykit-master)
 
 TaxonomyKit is a powerful, handy and cross-platform library that makes working with taxonomy data from the NCBI databases easier. It works as a client of the NCBI's [Entrez Programming Utilities](https://eutils.ncbi.nlm.nih.gov) and it is the core of the [Taxonomist](https://gservera.com/apps/taxonomist/) app.
 
@@ -23,7 +24,7 @@ TaxonomyKit is a powerful, handy and cross-platform library that makes working w
 
 ## First steps
 
-### 🔭 Get the NCBI's Taxonomy ID for the taxon you are looking for
+### 🔭 Get the NCBI's Taxonomy ID for the taxon you're looking for
 
 ```swift
 let myCoolQuery = "quercus ilex"
@@ -54,7 +55,7 @@ Taxonomy.downloadTaxon(withIdentifier: foundID) { result in
 ### 📖 Get an extract from Wikipedia
 
 ```swift
-Taxonomy.retrieveWikipediaAbstract(for: downloadedTaxon) { result in
+Wikipedia.retrieveAbstract(for: downloadedTaxon) { result in
     switch result {
     case .success(let wikipediaResult):
         print("Got info: \(wikipediaResult.extract).")
@@ -79,15 +80,15 @@ To integrate TaxonomyKit into your Xcode project using Carthage, specify it in y
 
 ```ogdl
 github "tadija/AEXML"
-github "gservera/TaxonomyKit" ~> 1.4
+github "gservera/TaxonomyKit" ~> 1.5
 ```
 
 Run `carthage update` on your project's directory to build the framework and drag the built `TaxonomyKit.framework` into your Xcode project.
 
 ## Requirements
 
-* macOS 10.10 Yosemite or greater.
-* **Xcode 8.3** or greater.
+* macOS 10.12 Sierra or greater.
+* **Xcode 9.0** or greater.
 * **AEXML >4.1**. A wonderful XML parser written in Swift. See more at [tadija/AEXML](https://github.com/tadija/AEXML).
 
 ## Unit Tests
