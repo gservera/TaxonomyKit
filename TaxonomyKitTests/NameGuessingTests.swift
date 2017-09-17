@@ -27,7 +27,8 @@ final class NameGuessingTests: XCTestCase {
         let condition = expectation(description: "Finished")
         let locale = Locale(identifier: "ca-ES")
         let lang = WikipediaLanguage(locale: locale)
-        Taxonomy.findPossibleScientificNames(matching: "Melicotoner", language: lang) { result in
+        let wikipedia = Wikipedia(language: lang)
+        wikipedia.findPossibleScientificNames(matching: "Melicotoner") { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertEqual("Prunus persica", wrapper.first)
@@ -44,7 +45,8 @@ final class NameGuessingTests: XCTestCase {
         let condition = expectation(description: "Finished")
         let locale = Locale(identifier: "en-US")
         let lang = WikipediaLanguage(locale: locale)
-        Taxonomy.findPossibleScientificNames(matching: "pork tapeworm", language: lang) { result in
+        let wikipedia = Wikipedia(language: lang)
+        wikipedia.findPossibleScientificNames(matching: "pork tapeworm") { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertEqual("Taenia solium", wrapper.first)
@@ -60,7 +62,8 @@ final class NameGuessingTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let customLocale = WikipediaLanguage(locale: Locale(identifier: "."))
-        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter", language: customLocale) { result in
+        let wikipedia = Wikipedia(language: customLocale)
+        wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertEqual("Lutra lutra", wrapper.first)
@@ -75,7 +78,8 @@ final class NameGuessingTests: XCTestCase {
     func testUnmatchedQuery() {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.findPossibleScientificNames(matching: "ijgadngadngadfgnadfgnadlfgnaildfg") { result in
+        let wikipedia = Wikipedia()
+        wikipedia.findPossibleScientificNames(matching: "ijgadngadngadfgnadfgnadlfgnaildfg") { result in
             if case .success(let wrapper) = result {
                 XCTAssertTrue(wrapper.count == 0)
                 condition.fulfill()
@@ -95,7 +99,8 @@ final class NameGuessingTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+        let wikipedia = Wikipedia()
+        wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
@@ -112,7 +117,8 @@ final class NameGuessingTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+        let wikipedia = Wikipedia()
+        wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .failure(let error) = result,
                 case .unexpectedResponse(500) = error {
                 condition.fulfill()
@@ -126,7 +132,8 @@ final class NameGuessingTests: XCTestCase {
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
-        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+        let wikipedia = Wikipedia()
+        wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .failure(let error) = result,
                 case .networkError(_) = error {
                 condition.fulfill()
@@ -139,7 +146,8 @@ final class NameGuessingTests: XCTestCase {
         Taxonomy._urlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+        let wikipedia = Wikipedia()
+        wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -158,9 +166,10 @@ final class NameGuessingTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+        let wikipedia = Wikipedia()
+        wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .failure(let error) = result,
-                case .unknownError = error {
+                case .parseError(message: "Could not parse JSON data") = error {
                 condition.fulfill()
             }
         }
@@ -177,7 +186,8 @@ final class NameGuessingTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["query":["pages":[:]]])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+        let wikipedia = Wikipedia()
+        wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -197,7 +207,8 @@ final class NameGuessingTests: XCTestCase {
         let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        let dataTask = Taxonomy.findPossibleScientificNames(matching: "Eurasian otter") { result in
+        let wikipedia = Wikipedia()
+        let dataTask = wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
             XCTFail("Should have been canceled")
             
             } as! MockSession.MockTask

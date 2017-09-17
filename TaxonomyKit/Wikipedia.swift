@@ -34,6 +34,64 @@ public struct Wikipedia {
         self.language = language
     }
     
+    
+    /// Attempts to guess scientific names that could match a specific query using info from
+    /// the corresponding Wikipedia article.
+    ///
+    /// - Since: TaxonomyKit 1.5.
+    /// - Parameters:
+    ///   - query: The query for which to retrieve Wikipedia metadata.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has a `TaxonomyResult<[String]>`
+    ///               parameter that contains a wrapper with the found names (or `[]` if
+    ///               no results are found) when the request succeeds.
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
+    @discardableResult public func findPossibleScientificNames(matching query: String,
+                                                               callback: @escaping (_ result: TaxonomyResult<[String]>) -> ()) -> URLSessionDataTask {
+        
+        let request = TaxonomyRequest.scientificNameGuess(query: query, language: language)
+        let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
+            
+            guard let data = filter(response, data, error, callback) else { return }
+            
+            let decoder = JSONDecoder()
+            guard let wikipediaResponse = try? decoder.decode(WikipediaResponse.self, from: data) else {
+                callback(.failure(.parseError(message: "Could not parse JSON data")))
+                return
+            }
+            
+            if let page = wikipediaResponse.query.pages.values.first {
+                guard !page.isMissing, let _ = page.id, let extract = page.extract as NSString? else {
+                    callback(.success([]))
+                    return
+                }
+                var names: [String] = []
+                if page.title != query && page.title.components(separatedBy: " ").count > 1 {
+                    names.append(page.title)
+                }
+                let firstOpeningParenthesis = extract.range(of: "(").location
+                if firstOpeningParenthesis != NSNotFound {
+                    let stopChars: CharacterSet = CharacterSet(charactersIn: ".,()[]{}\n")
+                    let closingParenthesis = extract.rangeOfCharacter(from: stopChars, options: [], range: NSMakeRange(firstOpeningParenthesis+1, extract.length-firstOpeningParenthesis-1)).location
+                    if closingParenthesis != NSNotFound {
+                        let substring = extract.substring(with: NSMakeRange(firstOpeningParenthesis+1, closingParenthesis-firstOpeningParenthesis-1)).trimmingCharacters(in: CharacterSet.whitespaces)
+                        if substring.components(separatedBy: " ").count < 4 && !names.contains(substring) {
+                            names.append(substring)
+                        }
+                    }
+                }
+                callback(.success(names))
+            } else {
+                callback(.failure(.unknownError)) // Unknown JSON structure
+            }
+        }
+        task.resume()
+        return task
+    }
+    
     /// Sends an asynchronous request to Wikipedia servers asking for metadata such as an extract
     /// and the Wikipedia page URL for a concrete a taxon.
     ///
