@@ -149,12 +149,14 @@ public struct LineageAlignment {
     /// - Parameter rank: The rank to be looked for.
     /// - Returns: The index of the column with the passed rank in the column array.
     public func indexOfColumn(for rank: TaxonomicRank) -> Int {
+        var index = -1
         for (i, column) in columns.enumerated() {
             if column.rank == rank {
-                return i
+                index = i
+                break
             }
         }
-        return -1 // We should never get here.
+        return index // We should never get here.
     }
     
     

@@ -257,48 +257,42 @@ public struct Wikipedia {
             let language = self.language
             guard let data = filter(response, data, error, callback) else { return }
             
-            do {
-                let decoder = JSONDecoder()
-                let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
-                
-                guard let page = wikipediaResponse.query.pages.values.first else {
-                    callback(.failure(.unknownError)) // Unknown JSON structure
-                    return
-                }
-                
-                guard !page.isMissing, let id = page.id, let extract = page.extract else {
-                    callback(.success(nil))
-                    return
-                }
-                var wikiResult = WikipediaResult(language: language, identifier: id, title: page.title)
-                if let thumbnail = page.thumbnail {
-                    var downloadedImage: Data? = nil
-                    if inlineImage {
-                        let semaphore = DispatchSemaphore(value: 0)
-                        let dlSession = URLSession(configuration: .default)
-                        let dlTask = dlSession.dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
-                            if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
-                                downloadedImage = dlData
-                            }
-                            semaphore.signal()
-                        }
-                        dlTask.resume()
-                        _ = semaphore.wait(timeout: .distantFuture)
-                    }
-                    wikiResult.pageImageUrl = thumbnail.source
-                    wikiResult.pageImageData = downloadedImage
-                }
-                
-                if useRichText {
-                    wikiResult.attributedExtract = WikipediaAttributedExtract(htmlString: extract)
-                } else {
-                    wikiResult.extract = extract
-                }
-                
-                callback(.success(wikiResult))
-            } catch let error {
-                callback(.failure(.parseError(message: "Could not parse JSON data. Error: \(error)")))
+            let decoder = JSONDecoder()
+            guard let wikipediaResponse = try? decoder.decode(WikipediaResponse.self, from: data) else {
+                callback(.failure(.parseError(message: "Could not parse JSON data.")))
+                return
             }
+            guard let page = wikipediaResponse.query.pages.values.first else {
+                callback(.failure(.unknownError)) // Unknown JSON structure
+                return
+            }
+            guard !page.isMissing, let id = page.id, let extract = page.extract else {
+                callback(.success(nil))
+                return
+            }
+            var wikiResult = WikipediaResult(language: language, identifier: id, title: page.title)
+            if let thumbnail = page.thumbnail {
+                var downloadedImage: Data? = nil
+                if inlineImage {
+                    let semaphore = DispatchSemaphore(value: 0)
+                    URLSession(configuration: .default).dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
+                        if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
+                            downloadedImage = dlData
+                        }
+                        semaphore.signal()
+                    }.resume()
+                    _ = semaphore.wait(timeout: .distantFuture)
+                }
+                wikiResult.pageImageUrl = thumbnail.source
+                wikiResult.pageImageData = downloadedImage
+            }
+            if useRichText {
+                wikiResult.attributedExtract = WikipediaAttributedExtract(htmlString: extract)
+            } else {
+                wikiResult.extract = extract
+            }
+            
+            callback(.success(wikiResult))
         }
         task.resume()
         return task

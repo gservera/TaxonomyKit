@@ -31,6 +31,7 @@ final class LineageAlignmentTests: XCTestCase {
     
     var homoSapiens = Taxon(identifier: 9606, name: "Homo sapiens", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
     var quercusIlex = Taxon(identifier:58334, name: "Quercus ilex", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
+    var hiv1 = Taxon(identifier:11676, name: "Human immunodeficiency virus 1", rank: .species, geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
     
     var lineageTree = LineageTree()
     
@@ -91,6 +92,15 @@ final class LineageAlignmentTests: XCTestCase {
             TaxonLineageItem(identifier: 3503, name: "Fagaceae", rank: .family),
             TaxonLineageItem(identifier: 3511, name: "Quercus", rank: .genus),
         ]
+        
+        hiv1.lineageItems = [
+            TaxonLineageItem(identifier: 10239, name: "Viruses", rank: .superkingdom),
+            TaxonLineageItem(identifier: 35268, name: "Retro-transcribing viruses", rank: nil),
+            TaxonLineageItem(identifier: 11632, name: "Retroviridae", rank: .family),
+            TaxonLineageItem(identifier: 327045, name: "Orthoretrovirinae", rank: .subfamily),
+            TaxonLineageItem(identifier: 11646, name: "Lentivirus", rank: .genus),
+            TaxonLineageItem(identifier: 11652, name: "Primate lentivirus group", rank: nil),
+        ]
     }
     
     override func tearDown() {
@@ -98,12 +108,92 @@ final class LineageAlignmentTests: XCTestCase {
         super.tearDown()
     }
     
-    func testAlignment() {
+    func testCleanedUpAlignment() {
         let _ = lineageTree.register(homoSapiens)
         let _ = lineageTree.register(quercusIlex)
+        let _ = lineageTree.register(hiv1)
         let alignment = LineageAlignment(lineageTree: lineageTree)
-        let _ = alignment.cleanedUp
-        print(alignment)
+        let cleanedUp = alignment.cleanedUp
+        
+        var expectedCleanedUpAlignment: [[String]] = [
+            ["origin"],
+            ["cellular organisms"],
+            ["Viruses","Eukaryota"],
+            ["Retro-transcribing viruses","Opisthokonta"],
+            ["Metazoa","Viridiplantae"],
+            ["Eumetazoa"],
+            ["Bilateria"],
+            ["Deuterostomia"],
+            ["Chordata","Streptophyta"],
+            ["Craniata","Streptophytina"],
+            ["Vertebrata","Embryophyta"],
+            ["Gnathostomata","Tracheophyta"],
+            ["Teleostomi","Euphyllophyta"],
+            ["Euteleostomi","Spermatophyta"],
+            ["Sarcopterygii","Magnoliophyta"],
+            ["Dipnotetrapodomorpha","Mesangiospermae"],
+            ["Tetrapoda","eudicotyledons"],
+            ["Amniota","Gunneridae"],
+            ["Pentapetaleae"],
+            ["Mammalia"],
+            ["Theria"],
+            ["Eutheria"],
+            ["Boreoeutheria"],
+            ["rosids"],
+            ["fabids"],
+            ["Euarchontoglires"],
+            ["Primates","Fagales"],
+            ["Haplorrhini"],
+            ["Simiiformes"],
+            ["Catarrhini"],
+            ["Hominoidea"],
+            ["Retroviridae","Hominidae","Fagaceae"],
+            ["Orthoretrovirinae","Homininae"],
+            ["Lentivirus","Homo","Quercus"],
+            ["Primate lentivirus group"],
+            ["Human immunodeficiency virus 1","Homo sapiens","Quercus ilex"]
+        ]
+        
+        XCTAssertEqual(cleanedUp.count, expectedCleanedUpAlignment.count,
+                       "Expected \(expectedCleanedUpAlignment.count) columns in alignment, found \(cleanedUp.count)")
+        
+        for (i, column) in expectedCleanedUpAlignment.enumerated() {
+            XCTAssertEqual(cleanedUp[i].count, column.count,
+                           "Expected \(expectedCleanedUpAlignment[i].count) rows in alignment column \(i), found \(cleanedUp[i].count)")
+            for (r, name) in column.enumerated() {
+                let foundName = cleanedUp[i].cells[r].node.name
+                XCTAssertEqual(foundName, name, "Expected \(name) at alignment \(i):\(r). Found \(foundName) instead.")
+            }
+        }
+        
+    }
+    
+    func testColumnAndCellSpan() {
+        let _ = lineageTree.register(homoSapiens)
+        let _ = lineageTree.register(quercusIlex)
+        let _ = lineageTree.register(hiv1)
+        let alignment = LineageAlignment(lineageTree: lineageTree)
+        let cleanedUp = alignment.cleanedUp
+        XCTAssertEqual(cleanedUp[0].cells[0].span, 3)
+        XCTAssertEqual(cleanedUp[35].cells[0].span, 1)
+        XCTAssertEqual(cleanedUp[35].cells[1].span, 1)
+        XCTAssertEqual(cleanedUp[35].cells[2].span, 1)
+        XCTAssertEqual(cleanedUp[2].cells[0].span, 1)
+        XCTAssertEqual(cleanedUp[2].cells[1].span, 2)
+        XCTAssertEqual(cleanedUp[0].span, 3)
+        XCTAssertEqual(cleanedUp[35].span, 3)
+    }
+    
+    func testDescription() {
+        let _ = lineageTree.register(homoSapiens)
+        let _ = lineageTree.register(quercusIlex)
+        let _ = lineageTree.register(hiv1)
+        let alignment = LineageAlignment(lineageTree: lineageTree)
+        let cleanedUp = alignment.cleanedUp
+        XCTAssertEqual(cleanedUp[35].cells[1].debugDescription, "<9606:Homo sapiens@1(1)>")
+        XCTAssertEqual(cleanedUp[35].debugDescription, "[3:species]: Human immunodeficiency virus 1, Homo sapiens, Quercus ilex")
+        XCTAssertEqual(cleanedUp[1].debugDescription, "[1:no rank]: cellular organisms")
+        
     }
     
 }
