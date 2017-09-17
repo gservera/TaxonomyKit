@@ -54,43 +54,28 @@ public struct WikipediaResult {
     public let language: WikipediaLanguage
     
     /// The retrieved extract from the Wikipedia article.
-    public let extract: String?
+    public var extract: String?
     
     /// The retrieved extract from the Wikipedia article.
-    public let attributedExtract: WikipediaAttributedExtract?
+    public var attributedExtract: WikipediaAttributedExtract?
     
     /// The title of the Wikipedia article.
     public let title: String
     
     /// The remote HTTPS URL pointing to the Wikipedia page's main image if requested and available.
-    public let pageImageUrl: URL?
+    public var pageImageUrl: URL?
     
     /// The downloaded Wikipedia page's main image if requested and available.
-    public let pageImageData: Data?
+    public var pageImageData: Data?
     
-    init(language: WikipediaLanguage, identifier: Int, extract: String? = nil, title: String, imageUrl: URL? = nil, imageData: Data? = nil) {
+    init(language: WikipediaLanguage, identifier: Int, title: String) {
         self.language = language
         self.identifier = identifier
-        self.extract = extract
-        self.attributedExtract = nil
         self.title = title
-        self.pageImageUrl = imageUrl
-        self.pageImageData = imageData
         self.url = URL(string:"https://\(language.subdomain).wikipedia.org/?curid=\(identifier)")!
         self.mobileUrl = URL(string:"https://\(language.subdomain).m.wikipedia.org/?curid=\(identifier)")!
     }
     
-    init(language: WikipediaLanguage, identifier: Int, extract: WikipediaAttributedExtract? = nil, title: String, imageUrl: URL? = nil, imageData: Data? = nil) {
-        self.language = language
-        self.identifier = identifier
-        self.attributedExtract = extract
-        self.extract = nil
-        self.title = title
-        self.pageImageUrl = imageUrl
-        self.pageImageData = imageData
-        self.url = URL(string:"https://\(language.subdomain).wikipedia.org/?curid=\(identifier)")!
-        self.mobileUrl = URL(string:"https://\(language.subdomain).m.wikipedia.org/?curid=\(identifier)")!
-    }
 }
 
 

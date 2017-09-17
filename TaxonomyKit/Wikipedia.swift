@@ -93,7 +93,8 @@ public struct Wikipedia {
                         callback(.success(nil))
                         return
                     }
-                    let wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title)
+                    var wikiResult = WikipediaResult(language: language, identifier: id, title: page.title)
+                    wikiResult.extract = extract
                     callback(.success(wikiResult))
                 } else {
                     callback(.failure(.unknownError)) // Unknown JSON structure
@@ -250,7 +251,7 @@ public struct Wikipedia {
     private func retrieveFullRecord(with request: TaxonomyRequest,
                                     inlineImage: Bool = false,
                                     useRichText: Bool = false,
-                                    callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
+                                    callback: @escaping (TaxonomyResult<WikipediaResult?>) -> Void) -> URLSessionDataTask {
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
             
             let language = self.language
@@ -259,46 +260,42 @@ public struct Wikipedia {
             do {
                 let decoder = JSONDecoder()
                 let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
-                if let page = wikipediaResponse.query.pages.values.first {
-                    guard !page.isMissing, let id = page.id, let extract = page.extract else {
-                        callback(.success(nil))
-                        return
-                    }
-                    if let thumbnail = page.thumbnail {
-                        var downloadedImage: Data? = nil
-                        if inlineImage {
-                            let semaphore = DispatchSemaphore(value: 0)
-                            let dlSession = URLSession(configuration: .default)
-                            let dlTask = dlSession.dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
-                                if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
-                                    downloadedImage = dlData
-                                }
-                                semaphore.signal()
-                            }
-                            dlTask.resume()
-                            _ = semaphore.wait(timeout: .distantFuture)
-                        }
-                        var wikiResult: WikipediaResult
-                        if useRichText {
-                            let attributedExtract = WikipediaAttributedExtract(htmlString: extract)
-                            wikiResult = WikipediaResult(language: language, identifier: id, extract: attributedExtract, title: page.title, imageUrl: thumbnail.source, imageData: downloadedImage)
-                        } else {
-                            wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title, imageUrl: thumbnail.source, imageData: downloadedImage)
-                        }
-                        callback(.success(wikiResult))
-                    } else {
-                        var wikiResult: WikipediaResult
-                        if useRichText {
-                            let attributedExtract = WikipediaAttributedExtract(htmlString: extract)
-                            wikiResult = WikipediaResult(language: language, identifier: id, extract: attributedExtract, title: page.title)
-                        } else {
-                            wikiResult = WikipediaResult(language: language, identifier: id, extract: extract, title: page.title)
-                        }
-                        callback(.success(wikiResult))
-                    }
-                } else {
+                
+                guard let page = wikipediaResponse.query.pages.values.first else {
                     callback(.failure(.unknownError)) // Unknown JSON structure
+                    return
                 }
+                
+                guard !page.isMissing, let id = page.id, let extract = page.extract else {
+                    callback(.success(nil))
+                    return
+                }
+                var wikiResult = WikipediaResult(language: language, identifier: id, title: page.title)
+                if let thumbnail = page.thumbnail {
+                    var downloadedImage: Data? = nil
+                    if inlineImage {
+                        let semaphore = DispatchSemaphore(value: 0)
+                        let dlSession = URLSession(configuration: .default)
+                        let dlTask = dlSession.dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
+                            if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
+                                downloadedImage = dlData
+                            }
+                            semaphore.signal()
+                        }
+                        dlTask.resume()
+                        _ = semaphore.wait(timeout: .distantFuture)
+                    }
+                    wikiResult.pageImageUrl = thumbnail.source
+                    wikiResult.pageImageData = downloadedImage
+                }
+                
+                if useRichText {
+                    wikiResult.attributedExtract = WikipediaAttributedExtract(htmlString: extract)
+                } else {
+                    wikiResult.extract = extract
+                }
+                
+                callback(.success(wikiResult))
             } catch let error {
                 callback(.failure(.parseError(message: "Could not parse JSON data. Error: \(error)")))
             }
