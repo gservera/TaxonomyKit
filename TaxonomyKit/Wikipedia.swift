@@ -50,7 +50,7 @@ public struct Wikipedia {
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public func findPossibleScientificNames(matching query: String,
-                                                               callback: @escaping (_ result: TaxonomyResult<[String]>) -> ()) -> URLSessionDataTask {
+        callback: @escaping (_ result: TaxonomyResult<[String]>) -> Void) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.scientificNameGuess(query: query, language: language)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
@@ -88,16 +88,18 @@ public struct Wikipedia {
                 callback(.failure(.unknownError)) // Unknown JSON structure
             }
         }
-        task.resume()
-        return task
+        return task.resumed()
     }
     
+    
     /// Sends an asynchronous request to Wikipedia servers asking for metadata such as an extract
-    /// and the Wikipedia page URL for a concrete a taxon.
+    /// and the Wikipedia page URL for a concrete taxon.
     ///
     /// - Since: TaxonomyKit 1.3.
     /// - Parameters:
     ///   - taxon: The taxon for which to retrieve Wikipedia metadata.
+    ///   - useRichText: Pass `true` to retrieve Wikipedia extracts as an ``NSAttributedString`.
+    ///                  Default is `false`.
     ///   - callback: A callback closure that will be called when the request completes or
     ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
     ///               parameter that contains a wrapper with the requested metadata (or `nil` if
@@ -106,9 +108,8 @@ public struct Wikipedia {
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
-    @discardableResult public func retrieveAbstract(for taxon: Taxon,
-                                                    useRichText: Bool = false,
-                                                    callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
+    @discardableResult public func retrieveAbstract(for taxon: Taxon, useRichText: Bool = false,
+        callback: @escaping (TaxonomyResult<WikipediaResult?>) -> Void) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.wikipediaAbstract(query: taxon.name, richText: useRichText, language: language)
         return retrieveAbstract(with: request, callback: callback)
@@ -116,11 +117,13 @@ public struct Wikipedia {
     
     
     /// Sends an asynchronous request to Wikipedia servers asking for metadata such as an extract
-    /// and the Wikipedia page URL for a concrete a taxon.
+    /// and the Wikipedia page URL for a concrete Wikipedia Page ID.
     ///
     /// - Since: TaxonomyKit 1.5.
     /// - Parameters:
-    ///   - taxon: The taxon for which to retrieve Wikipedia metadata.
+    ///   - id: The Wikipedia Page ID for which to retrieve the requested metadata.
+    ///   - useRichText: Pass `true` to retrieve Wikipedia extracts as an ``NSAttributedString`.
+    ///                  Default is `false`.
     ///   - callback: A callback closure that will be called when the request completes or
     ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
     ///               parameter that contains a wrapper with the requested metadata (or `nil` if
@@ -129,13 +132,13 @@ public struct Wikipedia {
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
-    @discardableResult public func retrieveAbstract(for id: String,
-                                                           useRichText: Bool = false,
-                                                           callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
+    @discardableResult public func retrieveAbstract(for id: String, useRichText: Bool = false,
+        callback: @escaping (TaxonomyResult<WikipediaResult?>) -> Void) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.knownWikipediaAbstract(id: id, richText: useRichText, language: language)
         return retrieveAbstract(with: request, callback: callback)
     }
+    
     
     private func retrieveAbstract(with request: TaxonomyRequest, callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         let language = self.language
@@ -161,13 +164,12 @@ public struct Wikipedia {
                 callback(.failure(.parseError(message: "Could not parse JSON data")))
             }
         }
-        task.resume()
-        return task
+        return task.resumed()
     }
     
     
     /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page
-    /// thumbnail for a concrete wikipedia page.
+    /// thumbnail for a concrete taxon.
     ///
     /// - Since: TaxonomyKit 1.4.
     /// - Parameters:
@@ -181,40 +183,39 @@ public struct Wikipedia {
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
-    @discardableResult public func retrieveThumbnail(for id: String,
-                                                            width: Int,
-                                                            callback: @escaping (TaxonomyResult<Data?>) -> ()) -> URLSessionDataTask {
-        
-        let request = TaxonomyRequest.knownWikipediaThumbnail(id: id, width: width, language: language)
-        return retrieveThumbnail(with: request, callback: callback)
-    }
-    
-    
-    /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page
-    /// thumbnail for a concrete a taxon.
-    ///
-    /// - Since: TaxonomyKit 1.4.
-    /// - Parameters:
-    ///   - taxon: The taxon for which to retrieve Wikipedia thumbnail.
-    ///   - width: The max width in pixels of the image that the Wikipedia API should return.
-    ///   - callback: A callback closure that will be called when the request completes or
-    ///               if an error occurs. This closure has a `TaxonomyResult<Data?>`
-    ///               parameter that contains a wrapper with the requested image data (or `nil` if
-    ///               no results are found) when the request succeeds.
-    /// - Warning: Please note that the callback may not be called on the main thread.
-    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
-    ///            may keep a reference to this object if you plan it should be canceled at some
-    ///            point.
-    @discardableResult public func retrieveThumbnail(for taxon: Taxon,
-                                                            width: Int,
-                                                            callback: @escaping (TaxonomyResult<Data?>) -> ()) -> URLSessionDataTask {
+    @discardableResult public func retrieveThumbnail(for taxon: Taxon, width: Int,
+        callback: @escaping (TaxonomyResult<Data?>) -> Void) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.wikipediaThumbnail(query: taxon.name, width: width, language: language)
         return retrieveThumbnail(with: request, callback: callback)
     }
     
     
-    private func retrieveThumbnail(with request: TaxonomyRequest, callback: @escaping (TaxonomyResult<Data?>) -> ()) -> URLSessionDataTask {
+    
+    /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page
+    /// thumbnail for a concrete Wikipedia Page ID.
+    ///
+    /// - Since: TaxonomyKit 1.4.
+    /// - Parameters:
+    ///   - id: The Wikipedia Page ID for which to retrieve the requested metadata.
+    ///   - width: The max width in pixels of the image that the Wikipedia API should return.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has a `TaxonomyResult<Data?>`
+    ///               parameter that contains a wrapper with the requested image data (or `nil` if
+    ///               no results are found) when the request succeeds.
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
+    @discardableResult public func retrieveThumbnail(for id: String, width: Int,
+        callback: @escaping (TaxonomyResult<Data?>) -> Void) -> URLSessionDataTask {
+        
+        let request = TaxonomyRequest.knownWikipediaThumbnail(id: id, width: width, language: language)
+        return retrieveThumbnail(with: request, callback: callback)
+    }
+    
+    
+    private func retrieveThumbnail(with request: TaxonomyRequest, callback: @escaping (TaxonomyResult<Data?>) -> Void) -> URLSessionDataTask {
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
             
             guard let data = filter(response, data, error, callback) else { return }
@@ -251,52 +252,87 @@ public struct Wikipedia {
                 callback(.failure(.parseError(message: "Could not parse JSON data. Error: \(error)")))
             }
         }
-        task.resume()
-        return task
+        return task.resumed()
     }
     
+    
     /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page
-    /// thumbnail for a concrete wikipedia page.
+    /// thumbnail and page extract for a concrete Wikipedia Page ID.
     ///
     /// - Since: TaxonomyKit 1.5.
     /// - Parameters:
-    ///   - taxon: The taxon for which to retrieve Wikipedia thumbnail.
+    ///   - id: The Wikipedia Page ID for which to retrieve the requested metadata.
     ///   - width: The max width in pixels of the image that the Wikipedia API should return.
+    ///   - inlineImage: Pass `true` to download the found thumbnail immediately. Defaults to
+    ///                  `false`, which means onlu the thumbnail URL is returned.
+    ///   - useRichText: Pass `true` to retrieve Wikipedia extracts as an ``NSAttributedString`.
+    ///                  Default is `false`.
     ///   - callback: A callback closure that will be called when the request completes or
-    ///               if an error occurs. This closure has a `TaxonomyResult<Data?>`
-    ///               parameter that contains a wrapper with the requested image data (or `nil` if
+    ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
+    ///               parameter that contains a wrapper with the requested metadata (or `nil` if
     ///               no results are found) when the request succeeds.
     /// - Warning: Please note that the callback may not be called on the main thread.
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public func retrieveFullRecord(for id: String,
-                                                             width: Int,
-                                                             inlineImage: Bool = false,
-                                                             useRichText: Bool = false,
-                                                             callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
+                                                      width: Int,
+                                                      inlineImage: Bool = false,
+                                                      useRichText: Bool = false,
+                                                      callback: @escaping (TaxonomyResult<WikipediaResult?>) -> ()) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.knownWikipediaFullRecord(id: id, richText: useRichText, thumbnailWidth: width, language: language)
         return retrieveFullRecord(with: request, inlineImage: inlineImage, useRichText: useRichText, callback: callback)
     }
     
     
+    /// Sends an asynchronous request to Wikipedia servers asking for the thumbnail and extract of a
+    /// page whose title matches a given taxon's scientific name.
+    ///
+    /// - Since: TaxonomyKit 1.5.
+    /// - Parameters:
+    ///   - taxon: The taxon whose scientific name will be evaluated to find a matching Wikipedia page.
+    ///   - width: The max width in pixels of the image that the Wikipedia API should return.
+    ///   - inlineImage: Pass `true` to download the found thumbnail immediately. Defaults to
+    ///                  `false`, which means onlu the thumbnail URL is returned.
+    ///   - useRichText: Pass `true` to retrieve Wikipedia extracts as an ``NSAttributedString`.
+    ///                  Default is `false`.
+    ///   - callback: A callback closure that will be called when the request completes or
+    ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
+    ///               parameter that contains a wrapper with the requested metadata (or `nil` if
+    ///               no matching Wikipedia pages are found) when the request succeeds.
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
+    @discardableResult public func findPossibleWikipediaMatch<T: TaxonRepresenting>(for taxon: T, width: Int,
+        inlineImage: Bool = false, useRichText: Bool = false, callback: @escaping (TaxonomyResult<WikipediaResult?>) -> Void) -> URLSessionDataTask {
+        
+        let request = TaxonomyRequest.wikipediaFullRecord(query: taxon.name, richText: useRichText, thumbnailWidth: width, language: language)
+        return retrieveFullRecord(with: request, inlineImage: inlineImage, useRichText: useRichText, strict: true, callback: callback)
+    }
+    
+    
     /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page
-    /// thumbnail for a concrete a taxon.
+    /// thumbnail and page extract for a concrete taxon.
     ///
     /// - Since: TaxonomyKit 1.5.
     /// - Parameters:
     ///   - taxon: The taxon for which to retrieve Wikipedia thumbnail.
     ///   - width: The max width in pixels of the image that the Wikipedia API should return.
+    ///   - inlineImage: Pass `true` to download the found thumbnail immediately. Defaults to
+    ///                  `false`, which means onlu the thumbnail URL is returned.
+    ///   - useRichText: Pass `true` to retrieve Wikipedia extracts as an ``NSAttributedString`.
+    ///                  Default is `false`.
     ///   - callback: A callback closure that will be called when the request completes or
-    ///               if an error occurs. This closure has a `TaxonomyResult<Data?>`
-    ///               parameter that contains a wrapper with the requested image data (or `nil` if
+    ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
+    ///               parameter that contains a wrapper with the requested metadata (or `nil` if
     ///               no results are found) when the request succeeds.
     /// - Warning: Please note that the callback may not be called on the main thread.
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
-    @discardableResult public func retrieveFullRecord(for taxon: Taxon,
+    @discardableResult public func retrieveFullRecord<T: TaxonRepresenting>(for taxon: T,
                                                       width: Int,
                                                       inlineImage: Bool = false,
                                                       useRichText: Bool = false,
@@ -306,9 +342,11 @@ public struct Wikipedia {
         return retrieveFullRecord(with: request, inlineImage: inlineImage, useRichText: useRichText, callback: callback)
     }
     
+    
     private func retrieveFullRecord(with request: TaxonomyRequest,
                                     inlineImage: Bool = false,
                                     useRichText: Bool = false,
+                                    strict: Bool = false,
                                     callback: @escaping (TaxonomyResult<WikipediaResult?>) -> Void) -> URLSessionDataTask {
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
             
@@ -325,6 +363,10 @@ public struct Wikipedia {
                 return
             }
             guard !page.isMissing, let id = page.id, let extract = page.extract else {
+                callback(.success(nil))
+                return
+            }
+            guard !(strict && wikipediaResponse.query.redirects.count > 0) else {
                 callback(.success(nil))
                 return
             }
@@ -352,8 +394,7 @@ public struct Wikipedia {
             
             callback(.success(wikiResult))
         }
-        task.resume()
-        return task
+        return task.resumed()
     }
     
 }

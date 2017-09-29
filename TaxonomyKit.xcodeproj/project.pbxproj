@@ -12,6 +12,7 @@
 		991641EF1DE0CF2100A584FE /* TaxonRepresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641EE1DE0CF2100A584FE /* TaxonRepresenting.swift */; };
 		991641F11DE0EAEE00A584FE /* LineageTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641F01DE0EAEE00A584FE /* LineageTreeTests.swift */; };
 		9956D1811F6E783800FC7385 /* Wikipedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9956D1801F6E783800FC7385 /* Wikipedia.swift */; };
+		9967CEF71F7D589000489549 /* WikipediaCandidateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9967CEF61F7D589000489549 /* WikipediaCandidateTests.swift */; };
 		998015341E9E7F7D00A37250 /* NameGuessingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998015331E9E7F7D00A37250 /* NameGuessingTests.swift */; };
 		99A07A311EE81E320075B1F0 /* LineageTree.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A07A301EE81E320075B1F0 /* LineageTree.swift */; };
 		99A07A331EE838860075B1F0 /* LineageAlignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99A07A321EE838860075B1F0 /* LineageAlignment.swift */; };
@@ -59,6 +60,7 @@
 		994A9B951DA7F9CC00A0796F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		994A9B961DA7FBED00A0796F /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		9956D1801F6E783800FC7385 /* Wikipedia.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wikipedia.swift; sourceTree = "<group>"; };
+		9967CEF61F7D589000489549 /* WikipediaCandidateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WikipediaCandidateTests.swift; sourceTree = "<group>"; };
 		998015331E9E7F7D00A37250 /* NameGuessingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NameGuessingTests.swift; sourceTree = "<group>"; };
 		99A07A301EE81E320075B1F0 /* LineageTree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineageTree.swift; sourceTree = "<group>"; };
 		99A07A321EE838860075B1F0 /* LineageAlignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineageAlignment.swift; sourceTree = "<group>"; };
@@ -171,6 +173,7 @@
 			children = (
 				99B03FB71D9BEEC3007F57AF /* MockURLSession.swift */,
 				99CAA5BA1E647405008E19F9 /* WikipediaAbstractTests.swift */,
+				9967CEF61F7D589000489549 /* WikipediaCandidateTests.swift */,
 				99D7BDF71EEAFC2D00EA05F3 /* WikipediaFullRecordTests.swift */,
 				998015331E9E7F7D00A37250 /* NameGuessingTests.swift */,
 				99D74B151E9A8D2700BA6804 /* ThumbnailTests.swift */,
@@ -347,6 +350,7 @@
 				99D74B161E9A8D2700BA6804 /* ThumbnailTests.swift in Sources */,
 				998015341E9E7F7D00A37250 /* NameGuessingTests.swift in Sources */,
 				99B03FBC1D9BEEC3007F57AF /* MockURLSession.swift in Sources */,
+				9967CEF71F7D589000489549 /* WikipediaCandidateTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

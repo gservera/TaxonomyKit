@@ -151,7 +151,7 @@ internal enum TaxonomyRequest {
         var queryItems = [
             URLQueryItem(name: "format", value: "json"),
             URLQueryItem(name: "action", value: "query"),
-            URLQueryItem(name: "redirects", value: "1"),
+            URLQueryItem(name: "redirects", value: "")
         ]
         if let pageID = pageID {
             queryItems.append(URLQueryItem(name: "pageids", value: pageID))

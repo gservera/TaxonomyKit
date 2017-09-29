@@ -45,7 +45,7 @@ public enum TaxonomyResult<T> {
 }
 
 
-/// The base class from which all the Taxonomy related tasks are initiated. This class
+/// The base class from which all the NCBI related tasks are initiated. This class
 /// is not meant to be instantiated but it serves as a start node to invoke the
 /// TaxonomyKit functions in your code.
 public struct Taxonomy {
@@ -71,7 +71,7 @@ public struct Taxonomy {
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public static func findIdentifiers(for query: String,
-        callback: @escaping (_ result: TaxonomyResult<[TaxonID]>) -> ()) -> URLSessionDataTask {
+        callback: @escaping (_ result: TaxonomyResult<[TaxonID]>) -> Void) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.search(query: query)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
@@ -115,7 +115,7 @@ public struct Taxonomy {
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public static func findSimilarSpelledCandidates(for failedQuery: String,
-                                                                       callback: @escaping (_ result: TaxonomyResult<String?>) -> ()) -> URLSessionDataTask {
+        callback: @escaping (_ result: TaxonomyResult<String?>) -> Void) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.spelling(failedQuery: failedQuery.lowercased())
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
@@ -145,17 +145,16 @@ public struct Taxonomy {
     ///
     /// - Since: TaxonomyKit 1.0.
     /// - Parameters:
-    ///   - taxon: The taxon for which to retrieve Wikipedia metadata.
-    ///   - callback: A callback closure that will be called when the request completes or
-    ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
-    ///               parameter that contains a wrapper with the requested metadata (or `nil` if
-    ///               no results are found) when the request succeeds.
+    ///   - id: The NCBI internal identifier.
+    ///   - callback: A callback closure that will be called when the request completes or when
+    ///               an error occurs. This closure has a `TaxonomyResult<Taxon>` parameter that
+    ///               contains the retrieved taxon when the request succeeds.
     /// - Warning: Please note that the callback may not be called on the main thread.
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult public static func downloadTaxon(withIdentifier id: TaxonID,
-        callback: @escaping (_ result: TaxonomyResult<Taxon>) -> ()) -> URLSessionDataTask {
+        callback: @escaping (_ result: TaxonomyResult<Taxon>) -> Void) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.download(identifier: id)
         let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
@@ -273,6 +272,9 @@ public struct Taxonomy {
     }    
 }
 
+
+// MARK: - Internal methods
+
 internal func filter<T>(_ response: URLResponse?, _ data: Data?, _ error: Error?,
                        _ callback: @escaping (TaxonomyResult<T>) -> Void) -> Data? {
     if let error = error as NSError? {
@@ -292,7 +294,9 @@ internal func filter<T>(_ response: URLResponse?, _ data: Data?, _ error: Error?
     return data
 }
 
+
 internal extension URLSessionDataTask {
+    /// A convenience method that simplifies resuming and returning a `URLSessionDataTask` object.
     func resumed() -> URLSessionDataTask {
         self.resume()
         return self

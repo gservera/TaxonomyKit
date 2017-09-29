@@ -159,11 +159,10 @@ public extension String {
             guard let styledData = styledString.data(using: .utf8) else {
                 throw TaxonomyError.unknownError
             }
-            let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
-                .documentType: NSAttributedString.DocumentType.html, 
+            return try NSAttributedString(data: styledData, options: [
+                .documentType: NSAttributedString.DocumentType.html,
                 .characterEncoding: NSNumber(value: String.Encoding.utf8.rawValue)
-            ]
-            return try NSAttributedString(data: styledData, options: options, documentAttributes: nil)
+            ], documentAttributes: nil)
         } catch let error {
             throw error
         }

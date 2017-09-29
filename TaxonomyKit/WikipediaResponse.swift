@@ -54,10 +54,34 @@ internal struct WikipediaResponse: Codable {
             
         }
         
-        let pages: [Int:WikipediaResponse.Query.Page]
+        struct Redirect: Codable {
+            let from: String
+            let to: String
+        }
         
+        let pages: [Int:WikipediaResponse.Query.Page]
+        let redirects: [WikipediaResponse.Query.Redirect]
+        
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            if let redirects = try container.decodeIfPresent(Array<WikipediaResponse.Query.Redirect>.self, forKey: .redirects) {
+                self.redirects = redirects
+            } else {
+                self.redirects = []
+            }
+            self.pages = try container.decode(Dictionary<Int,WikipediaResponse.Query.Page>.self, forKey: .pages)
+        }
     }
     let query: Query
-    let warnings: [String:[String:String]] = [:]
+    let warnings: [String:[String:String]]
     
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let warnings = try container.decodeIfPresent(Dictionary<String,Dictionary<String,String>>.self, forKey: .warnings) {
+            self.warnings = warnings
+        } else {
+            self.warnings = [:]
+        }
+        self.query = try container.decode(WikipediaResponse.Query.self, forKey: .query)
+    }
 }
