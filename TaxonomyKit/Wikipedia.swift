@@ -108,7 +108,7 @@ public struct Wikipedia {
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
-    @discardableResult public func retrieveAbstract(for taxon: Taxon, useRichText: Bool = false,
+    @discardableResult public func retrieveAbstract<T: TaxonRepresenting>(for taxon: T, useRichText: Bool = false,
         callback: @escaping (TaxonomyResult<WikipediaResult?>) -> Void) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.wikipediaAbstract(query: taxon.name, richText: useRichText, language: language)
@@ -183,7 +183,7 @@ public struct Wikipedia {
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
-    @discardableResult public func retrieveThumbnail(for taxon: Taxon, width: Int,
+    @discardableResult public func retrieveThumbnail<T: TaxonRepresenting>(for taxon: T, width: Int,
         callback: @escaping (TaxonomyResult<Data?>) -> Void) -> URLSessionDataTask {
         
         let request = TaxonomyRequest.wikipediaThumbnail(query: taxon.name, width: width, language: language)
