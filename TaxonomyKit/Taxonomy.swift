@@ -48,7 +48,7 @@ public enum TaxonomyResult<T> {
 /// The base class from which all the NCBI related tasks are initiated. This class
 /// is not meant to be instantiated but it serves as a start node to invoke the
 /// TaxonomyKit functions in your code.
-public struct Taxonomy {
+public class Taxonomy {
     
     internal init() { /* We prevent this struct from being instantiated. */ }
     

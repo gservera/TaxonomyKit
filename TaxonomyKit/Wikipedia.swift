@@ -26,10 +26,17 @@
 
 import Foundation
 
-public struct Wikipedia {
+/// The base class from which all the Wikipedia related tasks are initiated. This class
+/// is not meant to be instantiated but it serves as a start node to invoke the
+/// TaxonomyKit functions in your code.
+public class Wikipedia {
     
     private let language: WikipediaLanguage
     
+    /// Creates a new Wikipedia instance with a given locale. Defaults to system's.
+    ///
+    /// - Parameter language: The `WikipediaLanguage` object that will be passed to
+    ///                       every method called from this instance.
     public init(language: WikipediaLanguage = WikipediaLanguage()) {
         self.language = language
     }
