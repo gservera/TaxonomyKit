@@ -232,19 +232,8 @@ public final class Wikipedia {
                         callback(.success(nil))
                         return
                     }
-                    var downloadedImage: Data?
-                    let semaphore = DispatchSemaphore(value: 0)
-                    let dlSession = URLSession(configuration: .default)
-                    let dlTask = dlSession.dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
-                        if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
-                            downloadedImage = dlData
-                        }
-                        semaphore.signal()
-                    }
-                    dlTask.resume()
-                    _ = semaphore.wait(timeout: .distantFuture)
                     
-                    if let data = downloadedImage {
+                    if let data = Wikipedia.downloadImage(from: thumbnail.source) {
                         callback(.success(data))
                     } else {
                         callback(.failure(.unknownError)) // Could not download image
@@ -371,19 +360,10 @@ public final class Wikipedia {
             }
             var wikiResult = WikipediaResult(language: language, identifier: id, title: page.title)
             if let thumbnail = page.thumbnail {
-                var downloadedImage: Data? = nil
-                if inlineImage {
-                    let semaphore = DispatchSemaphore(value: 0)
-                    URLSession(configuration: .default).dataTask(with: thumbnail.source) { (dlData, dlResponse, dlError) in
-                        if (dlResponse as! HTTPURLResponse).statusCode == 200 && dlError == nil {
-                            downloadedImage = dlData
-                        }
-                        semaphore.signal()
-                    }.resume()
-                    _ = semaphore.wait(timeout: .distantFuture)
-                }
                 wikiResult.pageImageUrl = thumbnail.source
-                wikiResult.pageImageData = downloadedImage
+                if inlineImage {
+                    wikiResult.pageImageData = Wikipedia.downloadImage(from: thumbnail.source)
+                }
             }
             if useRichText {
                 wikiResult.attributedExtract = WikipediaAttributedExtract(htmlString: extract)
@@ -394,6 +374,18 @@ public final class Wikipedia {
             callback(.success(wikiResult))
         }
         return task.resumed()
+    }
+    
+    
+    private static func downloadImage(from url: URL) -> Data? {
+        var downloadedData: Data? = nil
+        let semaphore = DispatchSemaphore(value: 0)
+        URLSession(configuration: .default).dataTask(with: url) { (dlData, dlResponse, dlError) in
+            downloadedData = filter(dlResponse, dlData, dlError, { (_: TaxonomyResult<Void>) in })
+            semaphore.signal()
+        }.resume()
+        _ = semaphore.wait(timeout: .distantFuture)
+        return downloadedData
     }
     
 }
