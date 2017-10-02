@@ -47,7 +47,7 @@ final class WikipediaCandidateTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500, inlineImage: true) { result in
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageData)
@@ -64,7 +64,7 @@ final class WikipediaCandidateTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: nonMathingTaxon, width: 500, inlineImage: true) { result in
+        wikipedia.findPossibleWikipediaMatch(for: nonMathingTaxon, inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNil(wrapper)
                 condition.fulfill()
@@ -79,7 +79,7 @@ final class WikipediaCandidateTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500, inlineImage: true, useRichText: true) { result in
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, inlineImage: true, useRichText: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageData)
@@ -96,7 +96,7 @@ final class WikipediaCandidateTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "ca-ES")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500, inlineImage: false) { result in
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, inlineImage: false) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageUrl)
@@ -113,7 +113,7 @@ final class WikipediaCandidateTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: ".")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500, inlineImage: false) { result in
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, inlineImage: false) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertEqual(wrapper!.language.subdomain, "en")
@@ -129,7 +129,7 @@ final class WikipediaCandidateTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: nonExistingTaxon, width: 500) { result in
+        wikipedia.findPossibleWikipediaMatch(for: nonExistingTaxon) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNil(wrapper)
                 condition.fulfill()
@@ -150,7 +150,7 @@ final class WikipediaCandidateTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500) { result in
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
@@ -168,7 +168,7 @@ final class WikipediaCandidateTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500) { result in
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result,
                 case .unexpectedResponse(500) = error {
                 condition.fulfill()
@@ -183,7 +183,7 @@ final class WikipediaCandidateTests: XCTestCase {
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500) { result in
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result,
                 case .networkError(_) = error {
                 condition.fulfill()
@@ -197,7 +197,7 @@ final class WikipediaCandidateTests: XCTestCase {
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500) { result in
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -217,7 +217,7 @@ final class WikipediaCandidateTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500) { result in
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result,
                 case .parseError(_) = error {
                 condition.fulfill()
@@ -237,7 +237,7 @@ final class WikipediaCandidateTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500) { result in
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -258,7 +258,7 @@ final class WikipediaCandidateTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        let dataTask = wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, width: 500) { result in
+        let dataTask = wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
             XCTFail("Should have been canceled")
             } as! MockSession.MockTask
         dataTask.cancel()

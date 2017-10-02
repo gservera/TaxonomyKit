@@ -88,11 +88,8 @@ public final class LineageTree {
         /// Calculates and returns the number of registered lineage endpoints that descend from this node.
         /// If the node has no children (thus, it is an endpoint itself), 1 is returned.
         internal var span: Int {
-            var result: Int = 0
-            for child in children {
-                result += child.span
-            }
-            return (result == 0) ? 1 : result
+            let spanSum = children.reduce(0, {$0 + $1.span} )
+            return (spanSum == 0) ? 1 : spanSum
         }
         
         

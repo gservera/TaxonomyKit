@@ -46,7 +46,7 @@ final class ThumbnailTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveThumbnail(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveThumbnail(for: existingTaxon) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 condition.fulfill()
@@ -61,7 +61,7 @@ final class ThumbnailTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveThumbnail(for: "344877", width: 500) { result in
+        wikipedia.retrieveThumbnail(for: "344877") { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 condition.fulfill()
@@ -93,7 +93,7 @@ final class ThumbnailTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveThumbnail(for: nonExistingTaxon, width: 500) { result in
+        wikipedia.retrieveThumbnail(for: nonExistingTaxon) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNil(wrapper)
                 condition.fulfill()
@@ -114,7 +114,7 @@ final class ThumbnailTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveThumbnail(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveThumbnail(for: existingTaxon) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
@@ -132,7 +132,7 @@ final class ThumbnailTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveThumbnail(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveThumbnail(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unexpectedResponse(500) = error {
                 condition.fulfill()
@@ -147,7 +147,7 @@ final class ThumbnailTests: XCTestCase {
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveThumbnail(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveThumbnail(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .networkError(_) = error {
                 condition.fulfill()
@@ -161,7 +161,7 @@ final class ThumbnailTests: XCTestCase {
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveThumbnail(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveThumbnail(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -181,7 +181,7 @@ final class ThumbnailTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveThumbnail(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveThumbnail(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .parseError(_) = error {
                 condition.fulfill()
@@ -201,7 +201,7 @@ final class ThumbnailTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveThumbnail(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveThumbnail(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -222,7 +222,7 @@ final class ThumbnailTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        let dataTask = wikipedia.retrieveThumbnail(for: existingTaxon, width: 500) { result in
+        let dataTask = wikipedia.retrieveThumbnail(for: existingTaxon) { result in
             XCTFail("Should have been canceled")
             
             } as! MockSession.MockTask

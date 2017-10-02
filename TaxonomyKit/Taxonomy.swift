@@ -48,7 +48,7 @@ public enum TaxonomyResult<T> {
 /// The base class from which all the NCBI related tasks are initiated. This class
 /// is not meant to be instantiated but it serves as a start node to invoke the
 /// TaxonomyKit functions in your code.
-public class Taxonomy {
+public final class Taxonomy {
     
     internal init() { /* We prevent this struct from being instantiated. */ }
     
@@ -85,7 +85,7 @@ public class Taxonomy {
                     return
                 }
                 if let list = casted["esearchresult"]?["idlist"] as? [String] {
-                    let mapped: [TaxonID] = list.map { Int($0)! }
+                    let mapped: [TaxonID] = list.flatMap { Int($0) }
                     callback(.success(mapped))
                 } else {
                     callback(.failure(.unknownError)) // Unknown JSON structure

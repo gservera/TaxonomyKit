@@ -46,7 +46,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, width: 500, inlineImage: true) { result in
+        wikipedia.retrieveFullRecord(for: existingTaxon, inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageData)
@@ -63,7 +63,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, width: 500, inlineImage: true, useRichText: true) { result in
+        wikipedia.retrieveFullRecord(for: existingTaxon, inlineImage: true, useRichText: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageData)
@@ -80,7 +80,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: "4976288", width: 500, inlineImage: true) { result in
+        wikipedia.retrieveFullRecord(for: "4976288", inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNil(wrapper?.pageImageUrl)
@@ -97,7 +97,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: "4976288", width: 500, inlineImage: true, useRichText: true) { result in
+        wikipedia.retrieveFullRecord(for: "4976288", inlineImage: true, useRichText: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNil(wrapper?.pageImageUrl)
@@ -114,7 +114,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: "344877", width: 500, inlineImage: true) { result in
+        wikipedia.retrieveFullRecord(for: "344877", inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageData)
@@ -130,7 +130,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "ca-ES")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, width: 500, inlineImage: false) { result in
+        wikipedia.retrieveFullRecord(for: existingTaxon, inlineImage: false) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageUrl)
@@ -147,7 +147,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: ".")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, width: 500, inlineImage: false) { result in
+        wikipedia.retrieveFullRecord(for: existingTaxon, inlineImage: false) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertEqual(wrapper!.language.subdomain, "en")
@@ -163,7 +163,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: nonExistingTaxon, width: 500) { result in
+        wikipedia.retrieveFullRecord(for: nonExistingTaxon) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNil(wrapper)
                 condition.fulfill()
@@ -184,7 +184,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveFullRecord(for: existingTaxon) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
@@ -202,7 +202,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveFullRecord(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unexpectedResponse(500) = error {
                 condition.fulfill()
@@ -217,7 +217,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveFullRecord(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .networkError(_) = error {
                 condition.fulfill()
@@ -231,7 +231,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveFullRecord(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -251,7 +251,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveFullRecord(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .parseError(_) = error {
                 condition.fulfill()
@@ -271,7 +271,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, width: 500) { result in
+        wikipedia.retrieveFullRecord(for: existingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -292,7 +292,7 @@ final class WikipediaFullRecordTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        let dataTask = wikipedia.retrieveFullRecord(for: existingTaxon, width: 500) { result in
+        let dataTask = wikipedia.retrieveFullRecord(for: existingTaxon) { result in
             XCTFail("Should have been canceled")
             } as! MockSession.MockTask
         dataTask.cancel()
