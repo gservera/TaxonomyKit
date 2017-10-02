@@ -63,7 +63,8 @@ final class WikipediaFullRecordTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: existingTaxon, inlineImage: true, useRichText: true) { result in
+        wikipedia.usesRichText = true
+        wikipedia.retrieveFullRecord(for: existingTaxon, inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageData)
@@ -97,7 +98,8 @@ final class WikipediaFullRecordTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.retrieveFullRecord(for: "4976288", inlineImage: true, useRichText: true) { result in
+        wikipedia.usesRichText = true
+        wikipedia.retrieveFullRecord(for: "4976288", inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNil(wrapper?.pageImageUrl)

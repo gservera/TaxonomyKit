@@ -79,7 +79,8 @@ final class WikipediaCandidateTests: XCTestCase {
         Taxonomy._urlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, inlineImage: true, useRichText: true) { result in
+        wikipedia.usesRichText = true
+        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageData)
