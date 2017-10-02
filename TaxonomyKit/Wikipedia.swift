@@ -70,30 +70,26 @@ public class Wikipedia {
                 return
             }
             
-            if let page = wikipediaResponse.query.pages.values.first {
-                guard !page.isMissing, let _ = page.id, let extract = page.extract as NSString? else {
-                    callback(.success([]))
-                    return
-                }
-                var names: [String] = []
-                if page.title != query && page.title.components(separatedBy: " ").count > 1 {
-                    names.append(page.title)
-                }
-                let firstOpeningParenthesis = extract.range(of: "(").location
-                if firstOpeningParenthesis != NSNotFound {
-                    let stopChars: CharacterSet = CharacterSet(charactersIn: ".,()[]{}\n")
-                    let closingParenthesis = extract.rangeOfCharacter(from: stopChars, options: [], range: NSMakeRange(firstOpeningParenthesis+1, extract.length-firstOpeningParenthesis-1)).location
-                    if closingParenthesis != NSNotFound {
-                        let substring = extract.substring(with: NSMakeRange(firstOpeningParenthesis+1, closingParenthesis-firstOpeningParenthesis-1)).trimmingCharacters(in: CharacterSet.whitespaces)
-                        if substring.components(separatedBy: " ").count < 4 && !names.contains(substring) {
-                            names.append(substring)
-                        }
-                    }
-                }
-                callback(.success(names))
-            } else {
+            guard let page = wikipediaResponse.query.pages.values.first else {
                 callback(.failure(.unknownError)) // Unknown JSON structure
+                return
             }
+            
+            guard !page.isMissing, let _ = page.id, let extract = page.extract else {
+                callback(.success([]))
+                return
+            }
+            var names: [String] = []
+            if page.title != query && page.title.components(separatedBy: " ").count > 1 {
+                names.append(page.title)
+            }
+            
+            if let match = extract.range(of: "\\((.*?)([.,\\(\\)\\[\\]\\{\\}])", options: .regularExpression) {
+                let toBeTrimmed = CharacterSet(charactersIn: " .,()[]{}\n")
+                names.append(String(extract[match].trimmingCharacters(in: toBeTrimmed)))
+            }
+            
+            callback(.success(names))
         }
         return task.resumed()
     }
