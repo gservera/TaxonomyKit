@@ -77,7 +77,7 @@ public struct ExternalLink {
     ///   - url: The external resource URL.
     ///   - title: The external resource title or nil if unset.
     ///   - provider: The external resource provider.
-    internal init(url: URL, title: String?, provider: Provider) {
+    public init(url: URL, title: String?, provider: Provider) {
         self.url = url
         self.title = title
         self.provider = provider
