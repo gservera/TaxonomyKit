@@ -52,7 +52,7 @@ public struct ExternalLink {
         ///   - name: The full name of the provider.
         ///   - abbreviation: The abbreviation used by the NCBI to reference the provider.
         ///   - url: The provider's homepage URL.
-        internal init(id: String, name: String, abbreviation: String, url: URL) {
+        public init(id: String, name: String, abbreviation: String, url: URL) {
             self.identifier = id
             self.name = name
             self.abbreviation = abbreviation
