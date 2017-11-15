@@ -24,7 +24,6 @@
  *  THE SOFTWARE.
  */
 
-
 import Foundation
 
 internal enum TaxonomyRequest {
@@ -39,7 +38,7 @@ internal enum TaxonomyRequest {
     case knownWikipediaAbstract(id: String, richText: Bool, language: WikipediaLanguage)
     case knownWikipediaThumbnail(id: String, width: Int, language: WikipediaLanguage)
     case knownWikipediaFullRecord(id: String, richText: Bool, thumbnailWidth: Int, language: WikipediaLanguage)
-    
+
     var url: URL {
         var components: URLComponents
         switch self {
@@ -82,37 +81,37 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "db", value: "taxonomy"),
                 URLQueryItem(name: "term", value: query)
             ]
-            
+
         case .scientificNameGuess(let query, let lang):
             components = wikipediaComponents(for: .extract(useRichText: false), query: query, language: lang)
-            
+
         case .wikipediaAbstract(let query, let useRichText, let lang):
             components = wikipediaComponents(for: .extract(useRichText: useRichText), query: query, language: lang)
-            
+
         case .wikipediaThumbnail(let query, let width, let lang):
             components = wikipediaComponents(for: .thumbnail(width: width), query: query, language: lang)
-            
-        case .wikipediaFullRecord(let query, let useRichText, let width, let lang):
-            components = wikipediaComponents(for: .full(useRichText: useRichText, width: width), query: query, language: lang)
-            
-        case .knownWikipediaAbstract(let id, let useRichText, let lang):
-            components = wikipediaComponents(for: .extract(useRichText: useRichText), pageID: id, language: lang)
-            
+
+        case .wikipediaFullRecord(let query, let rtf, let width, let lang):
+            components = wikipediaComponents(for: .full(useRichText: rtf, width: width), query: query, language: lang)
+
+        case .knownWikipediaAbstract(let id, let rtf, let lang):
+            components = wikipediaComponents(for: .extract(useRichText: rtf), pageID: id, language: lang)
+
         case .knownWikipediaThumbnail(let id, let width, let lang):
             components = wikipediaComponents(for: .thumbnail(width: width), pageID: id, language: lang)
-            
-        case .knownWikipediaFullRecord(let id, let useRichText, let width, let lang):
-            components = wikipediaComponents(for: .full(useRichText: useRichText, width: width), pageID: id, language: lang)
+
+        case .knownWikipediaFullRecord(let id, let rtf, let width, let lang):
+            components = wikipediaComponents(for: .full(useRichText: rtf, width: width), pageID: id, language: lang)
         }
-        
+
         return components.url!
     }
-    
+
     private enum WikipediaRequestType {
         case extract(useRichText: Bool)
         case thumbnail(width: Int)
         case full(useRichText: Bool, width: Int)
-        
+
         var queryItems: [URLQueryItem] {
             var queryItems: [URLQueryItem] = []
             switch self {
@@ -142,8 +141,9 @@ internal enum TaxonomyRequest {
             return queryItems
         }
     }
-    
-    private func wikipediaComponents(for type: WikipediaRequestType, pageID: String? = nil, query: String? = nil, language: WikipediaLanguage) -> URLComponents {
+
+    private func wikipediaComponents(for type: WikipediaRequestType, pageID: String? = nil,
+                                     query: String? = nil, language: WikipediaLanguage) -> URLComponents {
         var components = URLComponents()
         components.scheme = "https"
         components.host = "\(language.subdomain).wikipedia.org"
@@ -162,5 +162,4 @@ internal enum TaxonomyRequest {
         components.queryItems = queryItems
         return components
     }
-    
 }

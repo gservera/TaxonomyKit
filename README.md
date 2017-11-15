@@ -79,8 +79,7 @@ $ brew install carthage
 To integrate TaxonomyKit into your Xcode project using Carthage, specify it in your `cartfile`:
 
 ```ogdl
-github "tadija/AEXML"
-github "gservera/TaxonomyKit" ~> 1.5
+github "gservera/TaxonomyKit" ~> 1.6
 ```
 
 Run `carthage update` on your project's directory to build the framework and drag the built `TaxonomyKit.framework` into your Xcode project.
@@ -89,7 +88,6 @@ Run `carthage update` on your project's directory to build the framework and dra
 
 * macOS 10.12 Sierra or greater.
 * **Xcode 9.0** or greater.
-* **AEXML >4.1**. A wonderful XML parser written in Swift. See more at [tadija/AEXML](https://github.com/tadija/AEXML).
 
 ## Unit Tests
 

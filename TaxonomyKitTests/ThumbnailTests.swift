@@ -28,22 +28,12 @@ import XCTest
 @testable import TaxonomyKit
 
 final class ThumbnailTests: XCTestCase {
-    
+
     let existingTaxon = Taxon(identifier: -1, name: "Quercus ilex", rank: nil, geneticCode: "", mitochondrialCode: "")
-    let nonExistingTaxon = Taxon(identifier: -1, name: "angpadgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")
-    
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-    
+    let nonExistingTaxon = Taxon(identifier: -1, name: "dgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")
+
     func testValidTaxon() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveThumbnail(for: existingTaxon) { result in
@@ -56,9 +46,9 @@ final class ThumbnailTests: XCTestCase {
         }
         waitForExpectations(timeout: 1000)
     }
-    
+
     func testValidPageID() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveThumbnail(for: "344877") { result in
@@ -71,9 +61,9 @@ final class ThumbnailTests: XCTestCase {
         }
         waitForExpectations(timeout: 1000)
     }
-    
+
     func testValidTaxonWithFakeCustomLocale() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let customLocale = WikipediaLanguage(locale: Locale(identifier: "."))
         let wikipedia = Wikipedia(language: customLocale)
@@ -88,9 +78,9 @@ final class ThumbnailTests: XCTestCase {
         }
         waitForExpectations(timeout: 1000)
     }
-    
+
     func testInvalidTaxon() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveThumbnail(for: nonExistingTaxon) { result in
@@ -103,9 +93,9 @@ final class ThumbnailTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testFakeMalformedJSON() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 200, httpVersion: "1.1",
@@ -121,9 +111,9 @@ final class ThumbnailTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testUnknownResponse() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 500, httpVersion: "1.1",
@@ -140,9 +130,9 @@ final class ThumbnailTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testNetworkError() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
@@ -155,9 +145,9 @@ final class ThumbnailTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
@@ -169,16 +159,17 @@ final class ThumbnailTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior2() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveThumbnail(for: existingTaxon) { result in
@@ -189,16 +180,17 @@ final class ThumbnailTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior3() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["query":["pages":[:]]])
-        MockSession.mockResponse = (data, response, nil)
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["query": ["pages": ([:] as [String: String])]])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveThumbnail(for: existingTaxon) { result in
@@ -209,30 +201,28 @@ final class ThumbnailTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testCancellation() {
-        Taxonomy._urlSession = MockSession()
-        (Taxonomy._urlSession as! MockSession).wait = 5
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        let mockSession = MockSession.shared
+        mockSession.wait = 5
+        Taxonomy.internalUrlSession = mockSession
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        let dataTask = wikipedia.retrieveThumbnail(for: existingTaxon) { result in
+        let dataTask = wikipedia.retrieveThumbnail(for: existingTaxon) { _ in
             XCTFail("Should have been canceled")
-            
-            } as! MockSession.MockTask
+        }
         dataTask.cancel()
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 7.0) {
             condition.fulfill()
         }
         waitForExpectations(timeout: 10)
     }
-
-    
-
 }

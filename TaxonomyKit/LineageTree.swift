@@ -26,37 +26,35 @@
 
 import Foundation
 
-
 /// The `LineageTree` reference type manages a collection of nodes representing
 /// the lineage items associated with a particular set of taxa, and can be used
 /// to perform calculations based on the relationship between these taxa.
 public final class LineageTree {
-    
+
     // MARK: LineageTree.Node Class
-    
+
     /// The `Node` type represents a particular taxon in the lineage tree and
     /// holds references to both its parent and its children (if any).
     public class Node: TaxonRepresenting, Hashable, CustomDebugStringConvertible {
-        
+
         /// The internal NCBI identifier for the node.
         public let identifier: TaxonID
-        
+
         /// The scientific name of the node.
         public let name: String
-        
+
         /// A common name for the node (or nil if not set).
-        public var commonName: String? = nil
-        
+        public var commonName: String?
+
         /// The node's rank or nil if none.
         public let rank: TaxonomicRank?
-        
+
         /// The node's parent (more generic) node or nil for 'origin'.
         public internal(set) weak var parent: Node?
-        
+
         /// A set containing the node's child (more specific) nodes.
         public internal(set) var children: Set<Node> = []
-        
-        
+
         /// Initializes a new lineage tree node using its defining parameters and inserts it
         /// to its parent node's children array.
         ///
@@ -72,8 +70,7 @@ public final class LineageTree {
             self.parent = parent
             parent?.children.insert(self)
         }
-        
-        
+
         /// Initializes a new lineage tree node using the defining parameters taken from a taxon
         /// representing object and inserts the new node to a specified parent node's children array.
         ///
@@ -83,16 +80,14 @@ public final class LineageTree {
         internal convenience init<T: TaxonRepresenting>(item: T, parent: Node?) {
             self.init(identifier: item.identifier, name: item.name, rank: item.rank, parent: parent)
         }
-        
-        
+
         /// Calculates and returns the number of registered lineage endpoints that descend from this node.
         /// If the node has no children (thus, it is an endpoint itself), 1 is returned.
         internal var span: Int {
-            let spanSum = children.reduce(0, {$0 + $1.span} )
+            let spanSum = children.reduce(0, {$0 + $1.span})
             return (spanSum == 0) ? 1 : spanSum
         }
-        
-        
+
         /// Generates a string that can be used in an alignment to sort a set of nodes in the same
         /// column while respecting the row order from the previous columns. This value is computed only once.
         internal lazy var sortString: String = {
@@ -103,10 +98,9 @@ public final class LineageTree {
                 lineage.append(current)
                 currentItem = current.parent
             }
-            return lineage.reversed().map{$0.name}.joined(separator: ";")
+            return lineage.reversed().map {$0.name}.joined(separator: ";")
         }()
-        
-        
+
         /// Determines if the node is present in a given node's lineage.
         ///
         /// - Parameter node: The node whose lineage will be tested.
@@ -126,41 +120,35 @@ public final class LineageTree {
             }
             return false
         }
-        
-        
+
         /// Two nodes are equal when they share the same taxon identifier.
-        public static func ==(lhs: LineageTree.Node, rhs: LineageTree.Node) -> Bool {
+        public static func == (lhs: LineageTree.Node, rhs: LineageTree.Node) -> Bool {
             return lhs.identifier == rhs.identifier
         }
-        
+
         public var hashValue: Int {
             return identifier
         }
-        
+
         public var debugDescription: String {
             return "<\(identifier):\(name)>"
         }
     }
-    
-    
+
     // MARK: Lineage tree basic properties and initializers
-    
-    
+
     /// The dictionary that holds all the registered nodes and their lineage.
-    private var nodeMap = [Int : Node]()
-    
-    
+    private var nodeMap = [Int: Node]()
+
     /// Returns the tree's root node. This node's identifier is `-1`, its name is set to
     /// "origin" and its rank property to `TaxonomicRank.origin`.
     private(set) public var rootNode = Node(identifier: -1, name: "origin", rank: .origin)
-    
-    
+
     /// Initializes a new empty tree containing the root node only.
     public init() {
         nodeMap[-1] = self.rootNode
     }
-    
-    
+
     /// Registers a given taxon with all its lineage items in the lineage tree and returns the
     /// node that was created to represent it.
     ///
@@ -185,8 +173,7 @@ public final class LineageTree {
         nodeMap[taxon.identifier] = node
         return node
     }
-    
-    
+
     /// Returns the node that represents a given taxon in the tree.
     ///
     /// - Parameter taxon: The taxon-representing object whose identifier will be looked for.
@@ -195,31 +182,27 @@ public final class LineageTree {
     public func node<T: TaxonRepresenting>(for taxon: T) -> Node? {
         return nodeMap[taxon.identifier]
     }
-    
-    
+
     // MARK: Tree inspection
-    
+
     /// Returns the number of nodes managed by this tree (including the ones representing
     /// the registered taxa's lineages).
     public var nodeCount: Int {
         return nodeMap.count
     }
-    
+
     /// Returns a set with every node registered in the tree (including their full lineage)
     public var allNodes: Set<Node> {
         return Set(nodeMap.values)
     }
-    
-    
+
     /// Returns a set containing the registered nodes that have no children.
     public var endPoints: Set<Node> {
-        return Set(nodeMap.values.filter{$0.children.count == 0})
+        return Set(nodeMap.values.filter { $0.children.isEmpty })
     }
-    
-    
+
     // MARK: Tree calculations
-    
-    
+
     /// Evaluates whether the tree contains a node representing a given taxon by comparing
     /// their identifiers.
     ///
@@ -228,8 +211,7 @@ public final class LineageTree {
     public func contains<T: TaxonRepresenting>(taxon: T) -> Bool {
         return nodeMap[taxon.identifier] != nil
     }
-    
-    
+
     /// Evaluates whether the tree contains a node representing every taxon in a given set
     /// by comparing their identifiers.
     ///
@@ -243,9 +225,7 @@ public final class LineageTree {
         }
         return true
     }
-    
-    
-    
+
     /// Returns the deepest ancestor common to all elements in a given taxa set.
     ///
     /// - Parameter taxa: The taxa to be evaluated.

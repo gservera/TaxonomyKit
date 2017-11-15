@@ -24,23 +24,18 @@
  *  THE SOFTWARE.
  */
 
-
 import XCTest
 @testable import TaxonomyKit
 
 final class TaxonomyTests: XCTestCase {
-    
+
     override func setUp() {
         super.setUp()
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
     }
-    
+
     func testInit() {
         XCTAssertNotNil(Taxonomy())
-    }    
+    }
 
 }
-
-
-
-

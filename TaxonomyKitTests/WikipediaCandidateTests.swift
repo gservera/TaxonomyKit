@@ -28,26 +28,19 @@ import XCTest
 @testable import TaxonomyKit
 
 final class WikipediaCandidateTests: XCTestCase {
-    
-    let matchingTaxon = Taxon(identifier: -1, name: "Staphylococcus aureus", rank: nil, geneticCode: "", mitochondrialCode: "")
-    let nonMathingTaxon = Taxon(identifier: -1, name: "Ursus maritimus", rank: nil, geneticCode: "", mitochondrialCode: "")
-    let nonExistingTaxon = Taxon(identifier: -1, name: "angpadgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")
-    
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-    
+
+    let matchingTaxon = Taxon(identifier: -1, name: "Staphylococcus aureus", rank: nil,
+                              geneticCode: "", mitochondrialCode: "")
+    let nonMathingTaxon = Taxon(identifier: -1, name: "Ursus maritimus", rank: nil,
+                                geneticCode: "", mitochondrialCode: "")
+    let nonExistingTaxon = Taxon(identifier: -1, name: "angpadgnpdajfgn", rank: nil,
+                                 geneticCode: "", mitochondrialCode: "")
+
     func testValidTaxon() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, inlineImage: true) { result in
+        wikipedia.findPossibleMatch(for: matchingTaxon, inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageData)
@@ -59,12 +52,12 @@ final class WikipediaCandidateTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testNonMatchingValidTaxon() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: nonMathingTaxon, inlineImage: true) { result in
+        wikipedia.findPossibleMatch(for: nonMathingTaxon, inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNil(wrapper)
                 condition.fulfill()
@@ -74,13 +67,13 @@ final class WikipediaCandidateTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testValidTaxonRichText() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.usesRichText = true
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, inlineImage: true) { result in
+        wikipedia.findPossibleMatch(for: matchingTaxon, inlineImage: true) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageData)
@@ -92,12 +85,12 @@ final class WikipediaCandidateTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testValidTaxonWithCustomLocaleAndNoInline() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "ca-ES")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, inlineImage: false) { result in
+        wikipedia.findPossibleMatch(for: matchingTaxon, inlineImage: false) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertNotNil(wrapper?.pageImageUrl)
@@ -109,12 +102,12 @@ final class WikipediaCandidateTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testValidTaxonWithFakeCustomLocale() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: ".")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon, inlineImage: false) { result in
+        wikipedia.findPossibleMatch(for: matchingTaxon, inlineImage: false) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNotNil(wrapper)
                 XCTAssertEqual(wrapper!.language.subdomain, "en")
@@ -125,12 +118,12 @@ final class WikipediaCandidateTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testInvalidTaxon() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: nonExistingTaxon) { result in
+        wikipedia.findPossibleMatch(for: nonExistingTaxon) { result in
             if case .success(let wrapper) = result {
                 XCTAssertNil(wrapper)
                 condition.fulfill()
@@ -140,9 +133,9 @@ final class WikipediaCandidateTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testFakeMalformedJSON() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 200, httpVersion: "1.1",
@@ -151,16 +144,16 @@ final class WikipediaCandidateTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
+        wikipedia.findPossibleMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testUnknownResponse() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 500, httpVersion: "1.1",
@@ -169,7 +162,7 @@ final class WikipediaCandidateTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
+        wikipedia.findPossibleMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result,
                 case .unexpectedResponse(500) = error {
                 condition.fulfill()
@@ -177,14 +170,14 @@ final class WikipediaCandidateTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testNetworkError() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
+        wikipedia.findPossibleMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result,
                 case .networkError(_) = error {
                 condition.fulfill()
@@ -192,13 +185,13 @@ final class WikipediaCandidateTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
+        wikipedia.findPossibleMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result,
                 case .unknownError = error {
                 condition.fulfill()
@@ -206,19 +199,20 @@ final class WikipediaCandidateTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior2() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
+        wikipedia.findPossibleMatch(for: matchingTaxon) { result in
             if case .failure(let error) = result,
                 case .parseError(_) = error {
                 condition.fulfill()
@@ -226,42 +220,44 @@ final class WikipediaCandidateTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior3() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["query":["pages":[:]]])
-        MockSession.mockResponse = (data, response, nil)
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["query": ["pages": ([:] as [String: String])]])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
-            if case .failure(let error) = result,
-                case .unknownError = error {
+        wikipedia.findPossibleMatch(for: matchingTaxon) { result in
+            if case .failure(let error) = result, case .unknownError = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testCancellation() {
-        Taxonomy._urlSession = MockSession()
-        (Taxonomy._urlSession as! MockSession).wait = 5
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        let mockSession = MockSession.shared
+        mockSession.wait = 5
+        Taxonomy.internalUrlSession = mockSession
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
-        let dataTask = wikipedia.findPossibleWikipediaMatch(for: matchingTaxon) { result in
+        let dataTask = wikipedia.findPossibleMatch(for: matchingTaxon) { _ in
             XCTFail("Should have been canceled")
-            } as! MockSession.MockTask
+        }
         dataTask.cancel()
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 7.0) {
             condition.fulfill()

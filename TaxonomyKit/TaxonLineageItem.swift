@@ -24,7 +24,6 @@
  *  THE SOFTWARE.
  */
 
-
 /// The `TaxonLineageItem` is a value that describes an element from a retrieved
 /// taxon's lineage.
 public struct TaxonLineageItem: TaxonRepresenting, Decodable {
@@ -34,11 +33,11 @@ public struct TaxonLineageItem: TaxonRepresenting, Decodable {
     public let name: String
 
     public let rank: TaxonomicRank?
-    
-    enum CodingKeys : String, CodingKey {
+
+    enum CodingKeys: String, CodingKey {
         case identifier = "TaxId", name = "ScientificName", rank = "Rank"
     }
-    
+
     /// Initializes a new instance using its three defining parameters.
     ///
     /// - Parameters:
@@ -50,8 +49,7 @@ public struct TaxonLineageItem: TaxonRepresenting, Decodable {
         self.name = name
         self.rank = rank
     }
-       
-    
+
     /// Returns `true` if the `rank` property is set. If `rank` is `nil`, this will return
     /// `false` instead.
     public var hasRank: Bool {

@@ -25,37 +25,33 @@
  */
 
 import Foundation
-import AEXML
 
 /// A numeric string representing an entrez record.
 public typealias TaxonID = Int
-
 
 /// The generic wrapper type returned by all TaxonomyKit newtorking methods. It 
 /// represents either a success or a failure of the mentioned network request.
 ///
 /// - Since: TaxonomyKit 1.2.
-public enum TaxonomyResult<T> {
-    
+public enum Result<T> {
+
     /// The request succeeded returning the associated value of type `T`.
     case success(T)
-    
+
     /// The request failed due to the associated error value.
     case failure(TaxonomyError)
 }
-
 
 /// The base class from which all the NCBI related tasks are initiated. This class
 /// is not meant to be instantiated but it serves as a start node to invoke the
 /// TaxonomyKit functions in your code.
 public final class Taxonomy {
-    
+
     internal init() { /* We prevent this struct from being instantiated. */ }
-    
+
     /// Used for testing purposes. Don't change this value
-    internal static var _urlSession: URLSession = URLSession.shared
-    
-    
+    internal static var internalUrlSession: URLSession = URLSession.shared
+
     /// Sends an asynchronous request to the NCBI servers asking for every taxon identifier that
     /// matches a specific query.
     ///
@@ -70,17 +66,18 @@ public final class Taxonomy {
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
-    @discardableResult public static func findIdentifiers(for query: String,
-        callback: @escaping (_ result: TaxonomyResult<[TaxonID]>) -> Void) -> URLSessionDataTask {
-        
+    @discardableResult
+    public static func findIdentifiers(for query: String,
+                                       callback: @escaping(_ result: Result<[TaxonID]>) -> Void) -> URLSessionDataTask {
+
         let request = TaxonomyRequest.search(query: query)
-        let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+
             guard let data = filter(response, data, error, callback) else { return }
-            
+
             do {
                 let JSON = try JSONSerialization.jsonObject(with: data)
-                guard let casted = JSON as? [String:[String:Any]] else {
+                guard let casted = JSON as? [String: [String: Any]] else {
                     callback(.failure(.unknownError)) // Unknown JSON structure
                     return
                 }
@@ -96,8 +93,7 @@ public final class Taxonomy {
         }
         return task.resumed()
     }
-    
-    
+
     /// Sends an asynchronous request to the NCBI servers asking for record names spelled
     /// similarly to an unmatched query.
     ///
@@ -114,21 +110,20 @@ public final class Taxonomy {
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
-    @discardableResult public static func findSimilarSpelledCandidates(for failedQuery: String,
-        callback: @escaping (_ result: TaxonomyResult<String?>) -> Void) -> URLSessionDataTask {
-        
+    @discardableResult
+    public static func findSimilarSpelledCandidates(for failedQuery: String,
+                                                    callback: @escaping (_ result: Result<String?>) -> Void) -> URLSessionDataTask {
+
         let request = TaxonomyRequest.spelling(failedQuery: failedQuery.lowercased())
-        let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+
             guard let data = filter(response, data, error, callback) else { return }
-            
+
             do {
-                let xmlDoc = try AEXMLDocument(xml: data)
-                if let suggestedQuery = xmlDoc["eSpellResult"]["CorrectedQuery"].value {
-                    callback(.success(suggestedQuery))
-                } else if xmlDoc["eSpellResult"].count == 1 {
-                    //Either the original query is valid or no candidates were found.
-                    callback(.success(nil))
+                let xmlDoc = try NCBIXMLDocument(xml: data)
+                if xmlDoc.root["CorrectedQuery"].error != .elementNotFound {
+                    //Value will be nil either the original query is valid or no candidates were found.
+                    callback(.success(xmlDoc.root["CorrectedQuery"].value))
                 } else {
                     callback(.failure(.unknownError))
                 }
@@ -138,14 +133,13 @@ public final class Taxonomy {
         }
         return task.resumed()
     }
-    
-    
+
     /// Sends an asynchronous request to the NCBI servers asking for the taxon and lineage
     /// info for a given NCBI internal identifier.
     ///
     /// - Since: TaxonomyKit 1.0.
     /// - Parameters:
-    ///   - id: The NCBI internal identifier.
+    ///   - identifier: The NCBI internal identifier.
     ///   - callback: A callback closure that will be called when the request completes or when
     ///               an error occurs. This closure has a `TaxonomyResult<Taxon>` parameter that
     ///               contains the retrieved taxon when the request succeeds.
@@ -153,52 +147,53 @@ public final class Taxonomy {
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
-    @discardableResult public static func downloadTaxon(withIdentifier id: TaxonID,
-        callback: @escaping (_ result: TaxonomyResult<Taxon>) -> Void) -> URLSessionDataTask {
-        
-        let request = TaxonomyRequest.download(identifier: id)
-        let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            
+    @discardableResult
+    public static func downloadTaxon(identifier: TaxonID,
+                                     callback: @escaping (_ result: Result<Taxon>) -> Void) -> URLSessionDataTask {
+
+        let request = TaxonomyRequest.download(identifier: identifier)
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+
             guard let data = filter(response, data, error, callback) else { return }
-            
+
             do {
-                let xmlDoc = try AEXMLDocument(xml: data)
-                let taxonRoot = xmlDoc["TaxaSet"]["Taxon"]
-                guard taxonRoot.count > 0 else {
+                let xmlDoc = try NCBIXMLDocument(xml: data)
+                let taxonRoot = xmlDoc.root["Taxon"]
+                guard taxonRoot.error == nil, !taxonRoot.all.isEmpty else {
                     callback(.failure(.unknownError))
                     return
                 }
-                
+
                 let nameOpt = taxonRoot["ScientificName"].value
-                let commonNames = taxonRoot["OtherNames"]["CommonName"].all ?? []
                 let genbankCommonName = taxonRoot["OtherNames"]["GenbankCommonName"].value
-                let synonyms = taxonRoot["OtherNames"]["Synonym"].all ?? []
                 let rankOpt = taxonRoot["Rank"].value
                 let mainCodeOpt = taxonRoot["GeneticCode"]["GCName"].value
                 let mitoCodeOpt = taxonRoot["MitoGeneticCode"]["MGCName"].value
-                
-                guard let name = nameOpt, let rank = rankOpt, let mainCode = mainCodeOpt, let mitoCode = mitoCodeOpt else {
+
+                guard let name = nameOpt, let rank = rankOpt,
+                    let mainCode = mainCodeOpt, let mitoCode = mitoCodeOpt else {
                     throw TaxonomyError.parseError(message: "Could not parse XML data")
                 }
                 let rankValue = TaxonomicRank(rawValue: rank)
-                var taxon = Taxon(identifier: id, name: name, rank: rankValue, geneticCode: mainCode, mitochondrialCode: mitoCode)
-                taxon.commonNames = commonNames.map {$0.value ?? ""}
+                var taxon = Taxon(identifier: identifier, name: name, rank: rankValue,
+                                  geneticCode: mainCode, mitochondrialCode: mitoCode)
+                taxon.commonNames = taxonRoot["OtherNames"]["CommonName"].all.flatMap { $0.value }
                 taxon.genbankCommonName = genbankCommonName
-                taxon.synonyms = synonyms.map {$0.value ?? ""}
-                
+                taxon.synonyms = taxonRoot["OtherNames"]["Synonym"].all.flatMap { $0.value }
+
                 var lineage: [TaxonLineageItem] = []
-                if let lineageItems = taxonRoot["LineageEx"]["Taxon"].all {
-                    for lineageItem in lineageItems {
+                if taxonRoot["LineageEx"]["Taxon"].error != .elementNotFound {
+                    for lineageItem in taxonRoot["LineageEx"]["Taxon"].all {
                         let itemIdOpt = lineageItem["TaxId"].value
                         let itemNameOpt = lineageItem["ScientificName"].value
                         let itemRankOpt = lineageItem["Rank"].value
-                        
-                        guard let itemIdStr = itemIdOpt, let itemId = Int(itemIdStr), let itemName = itemNameOpt, let itemRank = itemRankOpt else {
+
+                        guard let itemIdStr = itemIdOpt, let itemId = Int(itemIdStr),
+                            let itemName = itemNameOpt, let itemRank = itemRankOpt else {
                             throw TaxonomyError.parseError(message: "Could not parse XML data")
                         }
                         let itemRankValue = TaxonomicRank(rawValue: itemRank)
-                        let item = TaxonLineageItem(identifier: itemId, name: itemName, rank: itemRankValue)
-                        lineage.append(item)
+                        lineage.append(TaxonLineageItem(identifier: itemId, name: itemName, rank: itemRankValue))
                     }
                     taxon.lineageItems = lineage
                 }
@@ -210,7 +205,6 @@ public final class Taxonomy {
         return task.resumed()
     }
 
-    
     /// Sends an asynchronous request to the NCBI servers asking for external links related
     /// to a given taxon identifier.
     ///
@@ -225,58 +219,57 @@ public final class Taxonomy {
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
-    @discardableResult public static func findLinkedResources(for id: TaxonID,
-        callback: @escaping (TaxonomyResult<[ExternalLink]>) -> ()) -> URLSessionDataTask {
-        
-        let request = TaxonomyRequest.links(identifier: id)
-        let task = Taxonomy._urlSession.dataTask(with: request.url) { (data, response, error) in
-            
+    @discardableResult
+    public static func findLinkedResources(for identifier: TaxonID,
+                                           callback: @escaping (Result<[ExternalLink]>) -> Void) -> URLSessionDataTask {
+
+        let request = TaxonomyRequest.links(identifier: identifier)
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+
             guard let data = filter(response, data, error, callback) else { return }
-            
+
             do {
-                let xmlDoc = try AEXMLDocument(xml: data)
-                let linkRoot = xmlDoc["eLinkResult"]["LinkSet"]["IdUrlList"]["IdUrlSet"]["ObjUrl"]
-                guard linkRoot.count > 0, let linkNodes = linkRoot.all else {
+                let xmlDoc = try NCBIXMLDocument(xml: data)
+                let linkRoot = xmlDoc.root["LinkSet"]["IdUrlList"]["IdUrlSet"]["ObjUrl"]
+                guard linkRoot.error != .elementNotFound, !linkRoot.all.isEmpty else {
                     callback(.failure(.unknownError))
                     return
                 }
                 var links: [ExternalLink] = []
-                for linkNode in linkNodes {
+                for linkNode in linkRoot.all {
                     let title = linkNode["LinkName"].value
                     let urlStringOpt = linkNode["Url"].value
                     let srcIdOpt = linkNode["Provider"]["Id"].value
                     let srcNameOpt = linkNode["Provider"]["Name"].value
                     let srcAbbrOpt = linkNode["Provider"]["NameAbbr"].value
                     let srcURLStringOpt = linkNode["Provider"]["Url"].value
-                    
+
                     guard let urlString = urlStringOpt, let srcId = srcIdOpt, let srcName = srcNameOpt,
                         let srcAbbr = srcAbbrOpt, let srcURLString = srcURLStringOpt else {
                             throw TaxonomyError.parseError(message: "Could not parse XML data. Missing data.")
                     }
-                    
+
                     guard let url = URL(string: urlString), let srcURL = URL(string: srcURLString) else {
                         throw TaxonomyError.parseError(message: "Could not parse XML data.")
                     }
-                    
-                    let linkProvider = ExternalLink.Provider(id: srcId, name: srcName, abbreviation: srcAbbr, url: srcURL)
-                    let linkOut = ExternalLink(url: url, title: title, provider: linkProvider)
+
+                    let provider = ExternalLink.Provider(id: srcId, name: srcName, abbreviation: srcAbbr, url: srcURL)
+                    let linkOut = ExternalLink(url: url, title: title, provider: provider)
                     links.append(linkOut)
                 }
-                
                 callback(.success(links))
             } catch _ {
                 callback(.failure(.parseError(message: "Could not parse XML data")))
             }
         }
         return task.resumed()
-    }    
+    }
 }
-
 
 // MARK: - Internal methods
 
 internal func filter<T>(_ response: URLResponse?, _ data: Data?, _ error: Error?,
-                       _ callback: @escaping (TaxonomyResult<T>) -> Void) -> Data? {
+                        _ callback: @escaping (Result<T>) -> Void) -> Data? {
     if let error = error as NSError? {
         if error.code != NSURLErrorCancelled {
             callback(.failure(.networkError(underlyingError: error)))
@@ -293,7 +286,6 @@ internal func filter<T>(_ response: URLResponse?, _ data: Data?, _ error: Error?
     }
     return data
 }
-
 
 internal extension URLSessionDataTask {
     /// A convenience method that simplifies resuming and returning a `URLSessionDataTask` object.

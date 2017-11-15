@@ -24,20 +24,18 @@
  *  THE SOFTWARE.
  */
 
-
 import XCTest
 @testable import TaxonomyKit
 
 final class SpellingTests: XCTestCase {
-    
+
     override func setUp() {
         super.setUp()
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
     }
-    
-    
+
     func testValidQueryResult() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let query = "quercus ilex"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
@@ -46,11 +44,11 @@ final class SpellingTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testMatchingResult() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let query = "Quercus iles"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
@@ -59,11 +57,11 @@ final class SpellingTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testUnmatchedQuery() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let query = "ngosdkmpdmgpsmsndosdng"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
@@ -72,11 +70,11 @@ final class SpellingTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testUnmatchedAndUppercaseQuery() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let query = "Ngosdkmpdmgpsmsndosdng"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
@@ -85,11 +83,11 @@ final class SpellingTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testMalformedXML() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "http://github.com")!,
                             statusCode: 200, httpVersion: "1.1",
@@ -103,11 +101,11 @@ final class SpellingTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testUnknownResponse() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "http://github.com")!,
                             statusCode: 500, httpVersion: "1.1",
@@ -121,11 +119,11 @@ final class SpellingTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testNetworkError() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
@@ -135,11 +133,11 @@ final class SpellingTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
@@ -148,17 +146,18 @@ final class SpellingTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior2() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><note><to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't forget me this weekend!</body></note>"
+            HTTPURLResponse(url: URL(string: "http://github.com")!, statusCode: 200, httpVersion: "1.1",
+                            headerFields: [:])
+        let wrongXML = """
+                       <?xml version="1.0" encoding="UTF-8"?><note><to>Tove</to><from>Jani</from>
+                        <heading>Reminder</heading><body>Don't forget me this weekend!</body></note>
+                       """
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
@@ -168,24 +167,25 @@ final class SpellingTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testCancellation() {
-        Taxonomy._urlSession = MockSession()
-        (Taxonomy._urlSession as! MockSession).wait = 5
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        let mockSession = MockSession.shared
+        mockSession.wait = 5
+        Taxonomy.internalUrlSession = mockSession
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
-        let dataTask = Taxonomy.findSimilarSpelledCandidates(for: "anything") { result in
+        let dataTask = Taxonomy.findSimilarSpelledCandidates(for: "anything") { _ in
             XCTFail("Should have been canceled")
-            
-            } as! MockSession.MockTask
+        }
         dataTask.cancel()
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 7.0) {
             condition.fulfill()

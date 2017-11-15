@@ -28,13 +28,13 @@ import XCTest
 @testable import TaxonomyKit
 
 final class TaxonLineageItemTests: XCTestCase {
-    
+
     let testItem1 = TaxonLineageItem(identifier: 1234, name: "Quercus", rank: .genus)
     let testItem2 = TaxonLineageItem(identifier: 5678, name: "No rank", rank: nil)
     let testItem3 = TaxonLineageItem(identifier: 1234, name: "foofoof", rank: nil)
-    
+
     func testInitialization() {
-        
+
         XCTAssertEqual(testItem1.identifier, 1234, "TaxonLineageItem init failed")
         XCTAssertEqual(testItem1.name, "Quercus", "TaxonLineageItem init failed")
         XCTAssertNotNil(testItem1.rank, "TaxonLineageItem init failed")
@@ -43,19 +43,19 @@ final class TaxonLineageItemTests: XCTestCase {
         XCTAssertTrue(testItem1.hasRank, "TaxonLineageItem hasRank failed")
         XCTAssertFalse(testItem2.hasRank, "TaxonLineageItem hasRank failed")
     }
-    
+
     func testEqualty() {
         XCTAssertEqual(testItem1, testItem3, "TaxonLineageItem equalty failed")
         XCTAssertNotEqual(testItem1, testItem2, "TaxonLineageItem equalty failed")
         XCTAssertEqual(testItem1.hashValue, testItem3.hashValue)
         XCTAssertNotEqual(testItem1.hashValue, testItem2.hashValue)
     }
-    
+
     func testDescription() {
         XCTAssertEqual(testItem1.description, "genus: Quercus::TaxonLineageItem")
         XCTAssertEqual(testItem2.description, "no rank: No rank::TaxonLineageItem")
     }
-    
+
     func testDecoding() {
         let JSONStr = "{\"TaxId\":1234,\"ScientificName\":\"Species Jsonus\",\"Rank\":\"species\"}"
         let JSONData = JSONStr.data(using: .utf8)!
@@ -69,5 +69,5 @@ final class TaxonLineageItemTests: XCTestCase {
             XCTFail("Could not decode lineage item. Error \(error)")
         }
     }
-    
+
 }

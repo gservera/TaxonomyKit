@@ -3,7 +3,7 @@
  *  TaxonomyKitTests
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016-2017 Guillem Servera (http://github.com/gservera)
+ *  Copyright:  © 2016-2017 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +24,18 @@
  *  THE SOFTWARE.
  */
 
-
 import XCTest
 @testable import TaxonomyKit
 
 final class FindIdentifiersTests: XCTestCase {
-    
+
     override func setUp() {
         super.setUp()
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
     }
-    
+
     func testQueryWithSingleResult() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Should have succeeded")
         Taxonomy.findIdentifiers(for: "Quercus ilex") { result in
             if case .success(let identifiers) = result {
@@ -45,11 +44,11 @@ final class FindIdentifiersTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testUnmatchedQuery() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Unmatched query")
         Taxonomy.findIdentifiers(for: "invalid-invalid") { result in
             if case .success(let identifiers) = result {
@@ -57,15 +56,13 @@ final class FindIdentifiersTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testFakeMalformedJSON() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200, httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
@@ -74,15 +71,13 @@ final class FindIdentifiersTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testUnknownResponse() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 500, httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 500, httpVersion: "HTTP/1.1", headerFields: [:])!
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
@@ -92,11 +87,11 @@ final class FindIdentifiersTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testNetworkError() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
@@ -106,11 +101,11 @@ final class FindIdentifiersTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
         Taxonomy.findIdentifiers(for: "anything") { result in
@@ -119,18 +114,19 @@ final class FindIdentifiersTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior2() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
         Taxonomy.findIdentifiers(for: "anything") { result in
             if case .failure(let error) = result,
@@ -138,24 +134,25 @@ final class FindIdentifiersTests: XCTestCase {
                 condition.fulfill()
             }
         }
-        waitForExpectations(timeout: 1000)
+        waitForExpectations(timeout: 10)
     }
-    
+
     func testCancellation() {
-        Taxonomy._urlSession = MockSession()
-        (Taxonomy._urlSession as! MockSession).wait = 5
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        let mockSession = MockSession.shared
+        mockSession.wait = 5
+        Taxonomy.internalUrlSession = mockSession
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
-        let dataTask = Taxonomy.findIdentifiers(for: "anything") { result in
+        let dataTask = Taxonomy.findIdentifiers(for: "anything") { _ in
             XCTFail("Should have been canceled")
-            
-        } as! MockSession.MockTask
+        }
         dataTask.cancel()
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 7.0) {
             condition.fulfill()

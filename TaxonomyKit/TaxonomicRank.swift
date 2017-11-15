@@ -106,32 +106,32 @@ public enum TaxonomicRank: String, Comparable, CustomStringConvertible, Codable 
     case form
     /// The subform taxonomic rank.
     case subform
-    
+
     static var hierarchy: [TaxonomicRank] {
         return [
             .origin,
-            .superkingdom,.kingdom,.subkingdom,.infrakingdom,
-            .superphylum,.phylum,.subphylum,.infraphylum,.microphylum,
-            .superclass,.`class`,.subclass,.infraclass,.parvclass,
-            .magnorder,.superorder,.order,.suborder,.infraorder,.parvorder,
-            .superfamily,.family,.subfamily,
-            .supertribe,.tribe,.subtribe,
-            .genus,.subgenus,
-            .section,.subsection,
-            .series,.subseries,
-            .species,.subspecies,
-            .varietas,.subvarietas,
-            .form,.subform
+            .superkingdom, .kingdom, .subkingdom, .infrakingdom,
+            .superphylum, .phylum, .subphylum, .infraphylum, .microphylum,
+            .superclass, .`class`, .subclass, .infraclass, .parvclass,
+            .magnorder, .superorder, .order, .suborder, .infraorder, .parvorder,
+            .superfamily, .family, .subfamily,
+            .supertribe, .tribe, .subtribe,
+            .genus, .subgenus,
+            .section, .subsection,
+            .series, .subseries,
+            .species, .subspecies,
+            .varietas, .subvarietas,
+            .form, .subform
         ]
     }
-    
-    public static func <(lhs: TaxonomicRank, rhs: TaxonomicRank) -> Bool {
+
+    public static func < (lhs: TaxonomicRank, rhs: TaxonomicRank) -> Bool {
         let hierarchy = TaxonomicRank.hierarchy
         return hierarchy.index(of: lhs)! < hierarchy.index(of: rhs)!
     }
-    
+
     public var description: String {
         return rawValue
     }
-    
+
 }

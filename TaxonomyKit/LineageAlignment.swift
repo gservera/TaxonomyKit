@@ -26,7 +26,6 @@
 
 import Foundation
 
-
 /// The `LineageAlignment` struct parses the contents of a lineage tree and aligns
 /// its nodes in a succession of "columns" based on each node's rank in a way in
 /// which all the nodes with the same rank end up in the same column, while the
@@ -35,30 +34,26 @@ import Foundation
 /// Once generated, the alignment can be used with various purposes, such as
 /// serving as a model to draw the tree in a view.
 public struct LineageAlignment {
-    
-    
+
     // MARK: LineageAlignment.Cell Class
-    
+
     /// The `LineageAlignment.Cell` struct wraps a lineage tree node and the properties
     /// related to its position and dimensions in the alignment.
     public struct Cell: CustomDebugStringConvertible {
-        
+
         /// The lineage tree node represented by the cell.
         public private(set) var node: LineageTree.Node
-        
-        
+
         /// Initializes a new lineage alignment cell for a given node.
         ///
         /// - Parameter node: The node represented by the cell.
         internal init(node: LineageTree.Node) {
             self.node = node
         }
-        
-        
+
         /// Once the alignment has been generated, this property is set to the number of cells
         /// or empty spaces that come before this cell when laying out the column (aka the cell's row).
         public internal(set) var offset: Int = -1
-        
 
         /// Calculates and returns the number of registered lineage endpoints that descend from
         /// this cell's node. If the node has no children (thus, it is an endpoint itself), this
@@ -66,49 +61,41 @@ public struct LineageAlignment {
         public var span: Int {
             return node.span
         }
-        
-        
+
         public var debugDescription: String {
             return "<\(node.identifier):\(node.name)@\(offset)(\(span))>"
         }
     }
-    
-    
+
     // MARK: LineageAlignment.Column Class
-    
+
     /// The `LineageAlignment.Column` struct holds an array of cells that share the same position
     /// in the alignment's rank hierarchy.
     public struct Column: CustomDebugStringConvertible {
-        
-        
+
         /// The column's rank (may be nil). All cells in the column share the same rank.
         public private(set) var rank: TaxonomicRank?
-        
-        
+
         /// The array of cells managed by this column.
         public fileprivate(set) var cells: [Cell] = []
-        
-        
+
         /// Initializes a new empty column with the given rank.
         ///
         /// - Parameter rank: The rank to be set to the column or nil if the column has no rank.
         internal init(rank: TaxonomicRank?) {
             self.rank = rank
         }
-        
 
         /// Calculates and returns the sum of the managed cells' span values.
         public var span: Int {
             return cells.reduce(0) { $0 + $1.node.span }
         }
-        
-        
+
         /// Returns the number of cells in this column.
         public var count: Int {
             return cells.count
         }
-        
-        
+
         /// Determines if this column contains any node from a given node's lineage,
         /// including that node itself.
         ///
@@ -118,30 +105,25 @@ public struct LineageAlignment {
         public func participatesInLineageOf(_ endPoint: LineageTree.Node) -> Bool {
             var testNode: LineageTree.Node? = endPoint
             while testNode != nil {
-                for cell in cells {
-                    if testNode === cell.node {
-                        return true
-                    }
+                for cell in cells where testNode === cell.node {
+                    return true
                 }
                 testNode = testNode?.parent
             }
             return false
         }
-        
-        
+
         public var debugDescription: String {
             let rankDescription = rank?.rawValue ?? "no rank"
-            return "[\(cells.count):\(rankDescription)]: \(cells.map{$0.node.name}.joined(separator:", "))"
+            return "[\(cells.count):\(rankDescription)]: \(cells.map {$0.node.name}.joined(separator: ", "))"
         }
     }
-    
-    
+
     // MARK: Alignment properties
-    
+
     /// The array of columns in the alignment, sorted by rank.
     public private(set) var columns: [Column]
-    
-    
+
     /// Returns the index for a column matching a given rank in the column array.
     /// The index of a column with no rank cannot be determined using `nil`, since
     /// there might be multiple columns with no rank.
@@ -150,22 +132,18 @@ public struct LineageAlignment {
     /// - Returns: The index of the column with the passed rank in the column array.
     public func indexOfColumn(for rank: TaxonomicRank) -> Int {
         var index = -1
-        for (i, column) in columns.enumerated() {
-            if column.rank == rank {
-                index = i
-                break
-            }
+        for (i, column) in columns.enumerated() where column.rank == rank {
+            index = i
+            break
         }
         return index // We should never get here.
     }
-    
-    
+
     /// Returns only the columns that contain at least one row.
     public var cleanedUp: [Column] {
-        return columns.filter{ $0.cells.count > 0 }
+        return columns.filter { !$0.cells.isEmpty }
     }
-    
-    
+
     /// Initializes a new lineage alignment based on the nodes of a given lineage tree.
     ///
     /// - Parameter lineageTree: The lineage tree from which to take the nodes and their
@@ -176,14 +154,13 @@ public struct LineageAlignment {
     public init(lineageTree: LineageTree, automaticallyCleanUp: Bool = true) {
         columns = TaxonomicRank.hierarchy.map { Column(rank: $0) }
         parseNode(lineageTree.rootNode, minimumColumnIndex: 0)
-        let endPoints = lineageTree.endPoints.sorted{ $0.sortString < $1.sortString }
+        let endPoints = lineageTree.endPoints.sorted { $0.sortString < $1.sortString }
         updateRowOffsets(with: endPoints)
         if automaticallyCleanUp {
-            columns = columns.filter{ $0.cells.count > 0 }
+            columns = columns.filter { !$0.cells.isEmpty }
         }
     }
-    
-    
+
     /// Recursively parses a given node and its children while modifying the column array
     /// in order to place each node in a suitable column accodring to their rank or position
     /// in the rank hierarchy.
@@ -226,33 +203,30 @@ public struct LineageAlignment {
                 previousRankedNode = previousRankedNode?.parent
             }
             let previousRankedNodePos = depth - offsetToPreviousRanked
-            
+
             // Now we evaluate whether there are enough unranked columns between the
             // previous ranked column and the minimum column index in order to prevent
             // the node from being inserted in the next ranked column.
             var needsMoreUnrankedColumns = false
-            for i in previousRankedNodePos+1...depth {
-                if columns[i].rank != nil {
-                    // There's no enough room, we'll insert a new empty unranked column
-                    // and call this method again to re-test.
-                    let emptyUnrankedColumn = Column(rank: nil)
-                    columns.insert(emptyUnrankedColumn, at: depth)
-                    needsMoreUnrankedColumns = true
-                    break
-                }
+            for i in previousRankedNodePos+1...depth where columns[i].rank != nil {
+                // There's no enough room, we'll insert a new empty unranked column
+                // and call this method again to re-test.
+                let emptyUnrankedColumn = Column(rank: nil)
+                columns.insert(emptyUnrankedColumn, at: depth)
+                needsMoreUnrankedColumns = true
+                break
             }
-            
+
             guard !needsMoreUnrankedColumns else {
                 parseNode(node, minimumColumnIndex: depth)
                 return
             }
-            
+
             // No extra columns are needed. We'll continue parsing
             finishInsertingNode(node, at: depth)
         }
     }
-    
-    
+
     /// Inserts a node in the column with a given index's cell array and then calls
     /// `parseNode(_:minimumColumnIndex:)` for each children, with the next index as the minimum
     /// column index.
@@ -267,8 +241,7 @@ public struct LineageAlignment {
             parseNode(child, minimumColumnIndex: columnIndex + 1)
         }
     }
-    
-    
+
     /// Sets the offset for each managed cell according to their relative
     /// position among the lineage tree's endpoints.
     ///
@@ -295,5 +268,4 @@ public struct LineageAlignment {
             }
         }
     }
-    
 }

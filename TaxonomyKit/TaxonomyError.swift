@@ -24,7 +24,6 @@
  *  THE SOFTWARE.
  */
 
-
 /// An error type that describes errors originated from the TaxonomyKit methods.
 ///
 /// - networkError:            A network error. More details can be found inspecting the
@@ -35,25 +34,25 @@
 /// - unknownError:            Any other error, including unexpected structure or missing values
 ///                            in the XML/JSON data that was downloaded.
 public enum TaxonomyError: Error {
-    
+
     /// A network error. More details can be found inspecting the associated error object.
     case networkError(underlyingError: Error)
-    
+
     /// An error due to a malformed XML/JSON object.
     case parseError(message: String)
-    
+
     /// An unexpected server response (other than 200) from the NCBI servers.
     case unexpectedResponse(code: Int)
-    
+
     /// An unexpected taxon passed to a LineageTree method.
     case unregisteredTaxa
-    
+
     /// Too few taxa passed to a LineageTree method.
     case insufficientTaxa
-    
+
     /// Thrown when passed nodes are registered in different LineageTree objects.
     case incompatibleNodes
-    
+
     /// Any other error, including unexpected structure or missing values in 
     /// the XML/JSON data that was downloaded.
     case unknownError

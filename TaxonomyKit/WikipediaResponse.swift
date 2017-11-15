@@ -27,57 +27,61 @@
 import Foundation
 
 internal struct WikipediaResponse: Codable {
-    
+
     struct Query: Codable {
-        
+
         struct Page: Codable {
-            
+
             struct Thumbnail: Codable {
                 let source: URL
                 let width: Int
                 let height: Int
             }
-            
+
             let thumbnail: Thumbnail?
-            
+
             let extract: String?
-            let id: Int?
+            let identifier: Int?
             let title: String
-            
-            enum CodingKeys : String, CodingKey {
-                case id = "pageid", title, extract, thumbnail
+
+            enum CodingKeys: String, CodingKey {
+                case identifier = "pageid", title, extract, thumbnail
             }
-            
+
             var isMissing: Bool {
-                return id == -1 || id == nil
+                return identifier == -1 || identifier == nil
             }
-            
+
         }
-        
+
         struct Redirect: Codable {
             let from: String
-            let to: String
+            let target: String
+
+            enum CodingKeys: String, CodingKey {
+                case from, target = "to"
+            }
         }
-        
-        let pages: [Int:WikipediaResponse.Query.Page]
+
+        let pages: [Int: WikipediaResponse.Query.Page]
         let redirects: [WikipediaResponse.Query.Redirect]
-        
+
         init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            if let redirects = try container.decodeIfPresent(Array<WikipediaResponse.Query.Redirect>.self, forKey: .redirects) {
+            let box = try decoder.container(keyedBy: CodingKeys.self)
+            if let redirects = try box.decodeIfPresent([WikipediaResponse.Query.Redirect].self, forKey: .redirects) {
                 self.redirects = redirects
             } else {
                 self.redirects = []
             }
-            self.pages = try container.decode(Dictionary<Int,WikipediaResponse.Query.Page>.self, forKey: .pages)
+            self.pages = try box.decode(Dictionary<Int, WikipediaResponse.Query.Page>.self, forKey: .pages)
         }
     }
     let query: Query
-    let warnings: [String:[String:String]]
-    
+    let warnings: [String: [String: String]]
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        if let warnings = try container.decodeIfPresent(Dictionary<String,Dictionary<String,String>>.self, forKey: .warnings) {
+        if let warnings = try container.decodeIfPresent([String: [String: String]].self, forKey: .warnings) {
             self.warnings = warnings
         } else {
             self.warnings = [:]

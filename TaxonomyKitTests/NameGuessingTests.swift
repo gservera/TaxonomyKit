@@ -1,29 +1,36 @@
-//
-//  NameGuessingTests.swift
-//  TaxonomyKit
-//
-//  Created by Guillem Servera Negre on 12/4/17.
-//  Copyright © 2017 Guillem Servera. All rights reserved.
-//
+/*
+ *  NameGuessingTests.swift
+ *  TaxonomyKitTests
+ *
+ *  Created:    Guillem Servera on 12/04/2017.
+ *  Copyright:  © 2017 Guillem Servera (https://github.com/gservera)
+ *
+ *  Permission is hereby granted, free of charge, to any person obtaining a copy
+ *  of this software and associated documentation files (the "Software"), to deal
+ *  in the Software without restriction, including without limitation the rights
+ *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *  copies of the Software, and to permit persons to whom the Software is
+ *  furnished to do so, subject to the following conditions:
+ *
+ *  The above copyright notice and this permission notice shall be included in
+ *  all copies or substantial portions of the Software.
+ *
+ *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *  THE SOFTWARE.
+ */
 
 import XCTest
 @testable import TaxonomyKit
 
 final class NameGuessingTests: XCTestCase {
 
-    
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-    
     func testValidTaxon() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let locale = Locale(identifier: "ca-ES")
         let lang = WikipediaLanguage(locale: locale)
@@ -39,9 +46,9 @@ final class NameGuessingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testValidTaxon2() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let locale = Locale(identifier: "en-US")
         let lang = WikipediaLanguage(locale: locale)
@@ -57,9 +64,9 @@ final class NameGuessingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testValidTaxonWithFakeCustomLocale() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
         let customLocale = WikipediaLanguage(locale: Locale(identifier: "."))
         let wikipedia = Wikipedia(language: customLocale)
@@ -74,14 +81,14 @@ final class NameGuessingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testUnmatchedQuery() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        let wikipedia = Wikipedia()
-        wikipedia.findPossibleScientificNames(matching: "ijgadngadngadfgnadfgnadlfgnaildfg") { result in
+
+        Wikipedia().findPossibleScientificNames(matching: "ijgadngadngadfgnadfgnadlfgnaildfg") { result in
             if case .success(let wrapper) = result {
-                XCTAssertTrue(wrapper.count == 0)
+                XCTAssertTrue(wrapper.isEmpty)
                 condition.fulfill()
             } else {
                 XCTFail("Wikipedia test should not have failed")
@@ -89,9 +96,9 @@ final class NameGuessingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testFakeMalformedJSON() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 200, httpVersion: "1.1",
@@ -107,9 +114,9 @@ final class NameGuessingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testUnknownResponse() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "https://gservera.com")!,
                             statusCode: 500, httpVersion: "1.1",
@@ -126,9 +133,9 @@ final class NameGuessingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testNetworkError() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
@@ -141,9 +148,9 @@ final class NameGuessingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia()
@@ -155,16 +162,17 @@ final class NameGuessingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior2() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia()
         wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
@@ -175,16 +183,17 @@ final class NameGuessingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior3() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["query":["pages":[:]]])
-        MockSession.mockResponse = (data, response, nil)
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["query": ["pages": ([:] as [String: String])]])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia()
         wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
@@ -195,23 +204,24 @@ final class NameGuessingTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testCancellation() {
-        Taxonomy._urlSession = MockSession()
-        (Taxonomy._urlSession as! MockSession).wait = 5
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        let mockSession = MockSession.shared
+        mockSession.wait = 5
+        Taxonomy.internalUrlSession = mockSession
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia()
-        let dataTask = wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { result in
+        let dataTask = wikipedia.findPossibleScientificNames(matching: "Eurasian otter") { _ in
             XCTFail("Should have been canceled")
-            
-            } as! MockSession.MockTask
+        }
         dataTask.cancel()
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 7.0) {
             condition.fulfill()

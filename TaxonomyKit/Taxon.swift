@@ -24,43 +24,41 @@
  *  THE SOFTWARE.
  */
 
-
 /// The `Taxon` struct represents a record downloaded from the NCBI's
 /// Taxonomy database.
 public struct Taxon: TaxonRepresenting {
-    
+
     /// The internal NCBI identifier for the record.
     public let identifier: TaxonID
-    
+
     /// The scientific name of the record.
     public let name: String
-    
+
     /// The rank of the record or `nil` if the record has no rank.
     public let rank: TaxonomicRank?
-    
+
     /// The common names defined for the record, sorted as parsed.
     /// - Since: TaxonomyKit 1.2.
     public var commonNames: [String] = []
-    
+
     /// The Genbank common name of the record or `nil` if not set.
     /// - Since: TaxonomyKit 1.2.
     public var genbankCommonName: String?
-    
+
     /// The synonyms defined for this taxon, sorted as parsed.
     /// - Since: TaxonomyKit 1.2.
     public var synonyms: [String] = []
-    
+
     /// The name of the main genetic code used by this record and its descendants.
     public let geneticCode: String
-    
+
     /// The name of the mitochondrial genetic code used by this record and its descendants, or
     /// `nil` if the record has no mitochondrial code.
     public let mitochondrialCode: String?
-    
+
     /// The lineage elements for the record.
     public var lineageItems: [TaxonLineageItem] = []
-    
-    
+
     /// Initializes a new `Taxon` using its defining parameters. Common name and lineage items
     /// may be specified later.
     ///
@@ -82,15 +80,13 @@ public struct Taxon: TaxonRepresenting {
         self.geneticCode = geneticCode
         self.mitochondrialCode = (mitochondrialCode == "Unspecified") ? nil : mitochondrialCode
     }
-    
-    
+
     /// Returns `true` if the `rank` property is set. If `rank` is `nil`, this will return
     /// `false` instead.
     public var hasRank: Bool {
         return rank != nil
     }
-    
-    
+
     /// The HTTPS URL where the record can be found.
     public var url: URL {
         var urlComponents = URLComponents()

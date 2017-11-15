@@ -24,136 +24,141 @@
  *  THE SOFTWARE.
  */
 
-
 import XCTest
 @testable import TaxonomyKit
 
 final class DownloadTests: XCTestCase {
-    
+
     override func setUp() {
         super.setUp()
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
     }
-    
-    
+
     func testDownloadTaxon() {
-        Taxonomy._urlSession = URLSession.shared
-        let query = 9606
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: query) { result in
+        Taxonomy.downloadTaxon(identifier: 9606) { result in
             if case .success(_) = result {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testDownloadUnknownTaxon() {
-        Taxonomy._urlSession = URLSession.shared
-        let query = 561469854169419684
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: query) { result in
+        Taxonomy.downloadTaxon(identifier: 561469854169419684) { result in
             if case .failure(let error) = result, case .unknownError = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testMalformedXML() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
-                            statusCode: 200, httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
+            HTTPURLResponse(url: URL(string: "http://any.com")!, statusCode: 200, httpVersion: "1.1",
+                            headerFields: [:])
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
+        Taxonomy.downloadTaxon(identifier: -1) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testUnknownResponse() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
-                            statusCode: 500, httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
+            HTTPURLResponse(url: URL(string: "http://github.com")!, statusCode: 500, httpVersion: "1.1",
+                            headerFields: [:])!
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
-            if case .failure(let error) = result,
-                case .unexpectedResponse(500) = error {
+        Taxonomy.downloadTaxon(identifier: -1) { result in
+            if case .failure(let error) = result, case .unexpectedResponse(500) = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testNetworkError() {
-        Taxonomy._urlSession = MockSession()
-        let error = NSError(domain: "Custom", code: -1, userInfo: nil)
-        MockSession.mockResponse = (nil, nil, error)
+        Taxonomy.internalUrlSession = MockSession()
+        MockSession.mockResponse = (nil, nil, NSError(domain: "Custom", code: -1, userInfo: nil))
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
-            if case .failure(let error) = result,
-                case .networkError(let nErr as NSError) = error, nErr.code == -1 {
+        Taxonomy.downloadTaxon(identifier: -1) { result in
+            if case .failure(let error) = result, case .networkError(let nErr as NSError) = error, nErr.code == -1 {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
-            if case .failure(let error) = result,
-                case .unknownError = error {
+        Taxonomy.downloadTaxon(identifier: -1) { result in
+            if case .failure(let error) = result, case .unknownError = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior2() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><note><to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't forget me this weekend!</body></note>"
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        let wrongXML = """
+                       <?xml version="1.0" encoding="UTF-8"?>
+                            <note>
+                                <to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't!</body>
+                            </note>
+                       """
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
-            if case .failure(let error) = result,
-                case .unknownError = error {
+        Taxonomy.downloadTaxon(identifier: -1) { result in
+            if case .failure(let error) = result, case .unknownError = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testMock() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><TaxaSet><Taxon><TaxId>2</TaxId><ScientificName>Bacteria</ScientificName><OtherNames><GenbankCommonName>eubacteria</GenbankCommonName><BlastName>bacteria; bacteria</BlastName><Synonym>not Bacteria Haeckel 1894</Synonym><Inpart>Monera</Inpart></OtherNames><ParentTaxId>131567</ParentTaxId><Rank>superkingdom</Rank><Division>Bacteria</Division><GeneticCode><GCId>11</GCId><GCName>Bacterial, Archaeal and Plant Plastid</GCName></GeneticCode><MitoGeneticCode><MGCId>0</MGCId><MGCName>Unspecified</MGCName></MitoGeneticCode><Lineage>cellular organisms</Lineage><LineageEx><Taxon><TaxId>131567</TaxId><ScientificName>cellular organisms</ScientificName><Rank>no rank</Rank></Taxon></LineageEx><CreateDate>1995/02/27 09:24:00</CreateDate><UpdateDate>2017/02/16 16:52:33</UpdateDate><PubDate>1993/04/20 01:00:00</PubDate></Taxon></TaxaSet>"
-        let data = xml.data(using: .utf8)
-        MockSession.mockResponse = (data, response, nil)
-        let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        let xml = """
+                  <?xml version="1.0" encoding="UTF-8" ?>
+                    <!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD elink 20101123//EN"
+                                                 "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd">
+                    <TaxaSet>
+                        <Taxon>
+                            <TaxId>2</TaxId>
+                            <ScientificName>Bacteria</ScientificName>
+                            <OtherNames>
+                                <GenbankCommonName>eubacteria</GenbankCommonName>
+                                <Synonym>not Bacteria Haeckel 1894</Synonym>
+                            </OtherNames>
+                            <GeneticCode><GCId>1</GCId><GCName>Standard</GCName></GeneticCode>
+                            <MitoGeneticCode><MGCId>1</MGCId><MGCName>Standard</MGCName></MitoGeneticCode>
+                            <Rank>superkingdom</Rank>
+                            <LineageEx></LineageEx>
+                        </Taxon>
+                    </TaxaSet>
+                  """
+        MockSession.mockResponse = (xml.data(using: .utf8), response, nil)
+        let condition = expectation(description: "Taxon creation from mock XML data")
+        Taxonomy.downloadTaxon(identifier: -1) { result in
             if case .success(let taxon) = result {
                 XCTAssertNotNil(taxon)
                 condition.fulfill()
@@ -161,83 +166,113 @@ final class DownloadTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testMissingInfoXML() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><TaxaSet><Taxon><TaxId>58334</TaxId><LineageEx><Taxon><TaxId>3511</TaxId><ScientificName>Quercus</ScientificName><Rank>genus</Rank></Taxon></LineageEx></Taxon></TaxaSet>"
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        let wrongXML = """
+                        <?xml version="1.0" encoding="UTF-8" ?>
+                        <!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD elink 20101123//EN"
+                                                     "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd">
+                        <TaxaSet>
+                            <Taxon>
+                                <TaxId>58334</TaxId>
+                                <LineageEx>
+                                    <Taxon>
+                                        <TaxId>3511</TaxId><ScientificName>Quercus</ScientificName><Rank>genus</Rank>
+                                    </Taxon>
+                                </LineageEx>
+                            </Taxon>
+                        </TaxaSet>
+                    """
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
-            if case .failure(let error) = result,
-                case .parseError(_) = error {
+        Taxonomy.downloadTaxon(identifier: -1) { result in
+            if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testMissingInfoXML2() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><TaxaSet><Taxon><LineageEx><Taxon><TaxId>3511</TaxId><ScientificName>Quercus</ScientificName><Rank>genus</Rank></Taxon></LineageEx></Taxon></TaxaSet>"
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        let wrongXML = """
+                      <?xml version="1.0" encoding="UTF-8" ?>
+                        <!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD elink 20101123//EN"
+                                                     "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd">
+                        <TaxaSet>
+                            <Taxon>
+                                <LineageEx>
+                                    <Taxon>
+                                        <TaxId>3511</TaxId><ScientificName>Quercus</ScientificName><Rank>genus</Rank>
+                                    </Taxon>
+                                </LineageEx>
+                            </Taxon>
+                        </TaxaSet>
+                      """
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
-            if case .failure(let error) = result,
-                case .parseError(_) = error {
+        Taxonomy.downloadTaxon(identifier: -1) { result in
+            if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testMissingInfoXML3() {
-        Taxonomy._urlSession = MockSession()
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><TaxaSet><Taxon><TaxId>3511</TaxId><GeneticCode><GCName>A</GCName></GeneticCode><MitoGeneticCode><MGCName>A</MGCName></MitoGeneticCode><ScientificName>Quercus</ScientificName><Rank>genus</Rank><LineageEx><Taxon><ScientificName>Quercus</ScientificName><Rank>genus</Rank></Taxon></LineageEx></Taxon></TaxaSet>"
+        Taxonomy.internalUrlSession = MockSession()
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        let wrongXML = """
+                        <?xml version="1.0" encoding="UTF-8" ?>
+                        <!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD elink 20101123//EN"
+                                                     "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd">
+                        <TaxaSet>
+                            <Taxon>
+                                <TaxId>3511</TaxId>
+                                <MitoGeneticCode><MGCName>A</MGCName></MitoGeneticCode>
+                                <ScientificName>Quercus</ScientificName>
+                                <Rank>genus</Rank>
+                                <LineageEx>
+                                    <Taxon><ScientificName>Quercus</ScientificName><Rank>genus</Rank></Taxon>
+                                </LineageEx>
+                            </Taxon>
+                        </TaxaSet>
+                       """
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(withIdentifier: -1) { result in
-            if case .failure(let error) = result,
-                case .parseError(_) = error {
+        Taxonomy.downloadTaxon(identifier: -1) { result in
+            if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testCancellation() {
-        Taxonomy._urlSession = MockSession()
-        (Taxonomy._urlSession as! MockSession).wait = 5
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        let mockSession = MockSession.shared
+        mockSession.wait = 5
+        Taxonomy.internalUrlSession = mockSession
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
-        let dataTask = Taxonomy.downloadTaxon(withIdentifier: -1) { result in
+        Taxonomy.downloadTaxon(identifier: -1) { _ in
             XCTFail("Should have been canceled")
-            
-            } as! MockSession.MockTask
-        dataTask.cancel()
+        }.cancel()
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 7.0) {
             condition.fulfill()
         }

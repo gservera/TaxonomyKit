@@ -24,46 +24,42 @@
  *  THE SOFTWARE.
  */
 
-
 import XCTest
 @testable import TaxonomyKit
 
 final class LinkTests: XCTestCase {
-    
+
     override func setUp() {
         super.setUp()
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
     }
-    
-    
+
     func testGetLinks() {
-        Taxonomy._urlSession = URLSession.shared
-        let query = 58334
+        Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.findLinkedResources(for: query) { result in
+        Taxonomy.findLinkedResources(for: 58334) { result in
             if case .success(let links) = result {
-                XCTAssertTrue(links.count > 0, "Should have retrieved some links.")
+                XCTAssertFalse(links.isEmpty, "Should have retrieved some links.")
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testLinksForUnknownTaxon() {
-        Taxonomy._urlSession = URLSession.shared
+        Taxonomy.internalUrlSession = URLSession.shared
         let query = 968419864189419849
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: query) { result in
-            if case .failure(let error) = result,
-                case .unknownError = error {
+            if case .failure(let error) = result, case .unknownError = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testMalformedXML() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "http://github.com")!,
                             statusCode: 200, httpVersion: "1.1",
@@ -79,10 +75,9 @@ final class LinkTests: XCTestCase {
         }
         waitForExpectations(timeout: 10)
     }
-    
-    
+
     func testUnknownResponse() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "http://github.com")!,
                             statusCode: 500, httpVersion: "1.1",
@@ -91,49 +86,54 @@ final class LinkTests: XCTestCase {
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: -1) { result in
-            if case .failure(let error) = result,
-                case .unexpectedResponse(500) = error {
+            if case .failure(let error) = result, case .unexpectedResponse(500) = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testNetworkError() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let error = NSError(domain: "Custom", code: -1, userInfo: nil)
         MockSession.mockResponse = (nil, nil, error)
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: -1) { result in
-            if case .failure(let error) = result,
-                case .networkError(let nErr as NSError) = error, nErr.code == -1 {
+            if case .failure(let error) = result, case .networkError(let nErr as NSError) = error, nErr.code == -1 {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: -1) { result in
-            if case .failure(let error) = result,
-                case .unknownError = error {
+            if case .failure(let error) = result, case .unknownError = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testOddBehavior2() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "http://github.com")!,
                             statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><note><to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't forget me this weekend!</body></note>"
+                            httpVersion: "HTTP/1.1",
+                            headerFields: [:])!
+        let wrongXML = """
+            <?xml version="1.0" encoding="UTF-8"?>
+                <note>
+                    <to>Tove</to>
+                    <from>Jani</from>
+                    <heading>Reminder</heading>
+                    <body>Don't forget me this weekend!</body>
+                </note>
+            """
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
@@ -147,60 +147,108 @@ final class LinkTests: XCTestCase {
     }
 
     func testMissingInfoXML() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><eLinkResult><LinkSet><DbFrom>taxonomy</DbFrom><IdUrlList><IdUrlSet><Id>58334</Id><ObjUrl><Url>http://www.eol.org/pages/1151536</Url><LinkName>Quercus ilex L.</LinkName><SubjectType>taxonomy/phylogenetic</SubjectType><Category>Molecular Biology Databases</Category><Attribute>free resource</Attribute><Provider><NameAbbr>encylife</NameAbbr><Id>7164</Id><Url LNG=\"EN\">http://www.eol.org/</Url></Provider></ObjUrl></IdUrlSet></IdUrlList></LinkSet></eLinkResult>"
+            HTTPURLResponse(url: URL(string: "http://ex.com")!, statusCode: 200, httpVersion: "1.1", headerFields: [:])
+        let wrongXML = """
+                       <?xml version="1.0" encoding="UTF-8" ?>
+                       <!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD elink 20101123//EN"
+                                 "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd">
+                            <eLinkResult>
+                                <LinkSet>
+                                    <DbFrom>taxonomy</DbFrom>
+                                    <IdUrlList>
+                                        <IdUrlSet>
+                                            <Id>58334</Id>
+                                            <ObjUrl>
+                                                <Url>http://www.eol.org/pages/1151536</Url>
+                                                <LinkName>Quercus ilex L.</LinkName>
+                                                <SubjectType>taxonomy/phylogenetic</SubjectType>
+                                                <Category>Molecular Biology Databases</Category>
+                                                <Attribute>free resource</Attribute>
+                                                <Provider>
+                                                    <NameAbbr>encylife</NameAbbr>
+                                                    <Id>7164</Id>
+                                                    <Url LNG="EN">http://www.eol.org/</Url>
+                                                </Provider>
+                                            </ObjUrl>
+                                        </IdUrlSet>
+                                    </IdUrlList>
+                                </LinkSet>
+                            </eLinkResult>
+                       """
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: -1) { result in
-            if case .failure(let error) = result,
-                case .parseError(_) = error {
+            if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testMalformedURLXML() {
-        Taxonomy._urlSession = MockSession()
+        Taxonomy.internalUrlSession = MockSession()
         let response =
             HTTPURLResponse(url: URL(string: "http://github.com")!,
                             statusCode: 200,
                             httpVersion: "1.1",
                             headerFields: [:])! as URLResponse
-        let wrongXML = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><!DOCTYPE eLinkResult PUBLIC \"-//NLM//DTD elink 20101123//EN\" \"https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd\"><eLinkResult><LinkSet><DbFrom>taxonomy</DbFrom><IdUrlList><IdUrlSet><Id>58334</Id><ObjUrl><Url>©</Url><LinkName>Quercus ilex L.</LinkName><SubjectType>taxonomy/phylogenetic</SubjectType><Category>Molecular Biology Databases</Category><Attribute>free resource</Attribute><Provider><Name>encylife</Name><NameAbbr>encylife</NameAbbr><Id>7164</Id><Url LNG=\"EN\">http://www.eol.org/</Url></Provider></ObjUrl></IdUrlSet></IdUrlList></LinkSet></eLinkResult>"
+        let wrongXML = """
+                       <?xml version="1.0" encoding="UTF-8" ?>
+                       <!DOCTYPE eLinkResult PUBLIC "-//NLM//DTD elink 20101123//EN"
+                                 "https://eutils.ncbi.nlm.nih.gov/eutils/dtd/20101123/elink.dtd">
+                            <eLinkResult>
+                                <LinkSet>
+                                    <DbFrom>taxonomy</DbFrom>
+                                    <IdUrlList>
+                                        <IdUrlSet>
+                                            <Id>58334</Id>
+                                            <ObjUrl>
+                                                <Url>©</Url>
+                                                <LinkName>Quercus ilex L.</LinkName>
+                                                <SubjectType>taxonomy/phylogenetic</SubjectType>
+                                                <Category>Molecular Biology Databases</Category>
+                                                <Attribute>free resource</Attribute>
+                                                <Provider>
+                                                    <NameAbbr>encylife</NameAbbr>
+                                                    <Id>7164</Id>
+                                                    <Url LNG="EN">http://www.eol.org/</Url>
+                                                </Provider>
+                                            </ObjUrl>
+                                        </IdUrlSet>
+                                    </IdUrlList>
+                                </LinkSet>
+                            </eLinkResult>
+                       """
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: -1) { result in
-            if case .failure(let error) = result,
-                case .parseError(_) = error {
+            if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
         }
         waitForExpectations(timeout: 10)
     }
-    
+
     func testCancellation() {
-        Taxonomy._urlSession = MockSession()
-        (Taxonomy._urlSession as! MockSession).wait = 5
-        let response =
-            HTTPURLResponse(url: URL(string: "https://gservera.com")!,
-                            statusCode: 200,
-                            httpVersion: "1.1",
-                            headerFields: [:])! as URLResponse
-        let data = try! JSONSerialization.data(withJSONObject: ["Any JSON"])
-        MockSession.mockResponse = (data, response, nil)
+        let mockSession = MockSession.shared
+        mockSession.wait = 5
+        Taxonomy.internalUrlSession = mockSession
+        let anyUrl = URL(string: "https://gservera.com")!
+        let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
+        do {
+            let data = try JSONEncoder().encode(["Any JSON"])
+            MockSession.mockResponse = (data, response, nil)
+        } catch let error {
+            XCTFail("Test implementation fault. \(error)")
+        }
         let condition = expectation(description: "Finished")
-        let dataTask = Taxonomy.findLinkedResources(for: -1) { result in
+        let dataTask = Taxonomy.findLinkedResources(for: -1) { _ in
             XCTFail("Should have been canceled")
-            
-            } as! MockSession.MockTask
+        }
         dataTask.cancel()
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 7.0) {
             condition.fulfill()

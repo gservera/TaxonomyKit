@@ -26,44 +26,42 @@
 
 import Foundation
 
-
 /// Any type that encapsulates the minimum data required to identify a record 
 /// from the NCBI's Taxonomy database (this is the record ID), plus some basic
 /// properties (name and rank) that describe the record.
 public protocol TaxonRepresenting: Hashable, CustomStringConvertible {
-    
+
     /// The internal NCBI identifier for the record.
     var identifier: TaxonID {get}
-    
+
     /// The scientific name of the record.
     var name: String {get}
-    
+
     /// The rank of the record or `nil` if the record has no rank.
     var rank: TaxonomicRank? {get}
-    
+
 }
 
 extension TaxonRepresenting {
-    
-    
+
     /// Returns a Boolean value indicating whether two values are equal. Two
     /// `TaxonRepresenting` values are equal when they have the same identifier.
     ///
     /// - Parameters:
     ///   - lhs: A value to compare.
     ///   - rhs: Another value to compare.
-    public static func ==(lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.identifier == rhs.identifier
     }
-    
+
     /// The hash value. Depends on the identifier.
     public var hashValue: Int {
         return identifier.hashValue
     }
-    
+
     /// A textual representation of this instance.
     public var description: String {
-        return "\(rank?.rawValue ?? "no rank"): \(name)::\(type(of:self))"
+        return "\(rank?.rawValue ?? "no rank"): \(name)::\(type(of: self))"
     }
-    
+
 }
