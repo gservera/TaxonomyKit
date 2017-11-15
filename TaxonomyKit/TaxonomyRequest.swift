@@ -43,19 +43,13 @@ internal enum TaxonomyRequest {
         var components: URLComponents
         switch self {
         case .download(let identifier):
-            components = URLComponents()
-            components.scheme = "https"
-            components.host = "eutils.ncbi.nlm.nih.gov"
-            components.path = "/entrez/eutils/efetch.fcgi"
+            components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi")!
             components.queryItems = [
                 URLQueryItem(name: "db", value: "taxonomy"),
                 URLQueryItem(name: "id", value: "\(identifier)")
             ]
         case .links(let identifier):
-            components = URLComponents()
-            components.scheme = "https"
-            components.host = "eutils.ncbi.nlm.nih.gov"
-            components.path = "/entrez/eutils/elink.fcgi"
+            components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi")!
             components.queryItems = [
                 URLQueryItem(name: "db", value: "taxonomy"),
                 URLQueryItem(name: "id", value: "\(identifier)"),
@@ -63,20 +57,14 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "cmd", value: "llinks")
             ]
         case .search(let query):
-            components = URLComponents()
-            components.scheme = "https"
-            components.host = "eutils.ncbi.nlm.nih.gov"
-            components.path = "/entrez/eutils/esearch.fcgi"
+            components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi")!
             components.queryItems = [
                 URLQueryItem(name: "db", value: "taxonomy"),
                 URLQueryItem(name: "term", value: query),
                 URLQueryItem(name: "retmode", value: "json")
             ]
         case .spelling(let query):
-            components = URLComponents()
-            components.scheme = "https"
-            components.host = "eutils.ncbi.nlm.nih.gov"
-            components.path = "/entrez/eutils/espell.fcgi"
+            components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/espell.fcgi")!
             components.queryItems = [
                 URLQueryItem(name: "db", value: "taxonomy"),
                 URLQueryItem(name: "term", value: query)
