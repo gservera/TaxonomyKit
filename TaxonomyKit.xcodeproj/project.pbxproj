@@ -11,7 +11,7 @@
 		991641EF1DE0CF2100A584FE /* TaxonRepresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641EE1DE0CF2100A584FE /* TaxonRepresenting.swift */; };
 		991641F11DE0EAEE00A584FE /* LineageTreeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991641F01DE0EAEE00A584FE /* LineageTreeTests.swift */; };
 		9936AA3B1FBCB6BD0039A49F /* XMLParsing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9936AA3A1FBCB6BD0039A49F /* XMLParsing.swift */; };
-		9936AA3D1FBCB70C0039A49F /* AEXMLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9936AA3C1FBCB70C0039A49F /* AEXMLTests.swift */; };
+		9936AA3D1FBCB70C0039A49F /* XMLParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9936AA3C1FBCB70C0039A49F /* XMLParsingTests.swift */; };
 		9936AA3F1FBCBDAB0039A49F /* DownloadedTaxonSample.xml in Resources */ = {isa = PBXBuildFile; fileRef = 9936AA3E1FBCBDAB0039A49F /* DownloadedTaxonSample.xml */; };
 		9956D1811F6E783800FC7385 /* Wikipedia.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9956D1801F6E783800FC7385 /* Wikipedia.swift */; };
 		9967CEF71F7D589000489549 /* WikipediaCandidateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9967CEF61F7D589000489549 /* WikipediaCandidateTests.swift */; };
@@ -59,7 +59,7 @@
 		991641EE1DE0CF2100A584FE /* TaxonRepresenting.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TaxonRepresenting.swift; sourceTree = "<group>"; };
 		991641F01DE0EAEE00A584FE /* LineageTreeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineageTreeTests.swift; sourceTree = "<group>"; };
 		9936AA3A1FBCB6BD0039A49F /* XMLParsing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParsing.swift; sourceTree = "<group>"; };
-		9936AA3C1FBCB70C0039A49F /* AEXMLTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AEXMLTests.swift; sourceTree = "<group>"; };
+		9936AA3C1FBCB70C0039A49F /* XMLParsingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = XMLParsingTests.swift; sourceTree = "<group>"; };
 		9936AA3E1FBCBDAB0039A49F /* DownloadedTaxonSample.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = DownloadedTaxonSample.xml; sourceTree = "<group>"; };
 		994A9B941DA7F94900A0796F /* .travis.yml */ = {isa = PBXFileReference; lastKnownFileType = text; path = .travis.yml; sourceTree = "<group>"; };
 		994A9B951DA7F9CC00A0796F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -164,7 +164,7 @@
 		99CFC5CE1D9AB0FC00C8A415 /* TaxonomyKitTests */ = {
 			isa = PBXGroup;
 			children = (
-				9936AA3C1FBCB70C0039A49F /* AEXMLTests.swift */,
+				9936AA3C1FBCB70C0039A49F /* XMLParsingTests.swift */,
 				99B03FB71D9BEEC3007F57AF /* MockURLSession.swift */,
 				99CAA5BA1E647405008E19F9 /* WikipediaAbstractTests.swift */,
 				9967CEF61F7D589000489549 /* WikipediaCandidateTests.swift */,
@@ -353,7 +353,7 @@
 				99B03FBD1D9BEEC3007F57AF /* TaxonLineageItemTests.swift in Sources */,
 				99CAA5BB1E647405008E19F9 /* WikipediaAbstractTests.swift in Sources */,
 				99B4B3331DCDE8B500DC918A /* LinkTests.swift in Sources */,
-				9936AA3D1FBCB70C0039A49F /* AEXMLTests.swift in Sources */,
+				9936AA3D1FBCB70C0039A49F /* XMLParsingTests.swift in Sources */,
 				99B03FC01D9BEEC3007F57AF /* TaxonomyTests.swift in Sources */,
 				99D3D4691EE8969C00F2B077 /* LineageAlignmentTests.swift in Sources */,
 				99D93E661DE0A13E0008EA3A /* TaxonomicRankTests.swift in Sources */,

@@ -116,7 +116,7 @@ public final class Wikipedia {
     ///            point.
     @discardableResult
     public func retrieveAbstract<T: TaxonRepresenting>(for taxon: T,
-                                                       callback: @escaping (Result<WikipediaResult?>) -> Void) -> URLSessionTask {
+                  callback: @escaping (Result<WikipediaResult?>) -> Void) -> URLSessionTask {
 
         let request = TaxonomyRequest.wikipediaAbstract(query: taxon.name, richText: usesRichText, language: language)
         return retrieveAbstract(with: request, callback: callback)
@@ -293,7 +293,7 @@ public final class Wikipedia {
     ///            point.
     @discardableResult
     public func findPossibleMatch<T: TaxonRepresenting>(for taxon: T, inlineImage: Bool = false,
-                                                        callback: @escaping(Result<WikipediaResult?>) -> Void) -> URLSessionTask {
+                  callback: @escaping(Result<WikipediaResult?>) -> Void) -> URLSessionTask {
 
         let request = TaxonomyRequest.wikipediaFullRecord(query: taxon.name, richText: usesRichText,
                                                           thumbnailWidth: thumbnailWidth, language: language)
@@ -318,7 +318,7 @@ public final class Wikipedia {
     ///            point.
     @discardableResult
     public func retrieveFullRecord<T: TaxonRepresenting>(for taxon: T, inlineImage: Bool = false,
-                                                         callback: @escaping (Result<WikipediaResult?>) -> Void) -> URLSessionTask {
+                  callback: @escaping (Result<WikipediaResult?>) -> Void) -> URLSessionTask {
 
         let request = TaxonomyRequest.wikipediaFullRecord(query: taxon.name, richText: usesRichText,
                                                           thumbnailWidth: thumbnailWidth, language: language)
@@ -332,8 +332,7 @@ public final class Wikipedia {
             let language = self.language
             guard let data = filter(response, data, error, callback) else { return }
 
-            let decoder = JSONDecoder()
-            guard let wikipediaResponse = try? decoder.decode(WikipediaResponse.self, from: data) else {
+            guard let wikipediaResponse = try? JSONDecoder().decode(WikipediaResponse.self, from: data) else {
                 callback(.failure(.parseError(message: "Could not parse JSON data.")))
                 return
             }
@@ -341,11 +340,8 @@ public final class Wikipedia {
                 callback(.failure(.unknownError)) // Unknown JSON structure
                 return
             }
-            guard !page.isMissing, let id = page.identifier, let extract = page.extract else {
-                callback(.success(nil))
-                return
-            }
-            guard !(strict && !wikipediaResponse.query.redirects.isEmpty) else {
+            guard !page.isMissing, let id = page.identifier, let extract = page.extract,
+                  !(strict && !wikipediaResponse.query.redirects.isEmpty) else {
                 callback(.success(nil))
                 return
             }
@@ -361,7 +357,6 @@ public final class Wikipedia {
             } else {
                 wikiResult.extract = extract
             }
-
             callback(.success(wikiResult))
         }
         return task.resumed()

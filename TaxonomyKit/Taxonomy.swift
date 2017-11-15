@@ -112,7 +112,7 @@ public final class Taxonomy {
     ///            point.
     @discardableResult
     public static func findSimilarSpelledCandidates(for failedQuery: String,
-                                                    callback: @escaping (_ result: Result<String?>) -> Void) -> URLSessionDataTask {
+                         callback: @escaping (_ result: Result<String?>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.spelling(failedQuery: failedQuery.lowercased())
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
