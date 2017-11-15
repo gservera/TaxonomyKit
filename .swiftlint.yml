@@ -1,5 +1,6 @@
 disabled_rules: # rule identifiers to exclude from running
 - nesting
+- vertical_parameter_alignment
 opt_in_rules: # some rules are only opt-in
 - empty_count
 - missing_docs

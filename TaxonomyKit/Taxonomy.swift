@@ -164,13 +164,11 @@ public final class Taxonomy {
                     return
                 }
 
-                let nameOpt = taxonRoot["ScientificName"].value
                 let genbankCommonName = taxonRoot["OtherNames"]["GenbankCommonName"].value
-                let rankOpt = taxonRoot["Rank"].value
                 let mainCodeOpt = taxonRoot["GeneticCode"]["GCName"].value
                 let mitoCodeOpt = taxonRoot["MitoGeneticCode"]["MGCName"].value
 
-                guard let name = nameOpt, let rank = rankOpt,
+                guard let name = taxonRoot["ScientificName"].value, let rank = taxonRoot["Rank"].value,
                     let mainCode = mainCodeOpt, let mitoCode = mitoCodeOpt else {
                     throw TaxonomyError.parseError(message: "Could not parse XML data")
                 }
@@ -184,12 +182,9 @@ public final class Taxonomy {
                 var lineage: [TaxonLineageItem] = []
                 if taxonRoot["LineageEx"]["Taxon"].error != .elementNotFound {
                     for lineageItem in taxonRoot["LineageEx"]["Taxon"].all {
-                        let itemIdOpt = lineageItem["TaxId"].value
-                        let itemNameOpt = lineageItem["ScientificName"].value
-                        let itemRankOpt = lineageItem["Rank"].value
-
-                        guard let itemIdStr = itemIdOpt, let itemId = Int(itemIdStr),
-                            let itemName = itemNameOpt, let itemRank = itemRankOpt else {
+                        guard let itemIdStr = lineageItem["TaxId"].value, let itemId = Int(itemIdStr),
+                              let itemName = lineageItem["ScientificName"].value,
+                              let itemRank = lineageItem["Rank"].value else {
                             throw TaxonomyError.parseError(message: "Could not parse XML data")
                         }
                         let itemRankValue = TaxonomicRank(rawValue: itemRank)
@@ -217,8 +212,7 @@ public final class Taxonomy {
     ///               request succeeds.
     /// - Warning: Please note that the callback may not be called on the main thread.
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
-    ///            may keep a reference to this object if you plan it should be canceled at some
-    ///            point.
+    ///            may keep a reference to this object if you plan it should be canceled at some point.
     @discardableResult
     public static func findLinkedResources(for identifier: TaxonID,
                                            callback: @escaping (Result<[ExternalLink]>) -> Void) -> URLSessionDataTask {

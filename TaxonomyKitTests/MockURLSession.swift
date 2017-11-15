@@ -41,7 +41,7 @@ import XCTest
     }
 
     override public func dataTask(with request: URLRequest,
-                                  completionHandler: @escaping(Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+                           completionHandler: @escaping(Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
         self.completionHandler = completionHandler
         let task = MockTask(response: MockSession.mockResponse, completionHandler: completionHandler)
         task.wait = wait
@@ -54,11 +54,11 @@ import XCTest
         var canceled = false
 
         typealias Response = (data: Data?, urlResponse: URLResponse?, error: Error?)
-        var mockResponse: Response
+        var answer: Response
         let completionHandler: ((Data?, URLResponse?, Error?) -> Void)?
 
         init(response: Response, completionHandler: ((Data?, URLResponse?, Error?) -> Void)?) {
-            self.mockResponse = response
+            self.answer = response
             self.completionHandler = completionHandler
         }
 
@@ -73,7 +73,7 @@ import XCTest
                         let error = NSError(domain: NSURLErrorDomain, code: NSURLErrorCancelled, userInfo: nil)
                         self.completionHandler!(nil, nil, error)
                     } else {
-                        self.completionHandler!(self.mockResponse.data, self.mockResponse.urlResponse, self.mockResponse.error)
+                        self.completionHandler!(self.answer.data, self.answer.urlResponse, self.answer.error)
                     }
                 }
             }

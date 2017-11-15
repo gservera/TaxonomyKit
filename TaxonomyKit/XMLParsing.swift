@@ -66,7 +66,9 @@ internal final class NCBIXMLDocument: NSObject, XMLParserDelegate {
         }
 
         /// Returns all of the elements with equal name as `self` **([] if not exists)**.
-        var all: [Element] { return parent?.children.filter { $0.name == name } ?? ((error != .elementNotFound) ? [self] : []) }
+        var all: [Element] {
+            return parent?.children.filter { $0.name == name } ?? ((error != .elementNotFound) ? [self] : [])
+        }
 
         // MARK: - XML Write
 
