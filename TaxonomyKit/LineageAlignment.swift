@@ -132,8 +132,8 @@ public struct LineageAlignment {
     /// - Returns: The index of the column with the passed rank in the column array.
     public func indexOfColumn(for rank: TaxonomicRank) -> Int {
         var index = -1
-        for (i, column) in columns.enumerated() where column.rank == rank {
-            index = i
+        for (idx, column) in columns.enumerated() where column.rank == rank {
+            index = idx
             break
         }
         return index // We should never get here.
@@ -208,7 +208,7 @@ public struct LineageAlignment {
             // previous ranked column and the minimum column index in order to prevent
             // the node from being inserted in the next ranked column.
             var needsMoreUnrankedColumns = false
-            for i in previousRankedNodePos+1...depth where columns[i].rank != nil {
+            for idx in previousRankedNodePos+1...depth where columns[idx].rank != nil {
                 // There's no enough room, we'll insert a new empty unranked column
                 // and call this method again to re-test.
                 let emptyUnrankedColumn = Column(rank: nil)
@@ -247,9 +247,9 @@ public struct LineageAlignment {
     ///
     /// - Parameter endPoints: The lineage tree endpoints (sorted).
     private mutating func updateRowOffsets(with endPoints: [LineageTree.Node]) {
-        for (c, column) in columns.enumerated() {
+        for (col, column) in columns.enumerated() {
             var elapsedSpan = 0
-            for (r, cell) in column.cells.enumerated() {
+            for (row, cell) in column.cells.enumerated() {
                 var offset = elapsedSpan
                 for endPoint in endPoints {
                     if !column.participatesInLineageOf(endPoint) {
@@ -257,12 +257,12 @@ public struct LineageAlignment {
                     } else if !cell.node.isPresentInLineageOf(endPoint) {
                         continue
                     } else {
-                        columns[c].cells[r].offset = offset
+                        columns[col].cells[row].offset = offset
                         break
                     }
                 }
                 if cell.offset == -1 {
-                    columns[c].cells[r].offset = offset
+                    columns[col].cells[row].offset = offset
                 }
                 elapsedSpan += cell.node.span
             }
