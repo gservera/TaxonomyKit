@@ -156,13 +156,13 @@ final class LineageAlignmentTests: XCTestCase {
         XCTAssertEqual(cleanedUp.count, expectedCleanedUpAlignment.count,
                        "Expected \(expectedCleanedUpAlignment.count) columns in alignment, found \(cleanedUp.count)")
         for (idx, column) in expectedCleanedUpAlignment.enumerated() {
-            XCTAssertEqual(cleanedUp[i].count, column.count, """
-                                                             Expected \(expectedCleanedUpAlignment[i].count) rows in
-                                                             alignment column \(i), found \(cleanedUp[i].count)
+            XCTAssertEqual(cleanedUp[idx].count, column.count, """
+                                                             Expected \(expectedCleanedUpAlignment[idx].count) rows in
+                                                             alignment column \(idx), found \(cleanedUp[idx].count)
                                                              """)
             for (row, name) in column.enumerated() {
-                let foundName = cleanedUp[i].cells[r].node.name
-                XCTAssertEqual(foundName, name, "Expected \(name) at alignment \(idx):\(row). Found \(foundName) instead.")
+                let foundName = cleanedUp[idx].cells[row].node.name
+                XCTAssertEqual(foundName, name, "Expected \(name) at \(idx):\(row). Found \(foundName) instead.")
             }
         }
     }

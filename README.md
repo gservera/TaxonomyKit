@@ -10,7 +10,7 @@
 [![codecov.io](https://codecov.io/github/gservera/TaxonomyKit/coverage.svg?branch=master)](https://codecov.io/github/gservera/TaxonomyKit?branch=master)
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/gservera/TaxonomyKit/master/LICENSE.md) 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-![Swift version](https://img.shields.io/badge/swift-4-orange.svg)
+![Swift version](https://img.shields.io/badge/swift-4.1-orange.svg)
 [![codebeat badge](https://codebeat.co/badges/0a40e0c1-5100-4b9e-9b0c-b2b08c011eb9)](https://codebeat.co/projects/github-com-gservera-taxonomykit-master)
 
 TaxonomyKit is a powerful, handy and cross-platform library that makes working with taxonomy data from the NCBI databases easier. It works as a client of the NCBI's [Entrez Programming Utilities](https://eutils.ncbi.nlm.nih.gov) and it is the core of the [Taxonomist](https://gservera.com/apps/taxonomist/) app.
@@ -79,14 +79,14 @@ $ brew install carthage
 To integrate TaxonomyKit into your Xcode project using Carthage, specify it in your `cartfile`:
 
 ```ogdl
-github "gservera/TaxonomyKit" ~> 1.6
+github "gservera/TaxonomyKit" ~> 1.8
 ```
 
 Run `carthage update` on your project's directory to build the framework and drag the built `TaxonomyKit.framework` into your Xcode project.
 
 ## Requirements
 
-* macOS 10.12 Sierra or greater.
+* macOS 10.13 High Sierra or greater.
 * **Xcode 9.0** or greater.
 
 ## Unit Tests

@@ -155,11 +155,11 @@ public final class Wikipedia {
                 let decoder = JSONDecoder()
                 let wikipediaResponse = try decoder.decode(WikipediaResponse.self, from: data)
                 if let page = wikipediaResponse.query.pages.values.first {
-                    guard !page.isMissing, let id = page.identifier, let extract = page.extract else {
+                    guard !page.isMissing, let identifier = page.identifier, let extract = page.extract else {
                         callback(.success(nil))
                         return
                     }
-                    var wikiResult = WikipediaResult(language: language, identifier: id, title: page.title)
+                    var wikiResult = WikipediaResult(language: language, identifier: identifier, title: page.title)
                     if self.usesRichText {
                         wikiResult.attributedExtract = WikipediaAttributedExtract(htmlString: extract)
                     } else {

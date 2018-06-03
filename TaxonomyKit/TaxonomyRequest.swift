@@ -3,7 +3,7 @@
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016-2017 Guillem Servera (https://github.com/gservera)
+ *  Copyright:  © 2016-2018 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,12 @@ import Foundation
 
 internal enum TaxonomyRequest {
     case download(identifier: TaxonID)
+    case downloadNextLevel(term: String)
     case links(identifier: TaxonID)
     case scientificNameGuess(query: String, language: WikipediaLanguage)
     case search(query: String)
     case spelling(failedQuery: String)
+    case summary(identifiers: [TaxonID])
     case wikipediaAbstract(query: String, richText: Bool, language: WikipediaLanguage)
     case wikipediaFullRecord(query: String, richText: Bool, thumbnailWidth: Int, language: WikipediaLanguage)
     case wikipediaThumbnail(query: String, width: Int, language: WikipediaLanguage)
@@ -47,6 +49,13 @@ internal enum TaxonomyRequest {
             components.queryItems = [
                 URLQueryItem(name: "db", value: "taxonomy"),
                 URLQueryItem(name: "id", value: "\(identifier)")
+            ]
+        case .downloadNextLevel(let query):
+            components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi")!
+            components.queryItems = [
+                URLQueryItem(name: "db", value: "taxonomy"),
+                URLQueryItem(name: "term", value: query + "[Next Level]"),
+                URLQueryItem(name: "retmode", value: "json")
             ]
         case .links(let identifier):
             components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi")!
@@ -69,6 +78,13 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "db", value: "taxonomy"),
                 URLQueryItem(name: "term", value: query)
             ]
+        case .summary(let identifiers):
+            components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi")!
+            components.queryItems = [
+                URLQueryItem(name: "db", value: "taxonomy"),
+                URLQueryItem(name: "id", value: identifiers.map{"\($0)"}.joined(separator: ",")),
+                URLQueryItem(name: "retmode", value: "json")
+            ]
 
         case .scientificNameGuess(let query, let lang):
             components = wikipediaComponents(for: .extract(useRichText: false), query: query, language: lang)
@@ -82,14 +98,14 @@ internal enum TaxonomyRequest {
         case .wikipediaFullRecord(let query, let rtf, let width, let lang):
             components = wikipediaComponents(for: .full(useRichText: rtf, width: width), query: query, language: lang)
 
-        case .knownWikipediaAbstract(let id, let rtf, let lang):
-            components = wikipediaComponents(for: .extract(useRichText: rtf), pageID: id, language: lang)
+        case .knownWikipediaAbstract(let query, let rtf, let lang):
+            components = wikipediaComponents(for: .extract(useRichText: rtf), pageID: query, language: lang)
 
-        case .knownWikipediaThumbnail(let id, let width, let lang):
-            components = wikipediaComponents(for: .thumbnail(width: width), pageID: id, language: lang)
+        case .knownWikipediaThumbnail(let query, let width, let lang):
+            components = wikipediaComponents(for: .thumbnail(width: width), pageID: query, language: lang)
 
-        case .knownWikipediaFullRecord(let id, let rtf, let width, let lang):
-            components = wikipediaComponents(for: .full(useRichText: rtf, width: width), pageID: id, language: lang)
+        case .knownWikipediaFullRecord(let query, let rtf, let width, let lang):
+            components = wikipediaComponents(for: .full(useRichText: rtf, width: width), pageID: query, language: lang)
         }
 
         return components.url!

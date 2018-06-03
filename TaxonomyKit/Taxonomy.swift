@@ -3,7 +3,7 @@
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016-2017 Guillem Servera (https://github.com/gservera)
+ *  Copyright:  © 2016-2018 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -82,7 +82,7 @@ public final class Taxonomy {
                     return
                 }
                 if let list = casted["esearchresult"]?["idlist"] as? [String] {
-                    let mapped: [TaxonID] = list.flatMap { Int($0) }
+                    let mapped: [TaxonID] = list.compactMap { Int($0) }
                     callback(.success(mapped))
                 } else {
                     callback(.failure(.unknownError)) // Unknown JSON structure
@@ -175,9 +175,9 @@ public final class Taxonomy {
                 let rankValue = TaxonomicRank(rawValue: rank)
                 var taxon = Taxon(identifier: identifier, name: name, rank: rankValue,
                                   geneticCode: mainCode, mitochondrialCode: mitoCode)
-                taxon.commonNames = taxonRoot["OtherNames"]["CommonName"].all.flatMap { $0.value }
+                taxon.commonNames = taxonRoot["OtherNames"]["CommonName"].all.compactMap { $0.value }
                 taxon.genbankCommonName = genbankCommonName
-                taxon.synonyms = taxonRoot["OtherNames"]["Synonym"].all.flatMap { $0.value }
+                taxon.synonyms = taxonRoot["OtherNames"]["Synonym"].all.compactMap { $0.value }
 
                 var lineage: [TaxonLineageItem] = []
                 if taxonRoot["LineageEx"]["Taxon"].error != .elementNotFound {
@@ -195,6 +195,80 @@ public final class Taxonomy {
                 callback(.success(taxon))
             } catch _ {
                 callback(.failure(.parseError(message: "Could not parse XML data")))
+            }
+        }
+        return task.resumed()
+    }
+
+    /// Sends an asynchronous request to the NCBI servers asking for a taxon's immediate descendants
+    /// matches a specific query.
+    ///
+    /// - Since: TaxonomyKit 1.8.
+    /// - Parameters:
+    ///   - taxon:    The taxon whose scientific name will be used to query for descendants.
+    ///   - callback: A callback closure that will be called when the request completes or when
+    ///               an error occurs. This closure has a `TaxonomyResult<[TaxonLineageItem]>` parameter
+    ///               that contains an array with the found descendants when the request succeeds.
+    ///
+    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
+    ///            may keep a reference to this object if you plan it should be canceled at some
+    ///            point.
+    @discardableResult
+    public static func downloadImmediateDescendants<T: TaxonRepresenting>(for taxon: T,
+                          callback: @escaping(_ result: Result<[TaxonLineageItem]>) -> Void) -> URLSessionDataTask {
+
+        let request = TaxonomyRequest.downloadNextLevel(term: taxon.name)
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+
+            guard let data = filter(response, data, error, callback) else { return }
+
+            do {
+                let JSON = try JSONSerialization.jsonObject(with: data)
+                guard let casted = JSON as? [String: [String: Any]] else {
+                    callback(.failure(.unknownError)) // Unknown JSON structure
+                    return
+                }
+                if let list = casted["esearchresult"]?["idlist"] as? [String] {
+                    let mapped: [TaxonID] = list.compactMap { Int($0) }
+
+                    let sumReq = TaxonomyRequest.summary(identifiers: mapped)
+                    _ = Taxonomy.internalUrlSession.dataTask(with: sumReq.url) { (sum, sumRes, err) in
+                        do {
+
+                            guard let sum = filter(sumRes, sum, err, callback) else { return }
+
+                            let JSON = try JSONSerialization.jsonObject(with: sum)
+                            guard let casted = JSON as? [String: [String: Any]] else {
+                                callback(.failure(.unknownError)) // Unknown JSON structure
+                                return
+                            }
+                            if let list = casted["result"] {
+                                let items: [TaxonLineageItem] = list.values.compactMap {
+                                    guard let dict = $0 as? [String: Any] else { return nil }
+                                    guard let identifier = dict["taxid"] as? TaxonID,
+                                          let name = dict["scientificname"] as? String,
+                                          let rank = dict["rank"] as? String else {
+                                            return nil
+                                    }
+                                    return TaxonLineageItem(identifier: identifier,
+                                                            name: name,
+                                                            rank: TaxonomicRank(rawValue: rank) ?? nil)
+                                }
+
+                                callback(.success(items))
+                            } else {
+                                callback(.failure(.unknownError)) // Unknown JSON structure
+                            }
+                        } catch _ {
+                            callback(.failure(.parseError(message: "Could not parse JSON data")))
+                        }
+                    }.resumed()
+                } else {
+                    callback(.failure(.unknownError)) // Unknown JSON structure
+                }
+            } catch _ {
+                callback(.failure(.parseError(message: "Could not parse JSON data")))
             }
         }
         return task.resumed()
