@@ -145,7 +145,17 @@ public extension String {
             #endif
             let size = font.pointSize 
             let stylePrefix = NSString(format: "<style>body{font-family: '%@';font-size:%fpx;}</style>", family, size)
-            let styledString = (stylePrefix as String) + self.replacingOccurrences(of: "<p class=\"mw-empty-elt\">\n</p>", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
+
+
+            let regex = try! NSRegularExpression(pattern: "<p class=\"mw-empty-elt\">(\n)*</p>", options: [.caseInsensitive])
+            let range = NSMakeRange(0, count)
+            var base = regex.stringByReplacingMatches(in: self, range: range, withTemplate: "")
+
+            while base.hasPrefix("\n") || base.hasSuffix("\n") {
+                base = base.trimmingCharacters(in: .whitespacesAndNewlines)
+            }
+
+            let styledString = (stylePrefix as String) + base
             guard let styledData = styledString.data(using: .utf8) else {
                 throw TaxonomyError.unknownError
             }
