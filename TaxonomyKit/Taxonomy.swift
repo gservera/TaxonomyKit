@@ -211,9 +211,8 @@ public final class Taxonomy {
     ///               that contains an array with the found descendants when the request succeeds.
     ///
     /// - Warning: Please note that the callback may not be called on the main thread.
-    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
-    ///            may keep a reference to this object if you plan it should be canceled at some
-    ///            point.
+    /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You may
+    ///            keep a reference to this object if you plan it should be canceled at some point.
     @discardableResult
     public static func downloadImmediateDescendants<T: TaxonRepresenting>(for taxon: T,
                           callback: @escaping(_ result: Result<[TaxonLineageItem]>) -> Void) -> URLSessionDataTask {
@@ -232,10 +231,14 @@ public final class Taxonomy {
                 if let list = casted["esearchresult"]?["idlist"] as? [String] {
                     let mapped: [TaxonID] = list.compactMap { Int($0) }
 
+                    guard !mapped.isEmpty else {
+                        callback(.success([]))
+                        return
+                    }
+
                     let sumReq = TaxonomyRequest.summary(identifiers: mapped)
                     _ = Taxonomy.internalUrlSession.dataTask(with: sumReq.url) { (sum, sumRes, err) in
                         do {
-
                             guard let sum = filter(sumRes, sum, err, callback) else { return }
 
                             let JSON = try JSONSerialization.jsonObject(with: sum)
@@ -255,7 +258,6 @@ public final class Taxonomy {
                                                             name: name,
                                                             rank: TaxonomicRank(rawValue: rank) ?? nil)
                                 }
-
                                 callback(.success(items))
                             } else {
                                 callback(.failure(.unknownError)) // Unknown JSON structure

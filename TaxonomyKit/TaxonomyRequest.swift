@@ -82,7 +82,7 @@ internal enum TaxonomyRequest {
             components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi")!
             components.queryItems = [
                 URLQueryItem(name: "db", value: "taxonomy"),
-                URLQueryItem(name: "id", value: identifiers.map{"\($0)"}.joined(separator: ",")),
+                URLQueryItem(name: "id", value: identifiers.map {"\($0)"}.joined(separator: ",")),
                 URLQueryItem(name: "retmode", value: "json")
             ]
 

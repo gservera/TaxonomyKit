@@ -3,7 +3,7 @@
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 17/09/2017.
- *  Copyright:  © 2017 Guillem Servera (https://github.com/gservera)
+ *  Copyright:  © 2017-2018 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -340,12 +340,12 @@ public final class Wikipedia {
                 callback(.failure(.unknownError)) // Unknown JSON structure
                 return
             }
-            guard !page.isMissing, let id = page.identifier, let extract = page.extract,
+            guard !page.isMissing, let pageID = page.identifier, let extract = page.extract,
                   !(strict && !wikipediaResponse.query.redirects.isEmpty) else {
                 callback(.success(nil))
                 return
             }
-            var wikiResult = WikipediaResult(language: language, identifier: id, title: page.title)
+            var wikiResult = WikipediaResult(language: language, identifier: pageID, title: page.title)
             if let thumbnail = page.thumbnail {
                 wikiResult.pageImageUrl = thumbnail.source
                 if inlineImage {

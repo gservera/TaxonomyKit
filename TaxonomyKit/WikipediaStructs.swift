@@ -145,7 +145,7 @@ public extension String {
             #endif
             let size = font.pointSize
             let stylePrefix = NSString(format: "<style>body{font-family: '%@';font-size:%fpx;}</style>", family, size)
-            let styledString = (stylePrefix as String) + self
+            let styledString = (stylePrefix as String) + self.replacingOccurrences(of: "<p class=\"mw-empty-elt\">\n</p>\n", with: "")
             guard let styledData = styledString.data(using: .utf8) else {
                 throw TaxonomyError.unknownError
             }
