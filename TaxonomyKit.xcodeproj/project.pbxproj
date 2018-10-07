@@ -33,6 +33,7 @@
 		99B5290B20C42F2C00B9FEC8 /* ImmediateDescendantsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B5290A20C42F2C00B9FEC8 /* ImmediateDescendantsTests.swift */; };
 		99B99B871D9C17E700F77893 /* SpellingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B99B861D9C17E700F77893 /* SpellingTests.swift */; };
 		99B99B891D9C1D6C00F77893 /* DownloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99B99B881D9C1D6C00F77893 /* DownloadTests.swift */; };
+		99BB629E216A8DEE007FA462 /* WikipediaStructsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99BB629D216A8DEE007FA462 /* WikipediaStructsTests.swift */; };
 		99CAA5B91E646FFC008E19F9 /* WikipediaStructs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CAA5B81E646FFC008E19F9 /* WikipediaStructs.swift */; };
 		99CAA5BB1E647405008E19F9 /* WikipediaAbstractTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CAA5BA1E647405008E19F9 /* WikipediaAbstractTests.swift */; };
 		99CFC5CB1D9AB0FC00C8A415 /* TaxonomyKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 99CFC5C11D9AB0FC00C8A415 /* TaxonomyKit.framework */; };
@@ -85,6 +86,7 @@
 		99B5290A20C42F2C00B9FEC8 /* ImmediateDescendantsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImmediateDescendantsTests.swift; sourceTree = "<group>"; };
 		99B99B861D9C17E700F77893 /* SpellingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SpellingTests.swift; sourceTree = "<group>"; };
 		99B99B881D9C1D6C00F77893 /* DownloadTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadTests.swift; sourceTree = "<group>"; };
+		99BB629D216A8DEE007FA462 /* WikipediaStructsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WikipediaStructsTests.swift; sourceTree = "<group>"; };
 		99CAA5B81E646FFC008E19F9 /* WikipediaStructs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WikipediaStructs.swift; sourceTree = "<group>"; };
 		99CAA5BA1E647405008E19F9 /* WikipediaAbstractTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WikipediaAbstractTests.swift; sourceTree = "<group>"; };
 		99CFC5C11D9AB0FC00C8A415 /* TaxonomyKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TaxonomyKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -172,6 +174,7 @@
 				9967CEF61F7D589000489549 /* WikipediaCandidateTests.swift */,
 				99D7BDF71EEAFC2D00EA05F3 /* WikipediaFullRecordTests.swift */,
 				998015331E9E7F7D00A37250 /* NameGuessingTests.swift */,
+				99BB629D216A8DEE007FA462 /* WikipediaStructsTests.swift */,
 				99D74B151E9A8D2700BA6804 /* ThumbnailTests.swift */,
 				99B03FB81D9BEEC3007F57AF /* TaxonLineageItemTests.swift */,
 				99B03FB91D9BEEC3007F57AF /* TaxonTests.swift */,
@@ -342,6 +345,7 @@
 				99B03FBD1D9BEEC3007F57AF /* TaxonLineageItemTests.swift in Sources */,
 				99CAA5BB1E647405008E19F9 /* WikipediaAbstractTests.swift in Sources */,
 				99B4B3331DCDE8B500DC918A /* LinkTests.swift in Sources */,
+				99BB629E216A8DEE007FA462 /* WikipediaStructsTests.swift in Sources */,
 				9936AA3D1FBCB70C0039A49F /* XMLParsingTests.swift in Sources */,
 				99B03FC01D9BEEC3007F57AF /* TaxonomyTests.swift in Sources */,
 				99D3D4691EE8969C00F2B077 /* LineageAlignmentTests.swift in Sources */,

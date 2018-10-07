@@ -143,9 +143,9 @@ public extension String {
             #else
                 let family = font.familyName ?? font.fontName
             #endif
-            let size = font.pointSize
+            let size = font.pointSize 
             let stylePrefix = NSString(format: "<style>body{font-family: '%@';font-size:%fpx;}</style>", family, size)
-            let styledString = (stylePrefix as String) + self.replacingOccurrences(of: "<p class=\"mw-empty-elt\">\n</p>\n", with: "")
+            let styledString = (stylePrefix as String) + self.replacingOccurrences(of: "<p class=\"mw-empty-elt\">\n</p>", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
             guard let styledData = styledString.data(using: .utf8) else {
                 throw TaxonomyError.unknownError
             }
