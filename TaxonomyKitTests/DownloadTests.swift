@@ -37,9 +37,24 @@ final class DownloadTests: XCTestCase {
     func testDownloadTaxon() {
         Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: 9606) { result in
-            if case .success(_) = result {
-                condition.fulfill()
+        Taxonomy.downloadTaxa(identifiers: [9606]) { result in
+            if case .success(let taxa) = result {
+                if !taxa.isEmpty {
+                    condition.fulfill()
+                }
+            }
+        }
+        waitForExpectations(timeout: 10)
+    }
+
+    func testDownloadMultipleTaxa() {
+        Taxonomy.internalUrlSession = URLSession.shared
+        let condition = expectation(description: "Finished")
+        Taxonomy.downloadTaxa(identifiers: [9606, 2]) { result in
+            if case .success(let taxa) = result {
+                if taxa.count == 2 {
+                    condition.fulfill()
+                }
             }
         }
         waitForExpectations(timeout: 10)
@@ -48,7 +63,7 @@ final class DownloadTests: XCTestCase {
     func testDownloadUnknownTaxon() {
         Taxonomy.internalUrlSession = URLSession.shared
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: 561469854169419684) { result in
+        Taxonomy.downloadTaxa(identifiers: [561469854169419684]) { result in
             if case .failure(let error) = result, case .unknownError = error {
                 condition.fulfill()
             }
@@ -64,7 +79,7 @@ final class DownloadTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: -1) { result in
+        Taxonomy.downloadTaxa(identifiers: [-1]) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
@@ -80,7 +95,7 @@ final class DownloadTests: XCTestCase {
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: -1) { result in
+        Taxonomy.downloadTaxa(identifiers: [-1]) { result in
             if case .failure(let error) = result, case .unexpectedResponse(500) = error {
                 condition.fulfill()
             }
@@ -92,7 +107,7 @@ final class DownloadTests: XCTestCase {
         Taxonomy.internalUrlSession = MockSession()
         MockSession.mockResponse = (nil, nil, NSError(domain: "Custom", code: -1, userInfo: nil))
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: -1) { result in
+        Taxonomy.downloadTaxa(identifiers: [-1]) { result in
             if case .failure(let error) = result, case .networkError(let nErr as NSError) = error, nErr.code == -1 {
                 condition.fulfill()
             }
@@ -104,7 +119,7 @@ final class DownloadTests: XCTestCase {
         Taxonomy.internalUrlSession = MockSession()
         MockSession.mockResponse = (nil, nil, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: -1) { result in
+        Taxonomy.downloadTaxa(identifiers: [-1]) { result in
             if case .failure(let error) = result, case .unknownError = error {
                 condition.fulfill()
             }
@@ -125,7 +140,7 @@ final class DownloadTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: -1) { result in
+        Taxonomy.downloadTaxa(identifiers: [-1]) { result in
             if case .failure(let error) = result, case .unknownError = error {
                 condition.fulfill()
             }
@@ -153,14 +168,15 @@ final class DownloadTests: XCTestCase {
                             <MitoGeneticCode><MGCId>1</MGCId><MGCName>Standard</MGCName></MitoGeneticCode>
                             <Rank>superkingdom</Rank>
                             <LineageEx></LineageEx>
+                            <ParentTaxId>0</ParentTaxId>
                         </Taxon>
                     </TaxaSet>
                   """
         MockSession.mockResponse = (xml.data(using: .utf8), response, nil)
         let condition = expectation(description: "Taxon creation from mock XML data")
-        Taxonomy.downloadTaxon(identifier: -1) { result in
-            if case .success(let taxon) = result {
-                XCTAssertNotNil(taxon)
+        Taxonomy.downloadTaxa(identifiers: [-1]) { result in
+            if case .success(let taxa) = result {
+                XCTAssertTrue(taxa.count == 1)
                 condition.fulfill()
             }
         }
@@ -189,7 +205,7 @@ final class DownloadTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: -1) { result in
+        Taxonomy.downloadTaxa(identifiers: [-1]) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
@@ -218,7 +234,7 @@ final class DownloadTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: -1) { result in
+        Taxonomy.downloadTaxa(identifiers: [-1]) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
@@ -249,7 +265,7 @@ final class DownloadTests: XCTestCase {
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: -1) { result in
+        Taxonomy.downloadTaxa(identifiers: [-1]) { result in
             if case .failure(let error) = result, case .parseError(_) = error {
                 condition.fulfill()
             }
@@ -270,7 +286,7 @@ final class DownloadTests: XCTestCase {
             XCTFail("Test implementation fault. \(error)")
         }
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxon(identifier: -1) { _ in
+        Taxonomy.downloadTaxa(identifiers: [-1]) { _ in
             XCTFail("Should have been canceled")
         }.cancel()
         DispatchQueue.global(qos: .background).asyncAfter(deadline: .now() + 7.0) {

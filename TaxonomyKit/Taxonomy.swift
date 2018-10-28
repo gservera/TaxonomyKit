@@ -133,66 +133,75 @@ public final class Taxonomy {
         }
         return task.resumed()
     }
+    
 
     /// Sends an asynchronous request to the NCBI servers asking for the taxon and lineage
-    /// info for a given NCBI internal identifier.
+    /// info for a set of given NCBI internal identifiers.
     ///
-    /// - Since: TaxonomyKit 1.0.
+    /// - Since: TaxonomyKit 1.9.
     /// - Parameters:
-    ///   - identifier: The NCBI internal identifier.
+    ///   - identifiers: The NCBI internal identifiers.
     ///   - callback: A callback closure that will be called when the request completes or when
-    ///               an error occurs. This closure has a `TaxonomyResult<Taxon>` parameter that
+    ///               an error occurs. This closure has a `TaxonomyResult<[Taxon]>` parameter that
     ///               contains the retrieved taxon when the request succeeds.
     /// - Warning: Please note that the callback may not be called on the main thread.
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
     ///            may keep a reference to this object if you plan it should be canceled at some
     ///            point.
     @discardableResult
-    public static func downloadTaxon(identifier: TaxonID,
-                                     callback: @escaping (_ result: Result<Taxon>) -> Void) -> URLSessionDataTask {
+    public static func downloadTaxa(identifiers: [TaxonID],
+                                     callback: @escaping (_ result: Result<[Taxon]>) -> Void) -> URLSessionDataTask {
 
-        let request = TaxonomyRequest.download(identifier: identifier)
+        let request = TaxonomyRequest.download(identifiers: identifiers)
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
 
             guard let data = filter(response, data, error, callback) else { return }
 
             do {
                 let xmlDoc = try NCBIXMLDocument(xml: data)
-                let taxonRoot = xmlDoc.root["Taxon"]
-                guard taxonRoot.error == nil, !taxonRoot.all.isEmpty else {
+                let taxonRoots = xmlDoc.root["Taxon"]
+                guard taxonRoots.error == nil, !taxonRoots.all.isEmpty else {
                     callback(.failure(.unknownError))
                     return
                 }
 
-                let genbankCommonName = taxonRoot["OtherNames"]["GenbankCommonName"].value
-                let mainCodeOpt = taxonRoot["GeneticCode"]["GCName"].value
-                let mitoCodeOpt = taxonRoot["MitoGeneticCode"]["MGCName"].value
+                var taxa: [Taxon] = []
+                for taxonRoot in taxonRoots.all {
+                    let genbankCommonName = taxonRoot["OtherNames"]["GenbankCommonName"].value
+                    let mainCodeOpt = taxonRoot["GeneticCode"]["GCName"].value
+                    let mitoCodeOpt = taxonRoot["MitoGeneticCode"]["MGCName"].value
 
-                guard let name = taxonRoot["ScientificName"].value, let rank = taxonRoot["Rank"].value,
-                    let mainCode = mainCodeOpt, let mitoCode = mitoCodeOpt else {
-                    throw TaxonomyError.parseError(message: "Could not parse XML data")
-                }
-                let rankValue = TaxonomicRank(rawValue: rank)
-                var taxon = Taxon(identifier: identifier, name: name, rank: rankValue,
-                                  geneticCode: mainCode, mitochondrialCode: mitoCode)
-                taxon.commonNames = taxonRoot["OtherNames"]["CommonName"].all.compactMap { $0.value }
-                taxon.genbankCommonName = genbankCommonName
-                taxon.synonyms = taxonRoot["OtherNames"]["Synonym"].all.compactMap { $0.value }
-
-                var lineage: [TaxonLineageItem] = []
-                if taxonRoot["LineageEx"]["Taxon"].error != .elementNotFound {
-                    for lineageItem in taxonRoot["LineageEx"]["Taxon"].all {
-                        guard let itemIdStr = lineageItem["TaxId"].value, let itemId = Int(itemIdStr),
-                              let itemName = lineageItem["ScientificName"].value,
-                              let itemRank = lineageItem["Rank"].value else {
+                    guard let taxonId = taxonRoot["TaxId"].value, let name = taxonRoot["ScientificName"].value,
+                        let rank = taxonRoot["Rank"].value,
+                        let mainCode = mainCodeOpt, let mitoCode = mitoCodeOpt,
+                        let parentId = taxonRoot["ParentTaxId"].value else {
                             throw TaxonomyError.parseError(message: "Could not parse XML data")
-                        }
-                        let itemRankValue = TaxonomicRank(rawValue: itemRank)
-                        lineage.append(TaxonLineageItem(identifier: itemId, name: itemName, rank: itemRankValue))
                     }
-                    taxon.lineageItems = lineage
+                    let rankValue = TaxonomicRank(rawValue: rank)
+                    var taxon = Taxon(identifier: Int(taxonId)!, name: name, rank: rankValue,
+                                      geneticCode: mainCode, mitochondrialCode: mitoCode)
+                    taxon.commonNames = taxonRoot["OtherNames"]["CommonName"].all.compactMap { $0.value }
+                    taxon.genbankCommonName = genbankCommonName
+                    taxon.synonyms = taxonRoot["OtherNames"]["Synonym"].all.compactMap { $0.value }
+                    taxon.parentIdentifier = (Int(parentId)! == 0) ? nil : Int(parentId)!
+                    var lineage: [TaxonLineageItem] = []
+                    if taxonRoot["LineageEx"]["Taxon"].error != .elementNotFound {
+                        for lineageItem in taxonRoot["LineageEx"]["Taxon"].all {
+                            guard let itemIdStr = lineageItem["TaxId"].value, let itemId = Int(itemIdStr),
+                                let itemName = lineageItem["ScientificName"].value,
+                                let itemRank = lineageItem["Rank"].value else {
+                                    throw TaxonomyError.parseError(message: "Could not parse XML data")
+                            }
+                            let itemRankValue = TaxonomicRank(rawValue: itemRank)
+                            lineage.append(TaxonLineageItem(identifier: itemId, name: itemName, rank: itemRankValue))
+                        }
+                        taxon.lineageItems = lineage
+                    }
+                    taxa.append(taxon)
                 }
-                callback(.success(taxon))
+
+
+                callback(.success(taxa))
             } catch _ {
                 callback(.failure(.parseError(message: "Could not parse XML data")))
             }
@@ -236,36 +245,17 @@ public final class Taxonomy {
                         return
                     }
 
-                    let sumReq = TaxonomyRequest.summary(identifiers: mapped)
-                    _ = Taxonomy.internalUrlSession.dataTask(with: sumReq.url) { (sum, sumRes, err) in
-                        do {
-                            guard let sum = filter(sumRes, sum, err, callback) else { return }
-
-                            let JSON = try JSONSerialization.jsonObject(with: sum)
-                            guard let casted = JSON as? [String: [String: Any]] else {
-                                callback(.failure(.unknownError)) // Unknown JSON structure
-                                return
-                            }
-                            if let list = casted["result"] {
-                                let items: [TaxonLineageItem] = list.values.compactMap {
-                                    guard let dict = $0 as? [String: Any] else { return nil }
-                                    guard let identifier = dict["taxid"] as? TaxonID,
-                                          let name = dict["scientificname"] as? String,
-                                          let rank = dict["rank"] as? String else {
-                                            return nil
-                                    }
-                                    return TaxonLineageItem(identifier: identifier,
-                                                            name: name,
-                                                            rank: TaxonomicRank(rawValue: rank) ?? nil)
-                                }
-                                callback(.success(items))
-                            } else {
-                                callback(.failure(.unknownError)) // Unknown JSON structure
-                            }
-                        } catch _ {
-                            callback(.failure(.parseError(message: "Could not parse JSON data")))
+                    Taxonomy.downloadTaxa(identifiers: mapped) { subtaskResult in
+                        switch subtaskResult {
+                        case .success(let possibleChildren):
+                            let trueChildren = possibleChildren.filter { $0.parentIdentifier == taxon.identifier }
+                            callback(.success(trueChildren.map {
+                                TaxonLineageItem(identifier: $0.identifier, name: $0.name, rank: $0.rank)
+                            }))
+                        case .failure(let subtaskError):
+                            callback(.failure(subtaskError))
                         }
-                    }.resumed()
+                    }
                 } else {
                     callback(.failure(.unknownError)) // Unknown JSON structure
                 }

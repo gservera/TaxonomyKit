@@ -27,7 +27,7 @@
 import Foundation
 
 internal enum TaxonomyRequest {
-    case download(identifier: TaxonID)
+    case download(identifiers: [TaxonID])
     case downloadNextLevel(term: String)
     case links(identifier: TaxonID)
     case scientificNameGuess(query: String, language: WikipediaLanguage)
@@ -44,11 +44,11 @@ internal enum TaxonomyRequest {
     var url: URL {
         var components: URLComponents
         switch self {
-        case .download(let identifier):
+        case .download(let identifiers):
             components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi")!
             components.queryItems = [
                 URLQueryItem(name: "db", value: "taxonomy"),
-                URLQueryItem(name: "id", value: "\(identifier)")
+                URLQueryItem(name: "id", value: identifiers.map{"\($0)"}.joined(separator: ",") )
             ]
         case .downloadNextLevel(let query):
             components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi")!

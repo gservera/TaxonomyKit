@@ -29,7 +29,7 @@ import XCTest
 
 final class ImmediateDescendantsTests: XCTestCase {
 
-    let item = TaxonLineageItem(identifier: 0, name: "Panthera", rank: .genus)
+    let item = TaxonLineageItem(identifier: 9688, name: "Panthera", rank: .genus)
 
     override func setUp() {
         super.setUp()

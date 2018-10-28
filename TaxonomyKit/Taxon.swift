@@ -31,6 +31,10 @@ public struct Taxon: TaxonRepresenting {
     /// The internal NCBI identifier for the record.
     public let identifier: TaxonID
 
+    /// The internal NCBI identifier for the record's closest ancestor.
+    /// - Since: TaxonomyKit 1.9.
+    public var parentIdentifier: TaxonID?
+
     /// The scientific name of the record.
     public let name: String
 
