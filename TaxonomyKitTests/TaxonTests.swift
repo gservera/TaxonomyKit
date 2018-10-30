@@ -42,6 +42,7 @@ final class TaxonTests: XCTestCase {
         test3.genbankCommonName = "holly oak"
         test3.synonyms = ["cool oak"]
         test3.lineageItems = [TaxonLineageItem(identifier: 111, name: "any", rank: nil)]
+        test3.parentIdentifier = 2
     }
 
     func testInitialization() {
@@ -66,6 +67,7 @@ final class TaxonTests: XCTestCase {
         XCTAssertEqual(test3.commonNames, ["holly oak"], "Taxon init failed")
         XCTAssertEqual(test3.genbankCommonName!, "holly oak", "Taxon init failed")
         XCTAssertEqual(test3.synonyms.count, 1, "Taxon init failed")
+        XCTAssertEqual(test3.parentIdentifier, 2, "Taxon parent identifier not set")
     }
 
     func testEqualty() {

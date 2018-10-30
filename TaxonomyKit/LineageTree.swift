@@ -84,7 +84,7 @@ public final class LineageTree {
         /// Calculates and returns the number of registered lineage endpoints that descend from this node.
         /// If the node has no children (thus, it is an endpoint itself), 1 is returned.
         internal var span: Int {
-            let spanSum = children.reduce(0, {$0 + $1.span})
+            let spanSum = children.reduce(0, { $0 + $1.span })
             return (spanSum == 0) ? 1 : spanSum
         }
 
@@ -92,13 +92,12 @@ public final class LineageTree {
         /// column while respecting the row order from the previous columns. This value is computed only once.
         internal lazy var sortString: String = {
             var lineage: [LineageTree.Node] = [self]
-            var currentItem: LineageTree.Node? = nil
-            currentItem = parent
+            var currentItem: LineageTree.Node? = parent
             while let current = currentItem {
                 lineage.append(current)
                 currentItem = current.parent
             }
-            return lineage.reversed().map {$0.name}.joined(separator: ";")
+            return lineage.reversed().map { $0.name }.joined(separator: ";")
         }()
 
         /// Determines if the node is present in a given node's lineage.
@@ -142,7 +141,7 @@ public final class LineageTree {
 
     /// Returns the tree's root node. This node's identifier is `-1`, its name is set to
     /// "origin" and its rank property to `TaxonomicRank.origin`.
-    private(set) public var rootNode = Node(identifier: -1, name: "origin", rank: .origin)
+    public private(set) var rootNode = Node(identifier: -1, name: "origin", rank: .origin)
 
     /// Initializes a new empty tree containing the root node only.
     public init() {
@@ -155,7 +154,8 @@ public final class LineageTree {
     /// - Parameter taxon: The taxon to be registered. If the supplied taxon is already
     ///                    registered in the tree, this method does nothing.
     /// - Returns: A LineageTree.Node object that represents the supplied taxon.
-    @discardableResult public func register(_ taxon: Taxon) -> Node {
+    @discardableResult
+    public func register(_ taxon: Taxon) -> Node {
         if let existingNode = nodeMap[taxon.identifier] {
             return existingNode
         }

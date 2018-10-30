@@ -244,21 +244,21 @@ final class WikipediaAbstractTests: XCTestCase {
 
     func testWikipediaAttributedExtract() {
         let extract = WikipediaAttributedExtract(htmlString: "T<i>Homo sapiens</i> is a <b>species</b>.")
-        guard let attributedString = try? extract.attributedString(using: TXKFont(name: "Palatino", size: 12.0)!) else {
+        guard let attributedStr = try? extract.attributedString(using: OSFontType(name: "Palatino", size: 12.0)!) else {
             XCTFail("Could not generate attributed string")
             return
         }
-        XCTAssertEqual(attributedString.string, "THomo sapiens is a species.")
-        XCTAssertEqual(attributedString.attribute(.font, at: 0, effectiveRange: nil) as? TXKFont,
-                       TXKFont(name: "Palatino", size: 12.0), "Wrong font in attributed extract")
-        XCTAssertNotEqual(attributedString.attribute(.font, at: 1, effectiveRange: nil) as? TXKFont,
-                          TXKFont(name: "Palatino", size: 12.0), "Wrong font in attributed extract")
+        XCTAssertEqual(attributedStr.string, "THomo sapiens is a species.")
+        XCTAssertEqual(attributedStr.attribute(.font, at: 0, effectiveRange: nil) as? OSFontType,
+                       OSFontType(name: "Palatino", size: 12.0), "Wrong font in attributed extract")
+        XCTAssertNotEqual(attributedStr.attribute(.font, at: 1, effectiveRange: nil) as? OSFontType,
+                          OSFontType(name: "Palatino", size: 12.0), "Wrong font in attributed extract")
     }
 
     func testWikipediaAttributedExtractPerformance() {
         let extract = WikipediaAttributedExtract(htmlString: "T<i>Homo sapiens</i> is a <b>species</b>.")
         measure {
-            _ = try? extract.attributedString(using: TXKFont(name: "Palatino", size: 12.0)!)
+            _ = try? extract.attributedString(using: OSFontType(name: "Palatino", size: 12.0)!)
         }
     }
 

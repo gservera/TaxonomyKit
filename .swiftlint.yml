@@ -1,13 +1,41 @@
 disabled_rules: # rule identifiers to exclude from running
 - nesting
 - vertical_parameter_alignment
+- large_tuple
 opt_in_rules: # some rules are only opt-in
+- anyobject_protocol
+- attributes
+- closure_end_indentation
+- closure_spacing
+- collection_alignment
+- contains_over_first_not_nil
+- convenience_type
+- discouraged_optional_boolean
+- discouraged_optional_collection
 - empty_count
+- empty_string
+- empty_xctest_method
+- first_where
+# - force_unwrapping
+- implicit_return
+# - let_var_whitespace
 - missing_docs
+- modifier_order
+- sorted_first_last
+- static_operator
+- toggle_bool
+- unavailable_function
+- unneeded_parentheses_in_closure_argument
+- unused_import
+- unused_private_declaration
+- yoda_condition
 # Find all the available rules by running:
 # swiftlint rules
 excluded: # paths to ignore during linting. Takes precedence over `included`.
 - Carthage
+
+analyzer_rules: # Rules run by `swiftlint analyze` (experimental)
+- explicit_self
 
 reporter: "xcode"
 custom_rules:

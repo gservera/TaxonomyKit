@@ -3,7 +3,7 @@
  *  TaxonomyKitTests
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016-2017 Guillem Servera (https://github.com/gservera)
+ *  Copyright:  © 2016-2018 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -32,19 +32,6 @@ final class DownloadTests: XCTestCase {
     override func setUp() {
         super.setUp()
         Taxonomy.internalUrlSession = URLSession.shared
-    }
-
-    func testDownloadTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
-        let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxa(identifiers: [9606]) { result in
-            if case .success(let taxa) = result {
-                if !taxa.isEmpty {
-                    condition.fulfill()
-                }
-            }
-        }
-        waitForExpectations(timeout: 10)
     }
 
     func testDownloadMultipleTaxa() {
@@ -133,9 +120,7 @@ final class DownloadTests: XCTestCase {
         let response = HTTPURLResponse(url: anyUrl, statusCode: 200, httpVersion: "HTTP/1.1", headerFields: [:])!
         let wrongXML = """
                        <?xml version="1.0" encoding="UTF-8"?>
-                            <note>
-                                <to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't!</body>
-                            </note>
+                            <note><to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't!</body></note>
                        """
         let data = wrongXML.data(using: .utf8)
         MockSession.mockResponse = (data, response, nil)
@@ -195,9 +180,7 @@ final class DownloadTests: XCTestCase {
                             <Taxon>
                                 <TaxId>58334</TaxId>
                                 <LineageEx>
-                                    <Taxon>
-                                        <TaxId>3511</TaxId><ScientificName>Quercus</ScientificName><Rank>genus</Rank>
-                                    </Taxon>
+                                    <Taxon><TaxId>3511</TaxId><Rank>genus</Rank></Taxon>
                                 </LineageEx>
                             </Taxon>
                         </TaxaSet>

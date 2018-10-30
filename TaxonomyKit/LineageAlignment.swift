@@ -115,7 +115,7 @@ public struct LineageAlignment {
 
         public var debugDescription: String {
             let rankDescription = rank?.rawValue ?? "no rank"
-            return "[\(cells.count):\(rankDescription)]: \(cells.map {$0.node.name}.joined(separator: ", "))"
+            return "[\(cells.count):\(rankDescription)]: \(cells.map { $0.node.name }.joined(separator: ", "))"
         }
     }
 

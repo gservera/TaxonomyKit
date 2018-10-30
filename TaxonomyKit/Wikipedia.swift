@@ -66,7 +66,7 @@ public final class Wikipedia {
                                             callback: @escaping(_ result: Result<[String]>) -> Void) -> URLSessionTask {
 
         let request = TaxonomyRequest.scientificNameGuess(query: query, language: language)
-        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
 
             guard let data = filter(response, data, error, callback) else { return }
 
@@ -140,14 +140,15 @@ public final class Wikipedia {
     public func retrieveAbstract(for identifier: String,
                                  callback: @escaping (Result<WikipediaResult?>) -> Void) -> URLSessionDataTask {
 
-        let request = TaxonomyRequest.knownWikipediaAbstract(id: identifier, richText: usesRichText, language: language)
+        let request = TaxonomyRequest.knownWikipediaAbstract(pageId: identifier,
+                                                             richText: usesRichText, language: language)
         return retrieveAbstract(with: request, callback: callback)
     }
 
     private func retrieveAbstract(with request: TaxonomyRequest,
                                   callback: @escaping (Result<WikipediaResult?>) -> Void) -> URLSessionDataTask {
         let language = self.language
-        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
 
             guard let data = filter(response, data, error, callback) else { return }
 
@@ -216,13 +217,14 @@ public final class Wikipedia {
     public func retrieveThumbnail(for identifier: String,
                                   callback: @escaping (Result<Data?>) -> Void) -> URLSessionTask {
 
-        let request = TaxonomyRequest.knownWikipediaThumbnail(id: identifier, width: thumbnailWidth, language: language)
+        let request = TaxonomyRequest.knownWikipediaThumbnail(pageId: identifier,
+                                                              width: thumbnailWidth, language: language)
         return retrieveThumbnail(with: request, callback: callback)
     }
 
     private func retrieveThumbnail(with request: TaxonomyRequest,
                                    callback: @escaping (Result<Data?>) -> Void) -> URLSessionDataTask {
-        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
 
             guard let data = filter(response, data, error, callback) else { return }
 
@@ -270,7 +272,7 @@ public final class Wikipedia {
     public func retrieveFullRecord(for identifier: String, inlineImage: Bool = false,
                                    callback: @escaping (Result<WikipediaResult?>) -> Void) -> URLSessionTask {
 
-        let request = TaxonomyRequest.knownWikipediaFullRecord(id: identifier, richText: usesRichText,
+        let request = TaxonomyRequest.knownWikipediaFullRecord(pageId: identifier, richText: usesRichText,
                                                                thumbnailWidth: thumbnailWidth, language: language)
         return retrieveFullRecord(with: request, inlineImage: inlineImage, callback: callback)
     }
@@ -327,7 +329,7 @@ public final class Wikipedia {
 
     private func retrieveFullRecord(with request: TaxonomyRequest, inlineImage: Bool = false, strict: Bool = false,
                                     callback: @escaping (Result<WikipediaResult?>) -> Void) -> URLSessionDataTask {
-        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
 
             let language = self.language
             guard let data = filter(response, data, error, callback) else { return }
@@ -362,10 +364,10 @@ public final class Wikipedia {
         return task.resumed()
     }
 
-    private static func downloadImage(from url: URL) -> Data? {
-        var downloadedData: Data? = nil
+    static func downloadImage(from url: URL) -> Data? {
+        var downloadedData: Data?
         let semaphore = DispatchSemaphore(value: 0)
-        URLSession(configuration: .default).dataTask(with: url) { (dlData, dlResponse, dlError) in
+        URLSession(configuration: .default).dataTask(with: url) { dlData, dlResponse, dlError in
             downloadedData = filter(dlResponse, dlData, dlError, { (_: Result<Void>) in })
             semaphore.signal()
         }.resume()

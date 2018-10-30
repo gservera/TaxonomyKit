@@ -28,7 +28,8 @@ import Foundation
 import XCTest
 
 /// A class used to mock URLSession objects for testing purposes.
-@objc public class MockSession: URLSession {
+@objc
+public class MockSession: URLSession {
 
     var wait: UInt32 = 0
 
@@ -48,7 +49,8 @@ import XCTest
         return task
     }
 
-    @objc public class MockTask: URLSessionDataTask {
+    @objc
+    public class MockTask: URLSessionDataTask {
 
         var wait: UInt32 = 0
         var canceled = false
@@ -79,7 +81,7 @@ import XCTest
             }
         }
 
-        public override func cancel() {
+        override public func cancel() {
             canceled = true
         }
     }

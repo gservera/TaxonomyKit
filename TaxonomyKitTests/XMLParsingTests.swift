@@ -58,7 +58,7 @@ final class NCBIXMLTests: XCTestCase {
         XCTAssertEqual(sampleDocument.root["ducks"]["duck"].value, nil, "Should have empty value.")
 
         // optional
-        if nil != sampleDocument.root["ducks"]["duck"].all.first {
+        if sampleDocument.root["ducks"]["duck"].all.first != nil {
             XCTFail("Should not be able to find ducks here.")
         } else {
             XCTAssert(true)

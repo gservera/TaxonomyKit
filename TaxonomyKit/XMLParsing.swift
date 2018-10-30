@@ -25,10 +25,10 @@ internal final class NCBIXMLDocument: NSObject, XMLParserDelegate {
     internal class Element {
 
         /// Every `NCBIXMLElement` should have its parent element instead of `NCBIXMLDocument` which parent is `nil`.
-        internal(set) weak var parent: Element?
+        private(set) weak var parent: Element?
 
         /// Child XML elements.
-        internal(set) var children = [Element]()
+        private(set) var children = [Element]()
 
         /// XML Element name.
         var name: String
@@ -38,6 +38,12 @@ internal final class NCBIXMLDocument: NSObject, XMLParserDelegate {
 
         /// Error value (`nil` if there is no error).
         var error: XMLError?
+
+        /// Read integer value.
+        func readInt() -> Int? {
+            guard let stringValue = value else { return nil }
+            return Int(stringValue)
+        }
 
         // MARK: - Lifecycle
 
@@ -78,7 +84,8 @@ internal final class NCBIXMLDocument: NSObject, XMLParserDelegate {
          - parameter value: Child XML element value (defaults to `nil`).
          - returns: Child XML element with `self` as `parent`.
          */
-        @discardableResult func addChild(name: String, value: String? = nil) -> Element {
+        @discardableResult
+        func addChild(name: String, value: String? = nil) -> Element {
             let child = Element(name: name, value: value)
             child.parent = self
             children.append(child)

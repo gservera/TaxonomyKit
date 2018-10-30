@@ -33,13 +33,13 @@ internal enum TaxonomyRequest {
     case scientificNameGuess(query: String, language: WikipediaLanguage)
     case search(query: String)
     case spelling(failedQuery: String)
-    case summary(identifiers: [TaxonID])
+    //case summary(identifiers: [TaxonID])
     case wikipediaAbstract(query: String, richText: Bool, language: WikipediaLanguage)
     case wikipediaFullRecord(query: String, richText: Bool, thumbnailWidth: Int, language: WikipediaLanguage)
     case wikipediaThumbnail(query: String, width: Int, language: WikipediaLanguage)
-    case knownWikipediaAbstract(id: String, richText: Bool, language: WikipediaLanguage)
-    case knownWikipediaThumbnail(id: String, width: Int, language: WikipediaLanguage)
-    case knownWikipediaFullRecord(id: String, richText: Bool, thumbnailWidth: Int, language: WikipediaLanguage)
+    case knownWikipediaAbstract(pageId: String, richText: Bool, language: WikipediaLanguage)
+    case knownWikipediaThumbnail(pageId: String, width: Int, language: WikipediaLanguage)
+    case knownWikipediaFullRecord(pageId: String, richText: Bool, thumbnailWidth: Int, language: WikipediaLanguage)
 
     var url: URL {
         var components: URLComponents
@@ -48,7 +48,7 @@ internal enum TaxonomyRequest {
             components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi")!
             components.queryItems = [
                 URLQueryItem(name: "db", value: "taxonomy"),
-                URLQueryItem(name: "id", value: identifiers.map{"\($0)"}.joined(separator: ",") )
+                URLQueryItem(name: "id", value: identifiers.map { "\($0)" }.joined(separator: ","))
             ]
         case .downloadNextLevel(let query):
             components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi")!
@@ -78,13 +78,13 @@ internal enum TaxonomyRequest {
                 URLQueryItem(name: "db", value: "taxonomy"),
                 URLQueryItem(name: "term", value: query)
             ]
-        case .summary(let identifiers):
-            components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi")!
-            components.queryItems = [
-                URLQueryItem(name: "db", value: "taxonomy"),
-                URLQueryItem(name: "id", value: identifiers.map {"\($0)"}.joined(separator: ",")),
-                URLQueryItem(name: "retmode", value: "json")
-            ]
+//        case .summary(let identifiers):
+//            components = URLComponents(string: "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi")!
+//            components.queryItems = [
+//                URLQueryItem(name: "db", value: "taxonomy"),
+//                URLQueryItem(name: "id", value: identifiers.map { "\($0)" }.joined(separator: ",")),
+//                URLQueryItem(name: "retmode", value: "json")
+//            ]
 
         case .scientificNameGuess(let query, let lang):
             components = wikipediaComponents(for: .extract(useRichText: false), query: query, language: lang)

@@ -71,7 +71,7 @@ public final class Taxonomy {
                                        callback: @escaping(_ result: Result<[TaxonID]>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.search(query: query)
-        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
 
             guard let data = filter(response, data, error, callback) else { return }
 
@@ -115,7 +115,7 @@ public final class Taxonomy {
                          callback: @escaping (_ result: Result<String?>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.spelling(failedQuery: failedQuery.lowercased())
-        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
 
             guard let data = filter(response, data, error, callback) else { return }
 
@@ -133,7 +133,6 @@ public final class Taxonomy {
         }
         return task.resumed()
     }
-    
 
     /// Sends an asynchronous request to the NCBI servers asking for the taxon and lineage
     /// info for a set of given NCBI internal identifiers.
@@ -146,44 +145,36 @@ public final class Taxonomy {
     ///               contains the retrieved taxon when the request succeeds.
     /// - Warning: Please note that the callback may not be called on the main thread.
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
-    ///            may keep a reference to this object if you plan it should be canceled at some
-    ///            point.
+    ///            may keep a reference to this object if you plan it should be canceled at some point.
     @discardableResult
     public static func downloadTaxa(identifiers: [TaxonID],
                                      callback: @escaping (_ result: Result<[Taxon]>) -> Void) -> URLSessionDataTask {
-
         let request = TaxonomyRequest.download(identifiers: identifiers)
-        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
-
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
             guard let data = filter(response, data, error, callback) else { return }
-
             do {
                 let xmlDoc = try NCBIXMLDocument(xml: data)
                 let taxonRoots = xmlDoc.root["Taxon"]
                 guard taxonRoots.error == nil, !taxonRoots.all.isEmpty else {
-                    callback(.failure(.unknownError))
-                    return
+                    callback(.failure(.unknownError)); return
                 }
-
                 var taxa: [Taxon] = []
                 for taxonRoot in taxonRoots.all {
                     let genbankCommonName = taxonRoot["OtherNames"]["GenbankCommonName"].value
                     let mainCodeOpt = taxonRoot["GeneticCode"]["GCName"].value
                     let mitoCodeOpt = taxonRoot["MitoGeneticCode"]["MGCName"].value
-
-                    guard let taxonId = taxonRoot["TaxId"].value, let name = taxonRoot["ScientificName"].value,
-                        let rank = taxonRoot["Rank"].value,
-                        let mainCode = mainCodeOpt, let mitoCode = mitoCodeOpt,
-                        let parentId = taxonRoot["ParentTaxId"].value else {
-                            throw TaxonomyError.parseError(message: "Could not parse XML data")
-                    }
+                    guard let taxonId: TaxonID = taxonRoot["TaxId"].readInt(),
+                          let name = taxonRoot["ScientificName"].value, let rank = taxonRoot["Rank"].value,
+                          let mainCode = mainCodeOpt, let mitoCode = mitoCodeOpt,
+                          let parentId: TaxonID = taxonRoot["ParentTaxId"].readInt()
+                    else { throw TaxonomyError.parseError(message: "Unexpected XML taxon data") }
                     let rankValue = TaxonomicRank(rawValue: rank)
-                    var taxon = Taxon(identifier: Int(taxonId)!, name: name, rank: rankValue,
+                    var taxon = Taxon(identifier: taxonId, name: name, rank: rankValue,
                                       geneticCode: mainCode, mitochondrialCode: mitoCode)
                     taxon.commonNames = taxonRoot["OtherNames"]["CommonName"].all.compactMap { $0.value }
                     taxon.genbankCommonName = genbankCommonName
                     taxon.synonyms = taxonRoot["OtherNames"]["Synonym"].all.compactMap { $0.value }
-                    taxon.parentIdentifier = (Int(parentId)! == 0) ? nil : Int(parentId)!
+                    taxon.parentIdentifier = parentId == 0 ? nil : parentId
                     var lineage: [TaxonLineageItem] = []
                     if taxonRoot["LineageEx"]["Taxon"].error != .elementNotFound {
                         for lineageItem in taxonRoot["LineageEx"]["Taxon"].all {
@@ -199,8 +190,6 @@ public final class Taxonomy {
                     }
                     taxa.append(taxon)
                 }
-
-
                 callback(.success(taxa))
             } catch _ {
                 callback(.failure(.parseError(message: "Could not parse XML data")))
@@ -227,7 +216,7 @@ public final class Taxonomy {
                           callback: @escaping(_ result: Result<[TaxonLineageItem]>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.downloadNextLevel(term: taxon.name)
-        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
 
             guard let data = filter(response, data, error, callback) else { return }
 
@@ -284,7 +273,7 @@ public final class Taxonomy {
                                            callback: @escaping (Result<[ExternalLink]>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.links(identifier: identifier)
-        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { (data, response, error) in
+        let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
 
             guard let data = filter(response, data, error, callback) else { return }
 

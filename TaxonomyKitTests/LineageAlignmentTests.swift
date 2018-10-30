@@ -3,7 +3,7 @@
  *  TaxonomyKitTests
  *
  *  Created:    Guillem Servera on 19/11/2016.
- *  Copyright:  © 2016-2017 Guillem Servera (https://github.com/gservera)
+ *  Copyright:  © 2016-2018 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -29,19 +29,10 @@ import XCTest
 
 final class LineageAlignmentTests: XCTestCase {
 
-    var homoSapiens = Taxon(identifier: 9606, name: "Homo sapiens", rank: .species,
+    let homoSapiens: Taxon = {
+        var taxon = Taxon(identifier: 9606, name: "Homo sapiens", rank: .species,
                             geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
-    var quercusIlex = Taxon(identifier: 58334, name: "Quercus ilex", rank: .species,
-                            geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
-    var hiv1 = Taxon(identifier: 11676, name: "Human immunodeficiency virus 1", rank: .species,
-                     geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
-
-    var lineageTree = LineageTree()
-
-    override func setUp() {
-        super.setUp()
-        lineageTree = LineageTree()
-        homoSapiens.lineageItems = [
+        taxon.lineageItems = [
             TaxonLineageItem(identifier: 131567, name: "cellular organisms", rank: nil),
             TaxonLineageItem(identifier: 2579, name: "Eukaryota", rank: .superkingdom),
             TaxonLineageItem(identifier: 33154, name: "Opisthokonta", rank: nil),
@@ -73,6 +64,19 @@ final class LineageAlignmentTests: XCTestCase {
             TaxonLineageItem(identifier: 207598, name: "Homininae", rank: .subfamily),
             TaxonLineageItem(identifier: 9605, name: "Homo", rank: .genus)
         ]
+        return taxon
+    }()
+    var quercusIlex = Taxon(identifier: 58334, name: "Quercus ilex", rank: .species,
+                            geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
+    var hiv1 = Taxon(identifier: 11676, name: "Human immunodeficiency virus 1", rank: .species,
+                     geneticCode: "Unspecified", mitochondrialCode: "Unspecified")
+
+    var lineageTree = LineageTree()
+
+    override func setUp() {
+        super.setUp()
+        lineageTree = LineageTree()
+
         quercusIlex.lineageItems = [
             TaxonLineageItem(identifier: 131567, name: "cellular organisms", rank: nil),
             TaxonLineageItem(identifier: 2579, name: "Eukaryota", rank: .superkingdom),
@@ -109,50 +113,52 @@ final class LineageAlignmentTests: XCTestCase {
         super.tearDown()
     }
 
+    private var expectedCleanedUpAlignment: [[String]] = [
+        ["origin"],
+        ["cellular organisms"],
+        ["Viruses", "Eukaryota"],
+        ["Retro-transcribing viruses", "Opisthokonta"],
+        ["Metazoa", "Viridiplantae"],
+        ["Eumetazoa"],
+        ["Bilateria"],
+        ["Deuterostomia"],
+        ["Chordata", "Streptophyta"],
+        ["Craniata", "Streptophytina"],
+        ["Vertebrata", "Embryophyta"],
+        ["Gnathostomata", "Tracheophyta"],
+        ["Teleostomi", "Euphyllophyta"],
+        ["Euteleostomi", "Spermatophyta"],
+        ["Sarcopterygii", "Magnoliophyta"],
+        ["Dipnotetrapodomorpha", "Mesangiospermae"],
+        ["Tetrapoda", "eudicotyledons"],
+        ["Amniota", "Gunneridae"],
+        ["Pentapetaleae"],
+        ["Mammalia"],
+        ["Theria"],
+        ["Eutheria"],
+        ["Boreoeutheria"],
+        ["rosids"],
+        ["fabids"],
+        ["Euarchontoglires"],
+        ["Primates", "Fagales"],
+        ["Haplorrhini"],
+        ["Simiiformes"],
+        ["Catarrhini"],
+        ["Hominoidea"],
+        ["Retroviridae", "Hominidae", "Fagaceae"],
+        ["Orthoretrovirinae", "Homininae"],
+        ["Lentivirus", "Homo", "Quercus"],
+        ["Primate lentivirus group"],
+        ["Human immunodeficiency virus 1", "Homo sapiens", "Quercus ilex"]
+    ]
+
     func testCleanedUpAlignment() {
         _ = lineageTree.register(homoSapiens)
         _ = lineageTree.register(quercusIlex)
         _ = lineageTree.register(hiv1)
         let alignment = LineageAlignment(lineageTree: lineageTree)
         let cleanedUp = alignment.cleanedUp
-        var expectedCleanedUpAlignment: [[String]] = [
-            ["origin"],
-            ["cellular organisms"],
-            ["Viruses", "Eukaryota"],
-            ["Retro-transcribing viruses", "Opisthokonta"],
-            ["Metazoa", "Viridiplantae"],
-            ["Eumetazoa"],
-            ["Bilateria"],
-            ["Deuterostomia"],
-            ["Chordata", "Streptophyta"],
-            ["Craniata", "Streptophytina"],
-            ["Vertebrata", "Embryophyta"],
-            ["Gnathostomata", "Tracheophyta"],
-            ["Teleostomi", "Euphyllophyta"],
-            ["Euteleostomi", "Spermatophyta"],
-            ["Sarcopterygii", "Magnoliophyta"],
-            ["Dipnotetrapodomorpha", "Mesangiospermae"],
-            ["Tetrapoda", "eudicotyledons"],
-            ["Amniota", "Gunneridae"],
-            ["Pentapetaleae"],
-            ["Mammalia"],
-            ["Theria"],
-            ["Eutheria"],
-            ["Boreoeutheria"],
-            ["rosids"],
-            ["fabids"],
-            ["Euarchontoglires"],
-            ["Primates", "Fagales"],
-            ["Haplorrhini"],
-            ["Simiiformes"],
-            ["Catarrhini"],
-            ["Hominoidea"],
-            ["Retroviridae", "Hominidae", "Fagaceae"],
-            ["Orthoretrovirinae", "Homininae"],
-            ["Lentivirus", "Homo", "Quercus"],
-            ["Primate lentivirus group"],
-            ["Human immunodeficiency virus 1", "Homo sapiens", "Quercus ilex"]
-        ]
+
         XCTAssertEqual(cleanedUp.count, expectedCleanedUpAlignment.count,
                        "Expected \(expectedCleanedUpAlignment.count) columns in alignment, found \(cleanedUp.count)")
         for (idx, column) in expectedCleanedUpAlignment.enumerated() {

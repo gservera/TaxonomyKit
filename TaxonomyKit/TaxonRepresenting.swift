@@ -32,13 +32,13 @@ import Foundation
 public protocol TaxonRepresenting: Hashable, CustomStringConvertible {
 
     /// The internal NCBI identifier for the record.
-    var identifier: TaxonID {get}
+    var identifier: TaxonID { get }
 
     /// The scientific name of the record.
-    var name: String {get}
+    var name: String { get }
 
     /// The rank of the record or `nil` if the record has no rank.
-    var rank: TaxonomicRank? {get}
+    var rank: TaxonomicRank? { get }
 
 }
 

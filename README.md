@@ -38,14 +38,14 @@ Taxonomy.findIdentifiers(for: myCoolQuery) { result in
 }
 ```
 
-### ⬇️ Download your taxon
+### ⬇️ Download your taxa
 
 ```swift
-let foundID: TaxonID = "58334" // Use the one you got from previous step.
-Taxonomy.downloadTaxon(withIdentifier: foundID) { result in
+let foundIDs: [TaxonID] = [58334] // Use the one you got from previous step.
+Taxonomy.downloadTaxa(identifiers: [foundIDs]) { result in
     switch result {
-    case .success(let taxon):
-        print("Got taxon: \(taxon.name).")
+    case .success(let taxa):
+        print("Got \(taxa.count) taxa.")
     case .failure(let error):
         print("Oops! Something went wrong. Error was: \(error)")
     }
@@ -79,7 +79,7 @@ $ brew install carthage
 To integrate TaxonomyKit into your Xcode project using Carthage, specify it in your `cartfile`:
 
 ```ogdl
-github "gservera/TaxonomyKit" ~> 1.8
+github "gservera/TaxonomyKit" ~> 1.9
 ```
 
 Run `carthage update` on your project's directory to build the framework and drag the built `TaxonomyKit.framework` into your Xcode project.
@@ -95,7 +95,7 @@ TaxonomyKit includes a suite of unit tests within the TaxonomyKitTests subdirect
 
 ## ☕️ Author
 
-Proudly developed by [Guillem Servera](https://gservera.com) in Palma, Illes Balears.
+Proudly developed by [Guillem Servera Negre](https://gservera.com) in Palma, Illes Balears.
 
 ## License
 
