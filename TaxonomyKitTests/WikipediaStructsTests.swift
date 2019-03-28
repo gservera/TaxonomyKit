@@ -21,7 +21,7 @@ class WikipediaStructsTests: XCTestCase {
 <p>The <b>red panda</b> (<i>Ailurus fulgens</i>), also called the <b>lesser panda</b>.
 </p>
 """
-        
+
         #if os(iOS) || os(watchOS) || os(tvOS)
         let parsed = try? sample.parseHTML(setting: UIFont.systemFont(ofSize: 12))
         #else

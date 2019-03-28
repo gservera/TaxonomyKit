@@ -3,7 +3,7 @@
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016-2018 Guillem Servera (https://github.com/gservera)
+ *  Copyright:  © 2016-2019 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -28,19 +28,6 @@ import Foundation
 
 /// A numeric string representing an entrez record.
 public typealias TaxonID = Int
-
-/// The generic wrapper type returned by all TaxonomyKit newtorking methods. It 
-/// represents either a success or a failure of the mentioned network request.
-///
-/// - Since: TaxonomyKit 1.2.
-public enum Result<T> {
-
-    /// The request succeeded returning the associated value of type `T`.
-    case success(T)
-
-    /// The request failed due to the associated error value.
-    case failure(TaxonomyError)
-}
 
 /// The base class from which all the NCBI related tasks are initiated. This class
 /// is not meant to be instantiated but it serves as a start node to invoke the
@@ -68,7 +55,7 @@ public final class Taxonomy {
     ///            point.
     @discardableResult
     public static func findIdentifiers(for query: String,
-                                       callback: @escaping(_ result: Result<[TaxonID]>) -> Void) -> URLSessionDataTask {
+                                       callback: @escaping(_ result: Result<[TaxonID], TaxonomyError>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.search(query: query)
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
@@ -112,7 +99,7 @@ public final class Taxonomy {
     ///            point.
     @discardableResult
     public static func findSimilarSpelledCandidates(for failedQuery: String,
-                         callback: @escaping (_ result: Result<String?>) -> Void) -> URLSessionDataTask {
+                         callback: @escaping (_ result: Result<String?, TaxonomyError>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.spelling(failedQuery: failedQuery.lowercased())
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
@@ -148,7 +135,7 @@ public final class Taxonomy {
     ///            may keep a reference to this object if you plan it should be canceled at some point.
     @discardableResult
     public static func downloadTaxa(identifiers: [TaxonID],
-                                     callback: @escaping (_ result: Result<[Taxon]>) -> Void) -> URLSessionDataTask {
+                                     callback: @escaping (_ result: Result<[Taxon], TaxonomyError>) -> Void) -> URLSessionDataTask {
         let request = TaxonomyRequest.download(identifiers: identifiers)
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
             guard let data = filter(response, data, error, callback) else { return }
@@ -213,7 +200,7 @@ public final class Taxonomy {
     ///            keep a reference to this object if you plan it should be canceled at some point.
     @discardableResult
     public static func downloadImmediateDescendants<T: TaxonRepresenting>(for taxon: T,
-                          callback: @escaping(_ result: Result<[TaxonLineageItem]>) -> Void) -> URLSessionDataTask {
+                          callback: @escaping(_ result: Result<[TaxonLineageItem], TaxonomyError>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.downloadNextLevel(term: taxon.name)
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
@@ -270,7 +257,7 @@ public final class Taxonomy {
     ///            may keep a reference to this object if you plan it should be canceled at some point.
     @discardableResult
     public static func findLinkedResources(for identifier: TaxonID,
-                                           callback: @escaping (Result<[ExternalLink]>) -> Void) -> URLSessionDataTask {
+                                           callback: @escaping (Result<[ExternalLink], TaxonomyError>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.links(identifier: identifier)
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
@@ -318,7 +305,7 @@ public final class Taxonomy {
 // MARK: - Internal methods
 
 internal func filter<T>(_ response: URLResponse?, _ data: Data?, _ error: Error?,
-                        _ callback: @escaping (Result<T>) -> Void) -> Data? {
+                        _ callback: @escaping (Result<T, TaxonomyError>) -> Void) -> Data? {
     if let error = error as NSError? {
         if error.code != NSURLErrorCancelled {
             callback(.failure(.networkError(underlyingError: error)))
