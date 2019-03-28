@@ -21,7 +21,12 @@ class WikipediaStructsTests: XCTestCase {
 <p>The <b>red panda</b> (<i>Ailurus fulgens</i>), also called the <b>lesser panda</b>.
 </p>
 """
+        
+        #if os(iOS) || os(watchOS) || os(tvOS)
         let parsed = try? sample.parseHTML(setting: UIFont.systemFont(ofSize: 12))
+        #else
+        let parsed = try? sample.parseHTML(setting: NSFont.systemFont(ofSize: 12))
+        #endif
         XCTAssertEqual(parsed?.string, "The red panda (Ailurus fulgens), also called the lesser panda. \n")
 
     }

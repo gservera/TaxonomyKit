@@ -127,7 +127,7 @@ public enum TaxonomicRank: String, Comparable, CustomStringConvertible, Codable 
 
     public static func < (lhs: TaxonomicRank, rhs: TaxonomicRank) -> Bool {
         let hierarchy = TaxonomicRank.hierarchy
-        return hierarchy.index(of: lhs)! < hierarchy.index(of: rhs)!
+        return hierarchy.firstIndex(of: lhs)! < hierarchy.firstIndex(of: rhs)!
     }
 
     public var description: String {

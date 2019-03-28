@@ -54,9 +54,9 @@ extension TaxonRepresenting {
         return lhs.identifier == rhs.identifier
     }
 
-    /// The hash value. Depends on the identifier.
-    public var hashValue: Int {
-        return identifier.hashValue
+    /// The hash value depends on the identifier.
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(identifier)
     }
 
     /// A textual representation of this instance.

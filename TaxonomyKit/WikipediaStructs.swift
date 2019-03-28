@@ -138,7 +138,7 @@ public extension String {
     ///
     /// - Parameter font: The font to be used as the attributed string base font.
     /// - Returns: The generated attributed string.
-    public func parseHTML(setting font: OSFontType) throws -> NSAttributedString {
+    func parseHTML(setting font: OSFontType) throws -> NSAttributedString {
         do {
             #if os(iOS) || os(watchOS) || os(tvOS)
                 let family = font.familyName

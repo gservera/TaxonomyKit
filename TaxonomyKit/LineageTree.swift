@@ -125,8 +125,8 @@ public final class LineageTree {
             return lhs.identifier == rhs.identifier
         }
 
-        public var hashValue: Int {
-            return identifier
+        public func hash(into hasher: inout Hasher) {
+            hasher.combine(identifier)
         }
 
         public var debugDescription: String {
