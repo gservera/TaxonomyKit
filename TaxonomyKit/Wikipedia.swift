@@ -63,7 +63,7 @@ public final class Wikipedia {
     ///            point.
     @discardableResult
     public func findPossibleScientificNames(matching query: String,
-                                            callback: @escaping(_ result: Result<[String], TaxonomyError>) -> Void) -> URLSessionTask {
+                 callback: @escaping(_ result: Result<[String], TaxonomyError>) -> Void) -> URLSessionTask {
 
         let request = TaxonomyRequest.scientificNameGuess(query: query, language: language)
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
@@ -138,7 +138,7 @@ public final class Wikipedia {
     ///            point.
     @discardableResult
     public func retrieveAbstract(for identifier: String,
-                                 callback: @escaping (Result<WikipediaResult?, TaxonomyError>) -> Void) -> URLSessionDataTask {
+                 callback: @escaping (Result<WikipediaResult?, TaxonomyError>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.knownWikipediaAbstract(pageId: identifier,
                                                              richText: usesRichText, language: language)
@@ -146,7 +146,7 @@ public final class Wikipedia {
     }
 
     private func retrieveAbstract(with request: TaxonomyRequest,
-                                  callback: @escaping (Result<WikipediaResult?, TaxonomyError>) -> Void) -> URLSessionDataTask {
+                  callback: @escaping (Result<WikipediaResult?, TaxonomyError>) -> Void) -> URLSessionDataTask {
         let language = self.language
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
 
@@ -193,7 +193,7 @@ public final class Wikipedia {
     ///            point.
     @discardableResult
     public func retrieveThumbnail<T: TaxonRepresenting>(for taxon: T,
-                                                        callback: @escaping(Result<Data?, TaxonomyError>) -> Void) -> URLSessionTask {
+                 callback: @escaping(Result<Data?, TaxonomyError>) -> Void) -> URLSessionTask {
 
         let request = TaxonomyRequest.wikipediaThumbnail(query: taxon.name, width: thumbnailWidth, language: language)
         return retrieveThumbnail(with: request, callback: callback)
@@ -270,7 +270,7 @@ public final class Wikipedia {
     ///            point.
     @discardableResult
     public func retrieveFullRecord(for identifier: String, inlineImage: Bool = false,
-                                   callback: @escaping (Result<WikipediaResult?, TaxonomyError>) -> Void) -> URLSessionTask {
+                 callback: @escaping (Result<WikipediaResult?, TaxonomyError>) -> Void) -> URLSessionTask {
 
         let request = TaxonomyRequest.knownWikipediaFullRecord(pageId: identifier, richText: usesRichText,
                                                                thumbnailWidth: thumbnailWidth, language: language)
@@ -328,7 +328,7 @@ public final class Wikipedia {
     }
 
     private func retrieveFullRecord(with request: TaxonomyRequest, inlineImage: Bool = false, strict: Bool = false,
-                                    callback: @escaping (Result<WikipediaResult?, TaxonomyError>) -> Void) -> URLSessionDataTask {
+                  callback: @escaping (Result<WikipediaResult?, TaxonomyError>) -> Void) -> URLSessionDataTask {
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
 
             let language = self.language

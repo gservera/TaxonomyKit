@@ -55,7 +55,7 @@ public final class Taxonomy {
     ///            point.
     @discardableResult
     public static func findIdentifiers(for query: String,
-                                       callback: @escaping(_ result: Result<[TaxonID], TaxonomyError>) -> Void) -> URLSessionDataTask {
+                        callback: @escaping(_ result: Result<[TaxonID], TaxonomyError>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.search(query: query)
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
@@ -135,7 +135,7 @@ public final class Taxonomy {
     ///            may keep a reference to this object if you plan it should be canceled at some point.
     @discardableResult
     public static func downloadTaxa(identifiers: [TaxonID],
-                                     callback: @escaping (_ result: Result<[Taxon], TaxonomyError>) -> Void) -> URLSessionDataTask {
+                        callback: @escaping (_ result: Result<[Taxon], TaxonomyError>) -> Void) -> URLSessionDataTask {
         let request = TaxonomyRequest.download(identifiers: identifiers)
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
             guard let data = filter(response, data, error, callback) else { return }
@@ -200,7 +200,7 @@ public final class Taxonomy {
     ///            keep a reference to this object if you plan it should be canceled at some point.
     @discardableResult
     public static func downloadImmediateDescendants<T: TaxonRepresenting>(for taxon: T,
-                          callback: @escaping(_ result: Result<[TaxonLineageItem], TaxonomyError>) -> Void) -> URLSessionDataTask {
+                        callback: @escaping(Result<[TaxonLineageItem], TaxonomyError>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.downloadNextLevel(term: taxon.name)
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
@@ -257,7 +257,7 @@ public final class Taxonomy {
     ///            may keep a reference to this object if you plan it should be canceled at some point.
     @discardableResult
     public static func findLinkedResources(for identifier: TaxonID,
-                                           callback: @escaping (Result<[ExternalLink], TaxonomyError>) -> Void) -> URLSessionDataTask {
+                        callback: @escaping (Result<[ExternalLink], TaxonomyError>) -> Void) -> URLSessionDataTask {
 
         let request = TaxonomyRequest.links(identifier: identifier)
         let task = Taxonomy.internalUrlSession.dataTask(with: request.url) { data, response, error in
