@@ -79,7 +79,7 @@ $ brew install carthage
 To integrate TaxonomyKit into your Xcode project using Carthage, specify it in your `cartfile`:
 
 ```ogdl
-github "gservera/TaxonomyKit" ~> 1.9
+github "gservera/TaxonomyKit" ~> 2.0
 ```
 
 Run `carthage update` on your project's directory to build the framework and drag the built `TaxonomyKit.framework` into your Xcode project.
@@ -87,7 +87,7 @@ Run `carthage update` on your project's directory to build the framework and dra
 ## Requirements
 
 * macOS 10.13 High Sierra or greater.
-* **Xcode 9.0** or greater.
+* **Xcode 10.2** or greater.
 
 ## Unit Tests
 
