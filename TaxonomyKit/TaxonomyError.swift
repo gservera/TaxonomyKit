@@ -31,8 +31,11 @@
 /// - parseError:              An error due to a malformed XML/JSON object.
 /// - unexpectedResponseError: An unexpected server response (other than 200) from the
 ///                            NCBI servers.
-/// - unknownError:            Any other error, including unexpected structure or missing values
-///                            in the XML/JSON data that was downloaded.
+/// - unregisteredTaxa:        An unexpected taxon passed to a LineageTree method.
+/// - insufficientTaxa:        Too few taxa passed to a LineageTree method.
+/// - incompatibleNodes:       Thrown when passed nodes are registered in different LineageTree objects.
+/// - unknownError:            Any other error, including unexpected structure or missing values in XML/JSON data.
+///
 public enum TaxonomyError: Error {
 
     /// A network error. More details can be found inspecting the associated error object.
@@ -53,7 +56,25 @@ public enum TaxonomyError: Error {
     /// Thrown when passed nodes are registered in different LineageTree objects.
     case incompatibleNodes
 
-    /// Any other error, including unexpected structure or missing values in 
-    /// the XML/JSON data that was downloaded.
+    /// Any other error, including unexpected structure or missing values in XML/JSON data.
     case unknownError
+
+    public var localizedDescription: String {
+        switch self {
+        case .networkError(let underlyingError):
+            return "Network error. \(underlyingError)"
+        case .parseError(let message):
+            return "Parse error. \(message)"
+        case .unexpectedResponse(let code):
+            return "Unexpected response \(code)"
+        case .unregisteredTaxa:
+            return "An unexpected taxon was passed to a LineageTree method"
+        case .insufficientTaxa:
+            return "Too few taxa passed to a LineageTree method"
+        case .incompatibleNodes:
+            return "Passed nodes are registered in different LineageTree objects"
+        default:
+            return "Unknown error"
+        }
+    }
 }
