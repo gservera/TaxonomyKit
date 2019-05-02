@@ -31,11 +31,11 @@ final class LinkTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
     }
 
     func testGetLinks() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: 58334) { result in
             if case .success(let links) = result {
@@ -47,8 +47,8 @@ final class LinkTests: XCTestCase {
     }
 
     func testLinksForUnknownTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
-        let query = 968419864189419849
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
+        let query = 561469869
         let condition = expectation(description: "Finished")
         Taxonomy.findLinkedResources(for: query) { result in
             if case .failure(let error) = result, case .unknownError = error {

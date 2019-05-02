@@ -31,24 +31,26 @@ final class SpellingTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
     }
 
     func testValidQueryResult() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let query = "quercus ilex"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
             if case .success(let suggestion) = result {
                 XCTAssertNil(suggestion, "Should have returned a nil value.")
                 condition.fulfill()
+            } else if case .failure(let error) = result {
+                XCTFail(error.localizedDescription)
             }
         }
         waitForExpectations(timeout: 10)
     }
 
     func testMatchingResult() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let query = "Quercus iles"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
@@ -61,7 +63,7 @@ final class SpellingTests: XCTestCase {
     }
 
     func testUnmatchedQuery() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let query = "ngosdkmpdmgpsmsndosdng"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in
@@ -74,7 +76,7 @@ final class SpellingTests: XCTestCase {
     }
 
     func testUnmatchedAndUppercaseQuery() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let query = "Ngosdkmpdmgpsmsndosdng"
         let condition = expectation(description: "Finished")
         Taxonomy.findSimilarSpelledCandidates(for: query) { result in

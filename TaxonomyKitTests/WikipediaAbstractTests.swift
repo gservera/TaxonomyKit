@@ -33,7 +33,7 @@ final class WikipediaAbstractTests: XCTestCase {
     let nonExisting = Taxon(identifier: -1, name: "angpadgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")
 
     func testValidTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveAbstract(for: existingTaxon) { result in
@@ -48,7 +48,7 @@ final class WikipediaAbstractTests: XCTestCase {
     }
 
     func testValidPageID() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveAbstract(for: "344877") { result in
@@ -63,7 +63,7 @@ final class WikipediaAbstractTests: XCTestCase {
     }
 
     func testValidTaxonWithCustomLocale() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let customLocale = WikipediaLanguage(locale: Locale(identifier: "ca-ES"))
         let wikipedia = Wikipedia(language: customLocale)
@@ -80,7 +80,7 @@ final class WikipediaAbstractTests: XCTestCase {
     }
 
     func testValidTaxonWithFakeCustomLocale() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let customLocale = WikipediaLanguage(locale: Locale(identifier: "."))
         let wikipedia = Wikipedia(language: customLocale)
@@ -97,7 +97,7 @@ final class WikipediaAbstractTests: XCTestCase {
     }
 
     func testInvalidTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveAbstract(for: nonExisting) { result in

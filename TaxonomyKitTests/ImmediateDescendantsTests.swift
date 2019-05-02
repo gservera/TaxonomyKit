@@ -33,11 +33,11 @@ final class ImmediateDescendantsTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
     }
 
     func testQueryWithSingleResult() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Should have succeeded")
         Taxonomy.downloadImmediateDescendants(for: item) { result in
             if case .success(let descendants) = result {
@@ -49,7 +49,7 @@ final class ImmediateDescendantsTests: XCTestCase {
     }
 
     func testUnmatchedQuery() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Unmatched query")
         let unmatched = TaxonLineageItem(identifier: 0, name: "angaiuognbaoudfoabngud", rank: .genus)
         Taxonomy.downloadImmediateDescendants(for: unmatched) { result in

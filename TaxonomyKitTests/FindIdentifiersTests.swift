@@ -31,11 +31,11 @@ final class FindIdentifiersTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
     }
 
     func testQueryWithSingleResult() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Should have succeeded")
         Taxonomy.findIdentifiers(for: "Quercus ilex") { result in
             if case .success(let identifiers) = result {
@@ -48,7 +48,7 @@ final class FindIdentifiersTests: XCTestCase {
     }
 
     func testUnmatchedQuery() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Unmatched query")
         Taxonomy.findIdentifiers(for: "invalid-invalid") { result in
             if case .success(let identifiers) = result {

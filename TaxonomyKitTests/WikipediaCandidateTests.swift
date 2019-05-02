@@ -37,7 +37,7 @@ final class WikipediaCandidateTests: XCTestCase {
                                  geneticCode: "", mitochondrialCode: "")
 
     func testValidTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.findPossibleMatch(for: matchingTaxon, inlineImage: true) { result in
@@ -54,7 +54,7 @@ final class WikipediaCandidateTests: XCTestCase {
     }
 
     func testNonMatchingValidTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.findPossibleMatch(for: nonMathingTaxon, inlineImage: true) { result in
@@ -69,7 +69,7 @@ final class WikipediaCandidateTests: XCTestCase {
     }
 
     func testValidTaxonRichText() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.usesRichText = true
@@ -87,7 +87,7 @@ final class WikipediaCandidateTests: XCTestCase {
     }
 
     func testValidTaxonWithCustomLocaleAndNoInline() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "ca-ES")))
         wikipedia.findPossibleMatch(for: matchingTaxon, inlineImage: false) { result in
@@ -104,7 +104,7 @@ final class WikipediaCandidateTests: XCTestCase {
     }
 
     func testValidTaxonWithFakeCustomLocale() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: ".")))
         wikipedia.findPossibleMatch(for: matchingTaxon, inlineImage: false) { result in
@@ -120,7 +120,7 @@ final class WikipediaCandidateTests: XCTestCase {
     }
 
     func testInvalidTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.findPossibleMatch(for: nonExistingTaxon) { result in

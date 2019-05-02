@@ -33,7 +33,7 @@ final class WikipediaFullRecordTests: XCTestCase {
     let nonExisting = Taxon(identifier: -1, name: "angpadgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")
 
     func testValidTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveFullRecord(for: existingTaxon, inlineImage: true) { result in
@@ -50,7 +50,7 @@ final class WikipediaFullRecordTests: XCTestCase {
     }
 
     func testValidTaxonRichText() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.usesRichText = true
@@ -68,7 +68,7 @@ final class WikipediaFullRecordTests: XCTestCase {
     }
 
     func testValidPageIDNoImage() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveFullRecord(for: "4976288", inlineImage: true) { result in
@@ -85,7 +85,7 @@ final class WikipediaFullRecordTests: XCTestCase {
     }
 
     func testValidPageIDNoImageButRichText() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.usesRichText = true
@@ -103,7 +103,7 @@ final class WikipediaFullRecordTests: XCTestCase {
     }
 
     func testValidPageID() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveFullRecord(for: "344877", inlineImage: true) { result in
@@ -119,7 +119,7 @@ final class WikipediaFullRecordTests: XCTestCase {
     }
 
     func testValidTaxonWithCustomLocaleAndNoInline() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "ca-ES")))
         wikipedia.retrieveFullRecord(for: existingTaxon, inlineImage: false) { result in
@@ -136,7 +136,7 @@ final class WikipediaFullRecordTests: XCTestCase {
     }
 
     func testValidTaxonWithFakeCustomLocale() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: ".")))
         wikipedia.retrieveFullRecord(for: existingTaxon, inlineImage: false) { result in
@@ -152,7 +152,7 @@ final class WikipediaFullRecordTests: XCTestCase {
     }
 
     func testInvalidTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveFullRecord(for: nonExisting) { result in

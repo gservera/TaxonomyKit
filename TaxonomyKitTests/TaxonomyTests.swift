@@ -31,7 +31,7 @@ final class TaxonomyTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
     }
 
     func testInit() {

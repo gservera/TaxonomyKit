@@ -30,7 +30,7 @@ import XCTest
 final class NameGuessingTests: XCTestCase {
 
     func testValidTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let locale = Locale(identifier: "ca-ES")
         let lang = WikipediaLanguage(locale: locale)
@@ -48,7 +48,7 @@ final class NameGuessingTests: XCTestCase {
     }
 
     func testValidTaxon2() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let locale = Locale(identifier: "en-US")
         let lang = WikipediaLanguage(locale: locale)
@@ -66,7 +66,7 @@ final class NameGuessingTests: XCTestCase {
     }
 
     func testValidTaxonWithFakeCustomLocale() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let customLocale = WikipediaLanguage(locale: Locale(identifier: "."))
         let wikipedia = Wikipedia(language: customLocale)
@@ -83,7 +83,7 @@ final class NameGuessingTests: XCTestCase {
     }
 
     func testUnmatchedQuery() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
 
         Wikipedia().findPossibleScientificNames(matching: "ijgadngadngadfgnadfgnadlfgnaildfg") { result in

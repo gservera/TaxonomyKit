@@ -33,7 +33,7 @@ final class ThumbnailTests: XCTestCase {
     let nonExistingTaxon = Taxon(identifier: -1, name: "dgnpdajfgn", rank: nil, geneticCode: "", mitochondrialCode: "")
 
     func testValidTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveThumbnail(for: existingTaxon) { result in
@@ -48,7 +48,7 @@ final class ThumbnailTests: XCTestCase {
     }
 
     func testValidPageID() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveThumbnail(for: "344877") { result in
@@ -63,7 +63,7 @@ final class ThumbnailTests: XCTestCase {
     }
 
     func testValidTaxonWithFakeCustomLocale() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let customLocale = WikipediaLanguage(locale: Locale(identifier: "."))
         let wikipedia = Wikipedia(language: customLocale)
@@ -80,7 +80,7 @@ final class ThumbnailTests: XCTestCase {
     }
 
     func testInvalidTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         let wikipedia = Wikipedia(language: WikipediaLanguage(locale: Locale(identifier: "en-US")))
         wikipedia.retrieveThumbnail(for: nonExistingTaxon) { result in

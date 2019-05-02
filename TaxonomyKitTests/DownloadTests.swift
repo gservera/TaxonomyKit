@@ -31,11 +31,11 @@ final class DownloadTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
     }
 
     func testDownloadMultipleTaxa() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
         Taxonomy.downloadTaxa(identifiers: [9606, 2]) { result in
             if case .success(let taxa) = result {
@@ -48,9 +48,9 @@ final class DownloadTests: XCTestCase {
     }
 
     func testDownloadUnknownTaxon() {
-        Taxonomy.internalUrlSession = URLSession.shared
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")
-        Taxonomy.downloadTaxa(identifiers: [561469854169419684]) { result in
+        Taxonomy.downloadTaxa(identifiers: [561469869]) { result in
             if case .failure(let error) = result, case .unknownError = error {
                 condition.fulfill()
             }
