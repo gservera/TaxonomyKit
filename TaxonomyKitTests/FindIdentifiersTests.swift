@@ -29,9 +29,15 @@ import XCTest
 
 final class FindIdentifiersTests: XCTestCase {
 
-    override func setUp() {
+    override class func setUp() {
         super.setUp()
         Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
+    }
+
+    override func setUp() {
+        super.setUp()
+        /// Wait 1 second to avoid NCBI too many requests error (429)
+        sleep(1)
     }
 
     func testQueryWithSingleResult() {

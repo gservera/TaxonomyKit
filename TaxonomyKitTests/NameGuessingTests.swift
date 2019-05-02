@@ -29,6 +29,17 @@ import XCTest
 
 final class NameGuessingTests: XCTestCase {
 
+    override class func setUp() {
+        super.setUp()
+        Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
+    }
+
+    override func setUp() {
+        super.setUp()
+        /// Wait 1 second to avoid NCBI too many requests error (429)
+        sleep(1)
+    }
+
     func testValidTaxon() {
         Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
         let condition = expectation(description: "Finished")

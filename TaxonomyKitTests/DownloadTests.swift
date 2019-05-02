@@ -29,9 +29,14 @@ import XCTest
 
 final class DownloadTests: XCTestCase {
 
-    override func setUp() {
+    override class func setUp() {
         super.setUp()
         Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
+    }
+    
+    override func setUp() {
+        super.setUp() /// Wait 1 second to avoid NCBI too many requests error (429)
+        sleep(1)
     }
 
     func testDownloadMultipleTaxa() {
@@ -61,7 +66,7 @@ final class DownloadTests: XCTestCase {
     func testMalformedXML() {
         Taxonomy.internalUrlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://any.com")!, statusCode: 200, httpVersion: "1.1",
+            HTTPURLResponse(url: URL(string: "https://any.com")!, statusCode: 200, httpVersion: "1.1",
                             headerFields: [:])
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
@@ -77,7 +82,7 @@ final class DownloadTests: XCTestCase {
     func testUnknownResponse() {
         Taxonomy.internalUrlSession = MockSession()
         let response =
-            HTTPURLResponse(url: URL(string: "http://github.com")!, statusCode: 500, httpVersion: "1.1",
+            HTTPURLResponse(url: URL(string: "https://github.com")!, statusCode: 500, httpVersion: "1.1",
                             headerFields: [:])!
         let data = Data(base64Encoded: "SGVsbG8gd29ybGQ=")
         MockSession.mockResponse = (data, response, nil)
