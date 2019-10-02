@@ -42,7 +42,7 @@ public final class Taxonomy {
     /// Creates a network session that supports connectivity waiting.
     internal static func makeUrlSession() -> URLSession {
         let defaultSessionConfiguration = URLSessionConfiguration.default
-        if #available(OSX 10.13, iOSApplicationExtension 11.0, *) {
+        if #available(OSX 10.13, iOS 11.0, *) {
             defaultSessionConfiguration.waitsForConnectivity = true
         }
         return URLSession(configuration: defaultSessionConfiguration)
