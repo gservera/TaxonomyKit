@@ -3,7 +3,7 @@
  *  TaxonomyKit
  *
  *  Created:    Guillem Servera on 05/11/2016.
- *  Copyright:  © 2016-2017 Guillem Servera (https://github.com/gservera)
+ *  Copyright:  © 2016-2019 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,8 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *  THE SOFTWARE.
  */
+
+import Foundation
 
 /// The `ExternalLink` type represents an external resource related to some
 /// taxon (a LinkOut item in the NCBI's terminology).

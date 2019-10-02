@@ -3,7 +3,7 @@
  *  TaxonomyKitTests
  *
  *  Created:    Guillem Servera on 24/09/2016.
- *  Copyright:  © 2016-2018 Guillem Servera (https://github.com/gservera)
+ *  Copyright:  © 2016-2019 Guillem Servera (https://github.com/gservera)
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ final class DownloadTests: XCTestCase {
         super.setUp()
         Taxonomy.internalUrlSession = Taxonomy.makeUrlSession()
     }
-    
+
     override func setUp() {
         super.setUp() /// Wait 1 second to avoid NCBI too many requests error (429)
         sleep(1)

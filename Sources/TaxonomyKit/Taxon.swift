@@ -24,6 +24,8 @@
  *  THE SOFTWARE.
  */
 
+import Foundation
+
 /// The `Taxon` struct represents a record downloaded from the NCBI's
 /// Taxonomy database.
 public struct Taxon: TaxonRepresenting {

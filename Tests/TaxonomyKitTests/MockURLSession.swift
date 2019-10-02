@@ -26,10 +26,10 @@
 
 import Foundation
 import XCTest
+@testable import TaxonomyKit
 
 /// A class used to mock URLSession objects for testing purposes.
-@objc
-public class MockSession: URLSession {
+public class MockSession: URLSessionProtocol {
 
     var wait: UInt32 = 0
 
@@ -37,11 +37,19 @@ public class MockSession: URLSession {
 
     static var mockResponse: (data: Data?, urlResponse: URLResponse?, error: Error?)
 
-    override public class var shared: MockSession {
+    static var shared: MockSession {
         return MockSession()
     }
-
-    override public func dataTask(with request: URLRequest,
+    
+    public func dataTask(with url: URL,
+                           completionHandler: @escaping(Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
+        self.completionHandler = completionHandler
+        let task = MockTask(response: MockSession.mockResponse, completionHandler: completionHandler)
+        task.wait = wait
+        return task
+    }
+    
+    public func dataTask(with request: URLRequest,
                            completionHandler: @escaping(Data?, URLResponse?, Error?) -> Void) -> URLSessionDataTask {
         self.completionHandler = completionHandler
         let task = MockTask(response: MockSession.mockResponse, completionHandler: completionHandler)
@@ -90,7 +98,7 @@ public class MockSession: URLSession {
 final class MockSessionTests: XCTestCase {
 
     func testMockSessionCreation() {
-        let mockSession = MockSession.shared
+        let mockSession = MockSession()
         mockSession.wait = 10
         XCTAssertEqual(mockSession.wait, 10, "Mock URLSession creation failed")
     }

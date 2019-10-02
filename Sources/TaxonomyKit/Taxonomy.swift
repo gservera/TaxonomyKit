@@ -37,12 +37,12 @@ public final class Taxonomy {
     internal init() { /* We prevent this struct from being instantiated. */ }
 
     /// The used network session. Editable for testing purposes.
-    internal static var internalUrlSession: URLSession = makeUrlSession()
+    internal static var internalUrlSession: URLSessionProtocol = makeUrlSession()
 
     /// Creates a network session that supports connectivity waiting.
     internal static func makeUrlSession() -> URLSession {
         let defaultSessionConfiguration = URLSessionConfiguration.default
-        if #available(OSXApplicationExtension 10.13, iOSApplicationExtension 11.0, *) {
+        if #available(OSX 10.13, iOSApplicationExtension 11.0, *) {
             defaultSessionConfiguration.waitsForConnectivity = true
         }
         return URLSession(configuration: defaultSessionConfiguration)
