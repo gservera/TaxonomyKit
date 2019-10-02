@@ -60,7 +60,7 @@ public enum TaxonomicRank: String, Comparable, CustomStringConvertible, Codable 
     case parvclass
     /// The magnorder taxonomic rank.
     case magnorder
-    /// The ssuperorder taxonomic rank.
+    /// The superorder taxonomic rank.
     case superorder
     /// The order taxonomic rank.
     case order

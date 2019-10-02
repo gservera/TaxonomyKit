@@ -128,7 +128,7 @@ public struct WikipediaAttributedExtract {
     #endif
 }
 
-#if os(iOS) || os(watchOS) || os(tvOS) || os(OSX)
+#if !os(Linux)
 
 /// HTML to NSAttributeString methods
 public extension String {
