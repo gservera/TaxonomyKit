@@ -1,5 +1,5 @@
 <p align="center" >
-  <img src="https://gservera.com/apps/taxonomist/gh_banner.svg" width="800" alt="TaxonomyKit" title="TaxonomyKit">
+  <img src="https://raw.githubusercontent.com/gservera/TaxonomyKit/master/gh_banner.svg" width="800" alt="TaxonomyKit" title="TaxonomyKit">
 </p>
 
 # TaxonomyKit 
