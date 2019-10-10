@@ -1,5 +1,5 @@
 <p align="center" >
-  <img src="https://raw.githubusercontent.com/gservera/TaxonomyKit/master/banner.png" width="800" alt="TaxonomyKit" title="TaxonomyKit">
+  <img src="https://raw.githubusercontent.com/gservera/TaxonomyKit/master/banner.png" width="750" alt="TaxonomyKit" title="TaxonomyKit">
 </p>
 
 # TaxonomyKit 
@@ -10,7 +10,7 @@
 [![codecov.io](https://codecov.io/github/gservera/TaxonomyKit/coverage.svg?branch=master)](https://codecov.io/github/gservera/TaxonomyKit?branch=master)
 [![GitHub license](https://img.shields.io/badge/license-MIT-lightgrey.svg)](https://raw.githubusercontent.com/gservera/TaxonomyKit/master/LICENSE.md) 
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
-![Swift version](https://img.shields.io/badge/swift-5-orange.svg)
+![Swift version](https://img.shields.io/badge/swift-5.1-orange.svg)
 [![codebeat badge](https://codebeat.co/badges/0a40e0c1-5100-4b9e-9b0c-b2b08c011eb9)](https://codebeat.co/projects/github-com-gservera-taxonomykit-master)
 
 TaxonomyKit is a powerful, handy and cross-platform library that makes working with taxonomy data from the NCBI databases easier. It works as a client of the NCBI's [Entrez Programming Utilities](https://eutils.ncbi.nlm.nih.gov) and it is the core of the [Taxonomist](https://gservera.com/apps/taxonomist/) app.
@@ -18,7 +18,7 @@ TaxonomyKit is a powerful, handy and cross-platform library that makes working w
 
 ## How To Get Started
 
-- [Download TaxonomyKit](https://github.com/gservera/TaxonomyKit/archive/master.zip) or install it using Carthage.
+- [Download TaxonomyKit](https://github.com/gservera/TaxonomyKit/archive/master.zip) or fecth it using Swift Package Manager.
 - Check out the [Documentation](https://gservera.com/docs/TaxonomyKit/) for the Taxonomy struct or just read the following section to begin quickly.
 
 
@@ -65,33 +65,14 @@ Wikipedia.retrieveAbstract(for: downloadedTaxon) { result in
 }
 ```
 
-## Installation with Carthage
-
-[Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks.
-
-You can install Carthage with [Homebrew](http://brew.sh/) using the following command:
-
-```bash
-$ brew update
-$ brew install carthage
-```
-
-To integrate TaxonomyKit into your Xcode project using Carthage, specify it in your `cartfile`:
-
-```ogdl
-github "gservera/TaxonomyKit" ~> 2.0
-```
-
-Run `carthage update` on your project's directory to build the framework and drag the built `TaxonomyKit.framework` into your Xcode project.
-
 ## Requirements
 
-* macOS 10.13 High Sierra or greater.
-* **Xcode 10.2** or greater.
+* macOS 10.14 Mojave or greater.
+* **Xcode 11** or greater.
 
 ## Unit Tests
 
-TaxonomyKit includes a suite of unit tests within the TaxonomyKitTests subdirectory. These tests can be run simply be executed the test action on the platform framework you would like to test.
+TaxonomyKit includes a suite of unit tests within the Tests subdirectory. These tests can be run simply be executed the test action on the platform framework you would like to test.
 
 ## ☕️ Author
 

@@ -1,8 +1,7 @@
 language: objective-c
 osx_image: xcode11
-xcode_project: TaxonomyKit.xcodeproj
-xcode_scheme: TaxonomyKit
-xcode_sdk: iphonesimulator
-script: set -o pipefail && xcodebuild -project $TRAVIS_XCODE_PROJECT -scheme $TRAVIS_XCODE_SCHEME -sdk $TRAVIS_XCODE_SDK -destination 'name=iPhone SE' build test | xcpretty
+script: 
+- swift build
+- swift test
 after_success:
 - bash <(curl -s https://codecov.io/bash) -J 'TaxonomyKit'
