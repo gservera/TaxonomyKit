@@ -302,22 +302,21 @@ public final class Wikipedia {
         return retrieveFullRecord(with: request, inlineImage: inlineImage, strict: true, callback: callback)
     }
 
-    /// Sends an asynchronous request to Wikipedia servers asking for the Wikipedia page
+    /// Sends an asynchronous request to Wikipedia servers to retrieve the Wikipedia page
     /// thumbnail and page extract for a concrete taxon.
     ///
     /// - Since: TaxonomyKit 1.5.
     /// - Parameters:
     ///   - taxon: The taxon for which to retrieve Wikipedia thumbnail.
     ///   - inlineImage: Pass `true` to download the found thumbnail immediately. Defaults to
-    ///                  `false`, which means onlu the thumbnail URL is returned.
+    ///                  `false`, which means only the thumbnail URL is returned.
     ///   - callback: A callback closure that will be called when the request completes or
     ///               if an error occurs. This closure has a `TaxonomyResult<WikipediaResult?>`
     ///               parameter that contains a wrapper with the requested metadata (or `nil` if
     ///               no results are found) when the request succeeds.
-    /// - Warning: Please note that the callback may not be called on the main thread.
+    /// - Warning: Please note that the callback might not be called on the main thread.
     /// - Returns: The `URLSessionDataTask` object that has begun handling the request. You
-    ///            may keep a reference to this object if you plan it should be canceled at some
-    ///            point.
+    ///            may keep a reference to this object if you plan to cancel it at some point.
     @discardableResult
     public func retrieveFullRecord<T: TaxonRepresenting>(for taxon: T, inlineImage: Bool = false,
                   callback: @escaping (Result<WikipediaResult?, TaxonomyError>) -> Void) -> URLSessionTask {
