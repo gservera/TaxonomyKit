@@ -19,6 +19,4 @@ DerivedData/
 !default.perspectivev3
 
 .DS_Store
-Carthage/Checkouts/
-Carthage/Build/
-Cartfile.resolved
+.swiftpm/
